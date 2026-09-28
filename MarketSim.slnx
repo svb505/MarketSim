@@ -3,5 +3,5 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Project Path="MarketSim/MarketSim.vcxproj" />
+  <Project Path="MarketSim/MarketSim.vcxproj" Id="d7424c65-0de0-4fd8-b1c7-87a7ceb41f87" />
 </Solution>

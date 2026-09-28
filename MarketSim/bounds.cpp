@@ -21,7 +21,7 @@ Bounds MakeAABB(svbmath::Vec3 center, float width, float height, float depth) {
 
     return box;
 }
-bool checkCollision(const Bounds& target, svbmath::Vec3& pos) {
+bool checkAABBCollision(const Bounds& target, svbmath::Vec3& pos) {
     return pos.x >= target.min.x && pos.x <= target.max.x &&
         pos.y >= target.min.y && pos.y <= target.max.y &&
         pos.z >= target.min.z && pos.z <= target.max.z;

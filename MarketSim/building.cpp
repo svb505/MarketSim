@@ -153,10 +153,10 @@ void Building::DrawWallWithOpening(svbmath::Vec3 wallStart, svbmath::Vec3 wallEn
 }
 void Building::DrawFloor(float minX, float maxX, float minZ, float maxZ) {
     DrawQuad(
-        { minX, 0.2f, minZ },
-        { maxX, 0.2f, minZ },
-        { maxX, 0.2f, maxZ },
-        { minX, 0.2f, maxZ },
+        { minX, 0.01f, minZ },
+        { maxX, 0.01f, minZ },
+        { maxX, 0.01f, maxZ },
+        { minX, 0.01f, maxZ },
         allTextures["floor"]
     );
 }
@@ -251,7 +251,7 @@ void Building::CreateBuilding() {
     build.storeLength = 10.0f;
     build.storeHeight = 4.0f;
 
-    build.storeCenter = { 0.0f,2.0f,0.0f };
+    build.storeCenter = { 0.0f,0.1f,0.0f };
 
     build.warehouseWidth = 4.0f;
     build.warehouseLength = 5.0f;
@@ -259,7 +259,7 @@ void Building::CreateBuilding() {
 
     build.warehouseCenter = { 8.0f,2.0f,-2.5f };
 
-    build.min = { -6.0f,0.0f,-5.0f };
+    build.min = { -6.0f,-1.0f,-5.0f };
 
     build.max = { 10.0f,4.0f,5.0f };
 
@@ -322,12 +322,8 @@ void Building::DrawBuilding() {
 
     float h = 4.0f;
     glColor3f(1.0f, 0.0f, 0.0f);
-    DrawQuad({ sx1, 0.2f, sz1 }, { sx2, 0.2f, sz1 }, { sx2, h, sz1 },
-        { sx1, h, sz1 }, wallTexture);
-
-
-    DrawQuad({ sx1, 0.2f, sz2 }, { sx1, 0.2f, sz1 }, { sx1, h, sz1 },
-        { sx1, h, sz2 }, wallTexture);
+    DrawQuad({ sx1, 0.2f, sz1 }, { sx2, 0.2f, sz1 }, { sx2, h, sz1 },{ sx1, h, sz1 }, wallTexture);
+    DrawQuad({ sx1, 0.2f, sz2 }, { sx1, 0.2f, sz1 }, { sx1, h, sz1 }, { sx1, h, sz2 }, wallTexture);
 
     glColor3f(1.0f, 1.0f, 0.0f);
     DrawWallWithOpening({ sx1, 0.2f, sz2 }, { sx2, 0.2f, sz2 }, h, 5.0f, 7.0f, true, wallTexture);
@@ -340,11 +336,11 @@ void Building::DrawBuilding() {
     float wz1 = -5.0f;
     float wz2 = 0.0f;
     glColor3f(0.0f, 0.0f, 1.0f);
-    DrawQuad({ wx2, 0.2f, wz1 }, { wx1, 0.2f, wz1 }, { wx1, h, wz1 }, { wx2, h, wz1 }, wallTexture);
 
-    DrawQuad({ wx2, 0.2f, wz1 }, { wx2, 0.2f, wz2 }, { wx2, h, wz2 }, { wx2, h, wz1 }, wallTexture);
-
-    DrawQuad({ wx1, 0.2f, wz2 }, { wx2, 0.2f, wz2 }, { wx2, h, wz2 }, { wx1, h, wz2 }, wallTexture);
+    DrawQuad(  { wx1, 0.0f, wz1 },{ wx2, 0.0f, wz1 }, { wx2, h,wz1 }, { wx1, h, wz1 }, wallTexture);
+    DrawQuad({ wx2, 0.0f, wz1 }, { wx2, 0.0f, wz2 },{ wx2, h,wz2 },{ wx2, h, wz1 },wallTexture);
+    DrawQuad( { wx2, 0.0f, wz2 },{ wx1, 0.0f, wz2 }, { wx1, h,wz2 },{ wx2, h,wz2 }, wallTexture);
+    
 
     DrawFloor(-6.0f, 10.0f, -5.0f, 5.0f);
 
@@ -355,4 +351,46 @@ void Building::DrawBuilding() {
 
     glColor3f(1.0f, 0.0f, 1.0f);
     DrawCashRegister(cashRegister);
+}
+bool Building::checkCollision(Camera& cam) {
+    svbmath::Vec3 pos = cam.getCamPos();
+
+    // Склад
+    float wx1 = 6.0f;
+    float wx2 = 10.0f;
+
+    float wz1 = -5.0f;
+    float wz2 = 0.0f;
+
+    // Магазин
+    float sx1 = -6.0f;
+    float sx2 = 6.0f;
+
+    float sz1 = -5.0f;
+    float sz2 = 5.0f;
+
+    float h = 4.0f;
+
+    // Задняя стена магазина
+    if (checkAABBCollision({{ sx1, 0.0f, sz2 - 0.2f },{ -1.0f, h, sz2 + 0.2f }}, pos)) return true;
+    if (checkAABBCollision({{ 1.0f, 0.0f, sz2 - 0.2f },{ sx2, h, sz2 + 0.2f }}, pos)) return true;
+    // Левая стена магазина
+    if (checkAABBCollision({{ sx1 - 0.2f, 0.0f, sz1 },{ sx1 + 0.2f, h, sz2 }}, pos)) return true;
+    // Правая стена магазина, до двери
+    if (checkAABBCollision({{ sx2 - 0.2f, 0.0f, sz1 },{ sx2 + 0.2f, h, -4.0f }}, pos)) return true;
+    // Правая стена магазина, после двери
+    if (checkAABBCollision({{ sx2 - 0.2f, 0.0f, -2.0f },{ sx2 + 0.2f, h, sz2 }}, pos)) return true;
+    // Задняя стена склада: z = wz1
+    if (checkAABBCollision({{ wx1 - 0.2f, 0.0f, wz1 - 0.2f },{ wx2 + 0.2f, h, wz1 + 0.2f }}, pos)) return true;
+   
+    if (checkAABBCollision({{ wx2 - 0.2f, 0.0f, wz1 - 0.2f },{ wx2 + 0.2f, h, wz2 + 0.2f }}, pos)) return true;
+    if (checkAABBCollision({{ wx1 - 0.2f, 0.0f, wz2 - 0.2f },{ wx2 + 0.2f, h, wz2 + 0.2f }}, pos)) return true;
+    
+    for (const Shelf& shelf : shelves) {
+        if (checkAABBCollision({ shelf.min, shelf.max }, pos)) return true;
+    }
+
+    if (checkAABBCollision({ cashRegister.min, cashRegister.max }, pos))return true;
+
+    return false;
 }

@@ -48,6 +48,12 @@
     <ClCompile Include="lighting.h">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="variables.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="input.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h">
@@ -72,6 +78,12 @@
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="bounds.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="variables.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="input.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
   </ItemGroup>

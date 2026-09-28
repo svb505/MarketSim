@@ -6,12 +6,7 @@
 #include "texture.h"
 #include <vector>
 #include "bounds.h"
-
-/*Building building;
-
-std::vector<Shelf> shelves;
-
-CashRegister cashRegister;*/
+#include "camera.h"
 
 struct BuildingSettings{
     svbmath::Vec3 storeCenter;
@@ -69,5 +64,6 @@ public:
     void DrawCashRegister(const CashRegister& cash);
     void CreateBuilding();
     void DrawBuilding();
+    bool checkCollision(Camera& cam);
     
 };

@@ -18,8 +18,8 @@ struct CameraParams {
     float camDistance = 6.0f;
     float camHeight = 2.5f;
 
-    float cameraYaw = 0.0f;
-    float cameraPitch = 10.0f;
+    float cameraYaw = -190.0f;
+    float cameraPitch = 0.0f;
 
     bool zoomed = false;
 };
@@ -28,10 +28,12 @@ class Camera {
 private:
     CameraParams camParams;
 
-    svbmath::Vec3 cameraPos = { 0.0f,0.0f,0.0f };
+    svbmath::Vec3 cameraPos = { 0.0f,1.0f,10.0f };
+    svbmath::Vec3 oldCameraPos = { 0.0f,1.0f,10.0f };
 public:
     CameraParams& getCamParams();
     svbmath::Vec3& getCamPos();
+    svbmath::Vec3& getOldCamPos();
 
     void setupCamera();
     svbmath::Vec3 returnForwardVector();

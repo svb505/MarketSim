@@ -6,6 +6,9 @@
 svbmath::Vec3& Camera::getCamPos() {
     return cameraPos;
 }
+svbmath::Vec3& Camera::getOldCamPos() {
+    return oldCameraPos;
+}
 CameraParams& Camera::getCamParams() {
     return camParams;
 }
@@ -16,6 +19,7 @@ void Camera::setupCamera() {
     // Ограничение pitch
     if (camParams.cameraPitch > 89.0f) camParams.cameraPitch = 89.0f;
     if (camParams.cameraPitch < -10.0f) camParams.cameraPitch = -10.0f;
+    if (cameraPos.y < 0.0f) cameraPos.y = 0.0f;
 
     float yawRad = camParams.cameraYaw * 3.1415926f / 180.0f;
     float pitchRad = camParams.cameraPitch * 3.1415926f / 180.0f;
