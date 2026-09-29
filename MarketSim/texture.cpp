@@ -6,29 +6,19 @@
 #include <map>
 #include <unordered_map>
 
-std::map<std::string, std::string> texturesFolders = { {"EFCT","textures/effects/"},
-                                                        {"GUI","textures/GUI/"},
-                                                        {"WRLD","textures/world/"} };
+std::string texturePath = "res/textures/";
 
 std::unordered_map<std::string, GLuint> loadedTextures;
 std::map<std::string, GLuint> allTextures;
+
 std::unordered_map<std::string, std::string> texturesNamesAndPaths = {
-    {"APFSDS",texturesFolders["GUI"] + "APFSDS.png"},
-    {"HE",texturesFolders["GUI"] + "HE.png"},
-    {"SMOKE",texturesFolders["GUI"] + "SMOKE.png"},
-    {"ATGM",texturesFolders["GUI"] + "ATGM.png"},
-    {"SMOKEGR",texturesFolders["GUI"] + "SMOKE_GRANADE.png"},
-    {"MLRS",texturesFolders["GUI"] + "mlrs.png"},
-    {"ARTILLERY",texturesFolders["GUI"] + "artillery.png"},
-    {"beton",texturesFolders["WRLD"] + "beton.jpg"},
-    {"betonD",texturesFolders["WRLD"] + "betonDestroyed.jpg"},
-    {"door",texturesFolders["WRLD"] + "door.jpg"},
-    {"window",texturesFolders["WRLD"] + "window.png"},
-    {"windowDestroyed",texturesFolders["WRLD"] + "windowDestroyed.jpg"},
-    {"cloudy",texturesFolders["WRLD"] + "cloudy.jpg"},
-    {"clean",texturesFolders["WRLD"] + "clean.png"},
-    {"fire",texturesFolders["EFCT"] + "fire.jpg"},
-    {"smoke",texturesFolders["EFCT"] + "smoke.jpg"}
+    {"SKY", texturePath + "sky.jpg"},
+    {"WALL1", texturePath + "wall1.jpg"},
+    {"WALL2", texturePath + "wall2.jpg"},
+    {"WOOD", texturePath + "wood.jpg"},
+    {"METAL", texturePath + "metal.jpg"},
+    {"CEILING", texturePath + "ceiling.jpg"},
+    {"FLOOR", texturePath + "floor.jpg"}
 };
 
 void LoadAllTextures() {
@@ -43,7 +33,7 @@ GLuint LoadTexture(const char* filename) {
     int height = 0;
     int channels = 0;
 
-    unsigned char* data = stbi_load(filename, &width, &height, &channels, 0);
+    unsigned char* data = stbi_load(filename, &width, &height, &channels, 3);
 
     if (!data) {
         return 0;
@@ -72,7 +62,7 @@ GLuint LoadTexture(const char* filename) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+    glTexImage2D(GL_TEXTURE_2D,0, GL_RGB, width,height, 0,GL_RGB, GL_UNSIGNED_BYTE,data);
 
     stbi_image_free(data);
 

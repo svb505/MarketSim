@@ -10,15 +10,17 @@
 void Building::DrawQuad(svbmath::Vec3 a, svbmath::Vec3 b, svbmath::Vec3 c, svbmath::Vec3 d,
     GLuint texture) {
 
-    /*if (texture != 0) {
+    glColor3f(1.0f, 1.0f, 1.0f);
+
+    if (texture != 0) {
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, texture);
     }
-    else glDisable(GL_TEXTURE_2D);*/
+    else glDisable(GL_TEXTURE_2D);
 
     glBegin(GL_QUADS);
 
-    //glTexCoord2f(0.0f, 0.0f);//
+    glTexCoord2f(0.0f, 0.0f);
     glVertex3f(a.x, a.y, a.z);
 
     glTexCoord2f(1.0f, 0.0f);
@@ -152,13 +154,8 @@ void Building::DrawWallWithOpening(svbmath::Vec3 wallStart, svbmath::Vec3 wallEn
     }
 }
 void Building::DrawFloor(float minX, float maxX, float minZ, float maxZ) {
-    DrawQuad(
-        { minX, 0.01f, minZ },
-        { maxX, 0.01f, minZ },
-        { maxX, 0.01f, maxZ },
-        { minX, 0.01f, maxZ },
-        allTextures["floor"]
-    );
+    DrawQuad( { minX, 0.01f, minZ }, { maxX, 0.01f, minZ }, { maxX, 0.01f, maxZ }, { minX, 0.01f, maxZ },
+        allTextures["FLOOR"]);
 }
 void Building::DrawCeiling(float minX, float maxX, float minZ, float maxZ, float height) {
     DrawQuad(
@@ -166,7 +163,7 @@ void Building::DrawCeiling(float minX, float maxX, float minZ, float maxZ, float
         { minX, height, maxZ },
         { maxX, height, maxZ },
         { maxX, height, minZ },
-        allTextures["ceiling"]
+        allTextures["CEILING"]
     );
 }
 void Building::DrawBox(svbmath::Vec3 center, float width, float height, float depth, GLuint texture) {
@@ -240,11 +237,7 @@ void Building::DrawShelf(const Shelf& shelf) {
 void Building::DrawCashRegister(const CashRegister& cash) {
     glDisable(GL_TEXTURE_2D);
 
-    glColor3f(1.0f, 0.0f, 0.0f);
-
-    DrawBox(cash.position, cash.width, cash.height, cash.depth, 0);
-
-    glColor3f(1.0f, 1.0f, 1.0f);
+    DrawBox(cash.position, cash.width, cash.height, cash.depth, allTextures["METAL"]);
 }
 void Building::CreateBuilding() {
     build.storeWidth = 12.0f;
@@ -273,7 +266,7 @@ void Building::CreateBuilding() {
     shelf1.height = 2.0f;
     shelf1.depth = 0.7f;
 
-    shelf1.texture = allTextures["shelf"];
+    shelf1.texture = allTextures["WOOD"];
 
     Bounds aabb1 = MakeAABB(shelf1.position, shelf1.width, shelf1.height, shelf1.depth);
 
@@ -290,7 +283,7 @@ void Building::CreateBuilding() {
     shelf2.height = 2.0f;
     shelf2.depth = 5.0f;
 
-    shelf2.texture = allTextures["shelf"];
+    shelf2.texture = allTextures["WOOD"];
 
     Bounds aabb2 = MakeAABB(shelf2.position, shelf2.width, shelf2.height, shelf2.depth);
 
@@ -311,8 +304,8 @@ void Building::CreateBuilding() {
     cashRegister.max = cashAABB.max;
 }
 void Building::DrawBuilding() {
-    //GLuint wallTexture = allTextures["wall"];
-    GLuint wallTexture = 0;
+    GLuint wall1Texture = allTextures["WALL1"];
+    GLuint wall2Texture = allTextures["WALL2"];
 
     float sx1 = -6.0f;
     float sx2 = 6.0f;
@@ -321,35 +314,37 @@ void Building::DrawBuilding() {
     float sz2 = 5.0f;
 
     float h = 4.0f;
-    glColor3f(1.0f, 0.0f, 0.0f);
-    DrawQuad({ sx1, 0.2f, sz1 }, { sx2, 0.2f, sz1 }, { sx2, h, sz1 },{ sx1, h, sz1 }, wallTexture);
-    DrawQuad({ sx1, 0.2f, sz2 }, { sx1, 0.2f, sz1 }, { sx1, h, sz1 }, { sx1, h, sz2 }, wallTexture);
 
-    glColor3f(1.0f, 1.0f, 0.0f);
-    DrawWallWithOpening({ sx1, 0.2f, sz2 }, { sx2, 0.2f, sz2 }, h, 5.0f, 7.0f, true, wallTexture);
+    DrawQuad({ sx1, 0.2f, sz1 }, { sx2, 0.2f, sz1 }, { sx2, h, sz1 },{ sx1, h, sz1 }, 
+        wall1Texture);
+    DrawQuad({ sx1, 0.2f, sz2 }, { sx1, 0.2f, sz1 }, { sx1, h, sz1 }, { sx1, h, sz2 }, 
+        wall1Texture);
 
-    DrawWallWithOpening({ sx2, 0.2f, sz1 }, { sx2, 0.2f, sz2 }, h, 1.0f, 3.0f, false, wallTexture);
+    DrawWallWithOpening({ sx1, 0.2f, sz2 }, { sx2, 0.2f, sz2 }, h, 5.0f, 7.0f, true, 
+        wall1Texture);
+
+    DrawWallWithOpening({ sx2, 0.2f, sz1 }, { sx2, 0.2f, sz2 }, h, 1.0f, 3.0f, false, 
+        wall1Texture);
 
     float wx1 = 6.0f;
     float wx2 = 10.0f;
 
     float wz1 = -5.0f;
     float wz2 = 0.0f;
-    glColor3f(0.0f, 0.0f, 1.0f);
 
-    DrawQuad(  { wx1, 0.0f, wz1 },{ wx2, 0.0f, wz1 }, { wx2, h,wz1 }, { wx1, h, wz1 }, wallTexture);
-    DrawQuad({ wx2, 0.0f, wz1 }, { wx2, 0.0f, wz2 },{ wx2, h,wz2 },{ wx2, h, wz1 },wallTexture);
-    DrawQuad( { wx2, 0.0f, wz2 },{ wx1, 0.0f, wz2 }, { wx1, h,wz2 },{ wx2, h,wz2 }, wallTexture);
+    DrawQuad({ wx1, 0.0f, wz1 },{ wx2, 0.0f, wz1 }, { wx2, h,wz1 }, { wx1, h, wz1 }, 
+        wall2Texture);
+    DrawQuad({ wx2, 0.0f, wz1 }, { wx2, 0.0f, wz2 },{ wx2, h,wz2 },{ wx2, h, wz1 },
+        wall2Texture);
+    DrawQuad( { wx2, 0.0f, wz2 },{ wx1, 0.0f, wz2 }, { wx1, h,wz2 },{ wx2, h,wz2 }, 
+        wall2Texture);
     
-
     DrawFloor(-6.0f, 10.0f, -5.0f, 5.0f);
 
     DrawCeiling(-6.0f, 10.0f, -5.0f, 5.0f, h);
 
-    glColor3f(1.0f, 1.0f, 1.0f);
     for (const Shelf& shelf : shelves) DrawShelf(shelf);
 
-    glColor3f(1.0f, 0.0f, 1.0f);
     DrawCashRegister(cashRegister);
 }
 bool Building::checkCollision(Camera& cam) {

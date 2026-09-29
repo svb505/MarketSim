@@ -66,14 +66,12 @@ void drawGrid(float camX, float camZ) {
     glEnd();
 }
 void drawSky() {
-    //GLuint skyTex = allTextures["clean"];
+    GLuint skyTex = allTextures["SKY"];
 
     glDisable(GL_DEPTH_TEST);
 
-    //glEnable(GL_TEXTURE_2D);
-    //glBindTexture(GL_TEXTURE_2D, skyTex);
-
-    glColor3f(0.0f, 0.0f, 0.7f);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, skyTex);
 
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();

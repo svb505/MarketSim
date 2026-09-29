@@ -76,7 +76,7 @@ int main(){
     int frames = 0;
 
     initLighting();
-    //LoadAllTextures();
+    LoadAllTextures();
 
     base.LoadOBJ("res/models/fpv/base.obj");
     base.LoadTexture("res/models/fpv/texture_diffuse.png");
