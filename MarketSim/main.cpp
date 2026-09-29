@@ -2,8 +2,10 @@
 #define GL_MULTISAMPLE 0x809D
 #endif
 #include <windows.h>
-#include <GL/gl.h>
+#include "glad/glad.h"
+#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
+
 #include <iostream>
 #include <cmath>
 #include "camera.h"
@@ -15,9 +17,11 @@
 #include "bounds.h"
 #include "variables.h"
 #include "input.h"
+#include "model.h"
 
 Camera cam;
 Building build;
+OBJModel base;
 
 void setMatrix(float left, float right, float bottom, float top, float nearP, float farP) {
     glMatrixMode(GL_PROJECTION);
@@ -37,7 +41,7 @@ int main(){
     }
 
     glfwWindowHint(GLFW_SAMPLES, 16);
-    GLFWwindow* window = glfwCreateWindow(ECRAN_W, ECRAN_H, "3D Example", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(ECRAN_W, ECRAN_H, "FPV Market - V0.0.1", NULL, NULL);
     if (!window){
         std::cout << "Failed to create window\n";
         glfwTerminate();
@@ -46,6 +50,16 @@ int main(){
 
     glfwSetWindowUserPointer(window, &cam);
     glfwMakeContextCurrent(window);
+
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    {
+        std::cout << "Failed to initialize GLAD\n";
+
+        glfwDestroyWindow(window);
+        glfwTerminate();
+
+        return -1;
+    }
 
     glClearColor(0.6f, 0.8f, 1.0f, 1.0f);;
     BuildFont();
@@ -63,6 +77,10 @@ int main(){
 
     initLighting();
     //LoadAllTextures();
+
+    base.LoadOBJ("res/models/fpv/base.obj");
+    base.LoadTexture("res/models/fpv/texture_diffuse.png");
+    base.CreateVBO();
 
     build.CreateBuilding();
 
@@ -88,6 +106,7 @@ int main(){
             cam.getCamPos() = cam.getOldCamPos();
         }
       
+        base.Draw({0.0f, 0.5f,15.0f},0.0f,60.0f);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

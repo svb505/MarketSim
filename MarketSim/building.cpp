@@ -1,7 +1,7 @@
 #define NOMINMAX
 #include "windows.h"
 #include "svbmath.h"
-#include "GL/gl.h"
+#include "glad/glad.h"
 #include "texture.h"
 #include <vector>
 #include "bounds.h"

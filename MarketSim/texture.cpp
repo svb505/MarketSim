@@ -1,7 +1,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #include <windows.h>
-#include <GL/gl.h>
+#include <glad/glad.h>
 #include "texture.h"
 #include <map>
 #include <unordered_map>

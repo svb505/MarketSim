@@ -148,6 +148,7 @@
     <ClCompile Include="lighting.h" />
     <ClCompile Include="lighting.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="model.cpp" />
     <ClCompile Include="svbmath.cpp" />
     <ClCompile Include="text.cpp" />
     <ClCompile Include="texture.cpp" />
@@ -159,6 +160,7 @@
     <ClInclude Include="camera.h" />
     <ClInclude Include="environnement.h" />
     <ClInclude Include="input.h" />
+    <ClInclude Include="model.h" />
     <ClInclude Include="sound.h" />
     <ClInclude Include="svbmath.h" />
     <ClInclude Include="text.h" />
