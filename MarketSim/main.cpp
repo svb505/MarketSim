@@ -31,7 +31,19 @@ void setMatrix(float left, float right, float bottom, float top, float nearP, fl
 
     glMatrixMode(GL_MODELVIEW);
 }
+void countFps(double& deltaTime, double& lastTime, double& currentTime, int& frames, float& fps, float& fpsTimer) {
+    deltaTime = currentTime - lastTime;
+    lastTime = currentTime;
 
+    fpsTimer += deltaTime;
+    frames++;
+
+    if (fpsTimer >= 1.0f) {
+        fps = frames / fpsTimer;
+        frames = 0;
+        fpsTimer = 0.0f;
+    }
+}
 int main(){
     CameraParams& params = cam.getCamParams();
 
@@ -86,8 +98,8 @@ int main(){
 
     while (!glfwWindowShouldClose(window)){
         double currentTime = glfwGetTime();
-        deltaTime = currentTime - lastTime;
-        lastTime = currentTime;
+
+        countFps(deltaTime, lastTime, currentTime, frames, fps, fpsTimer);
 
         processInput(window, cam, deltaTime);
 

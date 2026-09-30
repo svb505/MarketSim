@@ -375,11 +375,12 @@ bool Building::checkCollision(Camera& cam) {
     if (checkAABBCollision({{ sx2 - 0.2f, 0.0f, sz1 },{ sx2 + 0.2f, h, -4.0f }}, pos)) return true;
     // Правая стена магазина, после двери
     if (checkAABBCollision({{ sx2 - 0.2f, 0.0f, -2.0f },{ sx2 + 0.2f, h, sz2 }}, pos)) return true;
-    // Задняя стена склада: z = wz1
+    if (checkAABBCollision({{ sx1, 0.0f, sz1 - 0.2f },{ sx2, h,sz1 + 0.2f } }, pos)) return true;
+
     if (checkAABBCollision({{ wx1 - 0.2f, 0.0f, wz1 - 0.2f },{ wx2 + 0.2f, h, wz1 + 0.2f }}, pos)) return true;
-   
     if (checkAABBCollision({{ wx2 - 0.2f, 0.0f, wz1 - 0.2f },{ wx2 + 0.2f, h, wz2 + 0.2f }}, pos)) return true;
-    if (checkAABBCollision({{ wx1 - 0.2f, 0.0f, wz2 - 0.2f },{ wx2 + 0.2f, h, wz2 + 0.2f }}, pos)) return true;
+    if (checkAABBCollision({{ wx1 - 0.2f, 0.0f, wz2 - 0.2f },
+ { wx2 + 0.2f, h,    wz2 + 0.2f }}, pos)) return true;
     
     for (const Shelf& shelf : shelves) {
         if (checkAABBCollision({ shelf.min, shelf.max }, pos)) return true;
