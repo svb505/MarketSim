@@ -18,6 +18,7 @@
 #include "variables.h"
 #include "input.h"
 #include "model.h"
+#include <algorithm>
 
 Camera cam;
 Building build;
@@ -43,6 +44,32 @@ void countFps(double& deltaTime, double& lastTime, double& currentTime, int& fra
         frames = 0;
         fpsTimer = 0.0f;
     }
+}
+void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+    CameraParams& params = cam.getCamParams();
+
+    static bool first = true;
+    static double lastX = 0.0;
+    static double lastY = 0.0;
+
+    if (first) {
+        lastX = xpos;
+        lastY = ypos;
+        first = false;
+        return;
+    }
+
+    double xoffset = xpos - lastX;
+    double yoffset = ypos - lastY;
+
+    lastX = xpos;
+    lastY = ypos;
+
+    xoffset *= sensitivity;
+    yoffset *= sensitivity;
+
+    params.cameraYaw += -(float)xoffset;
+    params.cameraPitch -= -(float)yoffset;
 }
 int main(){
     CameraParams& params = cam.getCamParams();
@@ -95,6 +122,9 @@ int main(){
     base.CreateVBO();
 
     build.CreateBuilding();
+
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     while (!glfwWindowShouldClose(window)){
         double currentTime = glfwGetTime();
