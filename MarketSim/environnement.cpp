@@ -103,36 +103,49 @@ void drawSky() {
     glDisable(GL_TEXTURE_2D);
     glEnable(GL_DEPTH_TEST);
 }
-void drawGround(float camX, float camZ) {
-    float x0 = camX;
-    float z0 = camZ;
+void drawGround(float camX, float camZ)
+{
+    GLuint grassTex = allTextures["GRASS"];
 
     float step = 2.0f;
 
-    glColor3f(0.0f, 102.0f / 255, 0.0f);
+    glColor3f(1.0f, 1.0f, 1.0f);
 
-    for (float x = -size; x < size; x += step) {
-        for (float z = -size; z < size; z += step) {
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, grassTex);
 
-            float x1 = x0 + x;
-            float z1 = z0 + z;
+    for (float x = -size; x < size; x += step)
+    {
+        for (float z = -size; z < size; z += step)
+        {
+            float x1 = camX + x;
+            float z1 = camZ + z;
 
             float x2 = x1 + step;
             float z2 = z1 + step;
 
             glBegin(GL_QUADS);
 
-            // нормаль (упрощённая)
             glNormal3f(0, 1, 0);
 
+            glTexCoord2f(0.0f, 0.0f);
             glVertex3f(x1, 0.0f, z1);
+
+            glTexCoord2f(1.0f, 0.0f);
             glVertex3f(x2, 0.0f, z1);
+
+            glTexCoord2f(1.0f, 1.0f);
             glVertex3f(x2, 0.0f, z2);
+
+            glTexCoord2f(0.0f, 1.0f);
             glVertex3f(x1, 0.0f, z2);
 
             glEnd();
         }
     }
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_TEXTURE_2D);
 }
 
 

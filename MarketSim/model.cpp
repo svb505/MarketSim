@@ -10,7 +10,9 @@
 #include "stb_image.h"
 #include "svbmath.h"
 
-bool OBJModel::LoadOBJ(const std::string& filename){
+bool OBJModel::LoadOBJ(const std::string& filename,float scale){
+    this->scale = scale;
+
     std::ifstream file(filename);
 
     if (!file.is_open()){ 
@@ -112,6 +114,21 @@ bool OBJModel::LoadOBJ(const std::string& filename){
         }
     }
 
+    bounds.min = { vertices[0].x, vertices[0].y, vertices[0].z };
+    bounds.max = { vertices[0].x, vertices[0].y, vertices[0].z };
+
+    for (const auto& v : vertices) {
+        bounds.min = { std::min(bounds.min.x, v.x),
+                       std::min(bounds.min.y, v.y),
+                       std::min(bounds.min.z, v.z) };
+
+      
+        bounds.max = { std::max(bounds.max.x, v.x),
+                       std::max(bounds.max.y, v.y),
+                       std::max(bounds.max.z, v.z)
+        };
+    }
+
     std::cout << "Model loaded\n" << "Vertices: " << vertices.size() << std::endl;
 
     return true;
@@ -136,7 +153,7 @@ void OBJModel::Draw(svbmath::Vec3 pos, float yaw, float pitch){
     glTranslatef(pos.x, pos.y, pos.z);   
     glRotatef(yaw, 0, 1, 0);
     glRotatef(pitch, 1, 0, 0);
-    glScalef(1.0f, 1.0f, 1.0f);        
+    glScalef(scale, scale, scale);
 
     glBindTexture(GL_TEXTURE_2D,texture);
 

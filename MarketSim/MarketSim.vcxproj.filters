@@ -57,6 +57,9 @@
     <ClCompile Include="model.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="decorations.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h">
@@ -90,6 +93,9 @@
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="model.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="decorations.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
   </ItemGroup>

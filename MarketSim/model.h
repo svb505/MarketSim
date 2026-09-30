@@ -3,6 +3,7 @@
 #include <string>
 #include <glad/glad.h>
 #include "svbmath.h"
+#include "bounds.h"
 
 struct Vertex{
     float x, y, z;       // position
@@ -18,7 +19,10 @@ private:
     GLuint texture = 0;
 
 public:
-    bool LoadOBJ(const std::string& filename);
+    Bounds bounds;
+    float scale = 0.0f;
+
+    bool LoadOBJ(const std::string& filename,float scale);
     bool LoadTexture(const std::string& filename);
 
     void CreateVBO();

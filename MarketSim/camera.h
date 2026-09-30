@@ -28,7 +28,7 @@ class Camera {
 private:
     CameraParams camParams;
 
-    svbmath::Vec3 cameraPos = { 0.0f,1.0f,10.0f };
+    svbmath::Vec3 cameraPos = { 0.0f,1.0f, 5.0f };
     svbmath::Vec3 oldCameraPos = { 0.0f,1.0f,10.0f };
 public:
     CameraParams& getCamParams();

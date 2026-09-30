@@ -19,10 +19,12 @@
 #include "input.h"
 #include "model.h"
 #include <algorithm>
+#include "decorations.h"
 
 Camera cam;
 Building build;
 OBJModel base;
+Decorations decor;
 
 void setMatrix(float left, float right, float bottom, float top, float nearP, float farP) {
     glMatrixMode(GL_PROJECTION);
@@ -71,17 +73,17 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     params.cameraYaw += -(float)xoffset;
     params.cameraPitch -= -(float)yoffset;
 }
-int main(){
+int main() {
     CameraParams& params = cam.getCamParams();
 
-    if (!glfwInit()){
+    if (!glfwInit()) {
         std::cout << "Failed to initialize GLFW\n";
         return -1;
     }
 
     glfwWindowHint(GLFW_SAMPLES, 16);
     GLFWwindow* window = glfwCreateWindow(ECRAN_W, ECRAN_H, "FPV Market - V0.0.1", NULL, NULL);
-    if (!window){
+    if (!window) {
         std::cout << "Failed to create window\n";
         glfwTerminate();
         return -1;
@@ -90,8 +92,7 @@ int main(){
     glfwSetWindowUserPointer(window, &cam);
     glfwMakeContextCurrent(window);
 
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)){
         std::cout << "Failed to initialize GLAD\n";
 
         glfwDestroyWindow(window);
@@ -117,16 +118,20 @@ int main(){
     initLighting();
     LoadAllTextures();
 
-    base.LoadOBJ("res/models/fpv/base.obj");
+    base.LoadOBJ("res/models/fpv/base.obj", 1.0f);
     base.LoadTexture("res/models/fpv/texture_diffuse.png");
     base.CreateVBO();
 
     build.CreateBuilding();
 
+    decor.initDecoration("res/models/builds/build1.obj", DecType::BUILD1,
+        "res/models/builds/tex.png");
+    decor.initPositions();
+
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    while (!glfwWindowShouldClose(window)){
+    while (!glfwWindowShouldClose(window)) {
         double currentTime = glfwGetTime();
 
         countFps(deltaTime, lastTime, currentTime, frames, fps, fpsTimer);
@@ -139,16 +144,17 @@ int main(){
 
         drawSky();
         drawGround(cam.getCamPos().x, cam.getCamPos().z);
-        
+
         glEnable(GL_POLYGON_OFFSET_FILL);
         glPolygonOffset(-2.0f, -2.0f);
 
         build.DrawBuilding();
-        if (build.checkCollision(cam)) {
-            cam.getCamPos() = cam.getOldCamPos();
-        }
-      
-        base.Draw({0.0f, 0.5f,15.0f},0.0f,60.0f);
+        if (build.checkCollision(cam)) cam.getCamPos() = cam.getOldCamPos();
+
+        //base.Draw({0.0f, 0.5f,15.0f},0.0f,60.0f);
+
+        decor.drawAllDecorations(DecType::BUILD1);
+        if (decor.checkCollision(cam, DecType::BUILD1)) cam.getCamPos() = cam.getOldCamPos();
 
         glfwSwapBuffers(window);
         glfwPollEvents();
