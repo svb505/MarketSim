@@ -9,8 +9,40 @@
 #include "texture.h"
 
 
-const float size = 100.0f;
+const float size = 50.0f;
 
+void drawRoad(float y, float startX, float startZ, int parts){
+    GLuint roadTex = allTextures["ROAD"];
+
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, roadTex);
+
+    float width = 6.0f;
+    float partLength = 10.0f;
+
+    glBegin(GL_QUADS);
+
+    for (int i = 0; i < parts; i++){
+        float x0 = startX + i * partLength;
+        float x1 = x0 + partLength;
+
+        glTexCoord2f(1.0f, 0.0f);
+        glVertex3f(x0, y, startZ - width / 2);
+
+        glTexCoord2f(1.0f, 1.0f);
+        glVertex3f(x1, y, startZ - width / 2);
+
+        glTexCoord2f(0.0f, 1.0f);
+        glVertex3f(x1, y, startZ + width / 2);
+
+        glTexCoord2f(0.0f, 0.0f);
+        glVertex3f(x0, y, startZ + width / 2);
+    }
+
+    glEnd();
+
+    glDisable(GL_TEXTURE_2D);
+}
 void drawGridText(float camX, float camZ) {
     float baseX = camX;
     float baseZ = camZ;
@@ -103,21 +135,18 @@ void drawSky() {
     glDisable(GL_TEXTURE_2D);
     glEnable(GL_DEPTH_TEST);
 }
-void drawGround(float camX, float camZ)
-{
+void drawGround(float camX, float camZ){
     GLuint grassTex = allTextures["GRASS"];
 
-    float step = 2.0f;
+    float step = 4.0f;
 
     glColor3f(1.0f, 1.0f, 1.0f);
 
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, grassTex);
 
-    for (float x = -size; x < size; x += step)
-    {
-        for (float z = -size; z < size; z += step)
-        {
+    for (float x = -size; x < size; x += step){
+        for (float z = -size; z < size; z += step) {
             float x1 = camX + x;
             float z1 = camZ + z;
 

@@ -72,31 +72,80 @@ bool OBJModel::LoadOBJ(const std::string& filename,float scale){
             if (face.size() < 3) continue;
 
             auto ParseVertex = [&](const std::string& str) {
-                    Vertex v{};
+                Vertex v{};
 
-                    int p = 0;
-                    int t = 0;
-                    int n = 0;
+                int p = 0;
+                int t = 0;
+                int n = 0;
 
-                    sscanf_s(str.c_str(),"%d/%d/%d",&p,&t,&n);
+                // -------------------------------------------------
+                // v
+                // -------------------------------------------------
+                if (str.find('/') == std::string::npos) {
 
-                    p--; t--; n--;
+                    sscanf_s(str.c_str(), "%d", &p);
 
-                    // position
+                    p--;
+
                     v.x = positions[p * 3 + 0];
                     v.y = positions[p * 3 + 1];
                     v.z = positions[p * 3 + 2];
 
-                    // UV
-                    v.u = texcoords[t * 2 + 0];
-                    v.v = texcoords[t * 2 + 1];
+                    v.u = 0.0f;
+                    v.v = 0.0f;
 
-                    // normal
+                    // Нормаль пока отсутствует
+                    v.nx = 0.0f;
+                    v.ny = 1.0f;
+                    v.nz = 0.0f;
+                }
+
+                // -------------------------------------------------
+                // v//vn
+                // -------------------------------------------------
+                else if (str.find("//") != std::string::npos) {
+
+                    sscanf_s(str.c_str(), "%d//%d", &p, &n);
+
+                    p--;
+                    n--;
+
+                    v.x = positions[p * 3 + 0];
+                    v.y = positions[p * 3 + 1];
+                    v.z = positions[p * 3 + 2];
+
+                    v.u = 0.0f;
+                    v.v = 0.0f;
+
                     v.nx = normals[n * 3 + 0];
                     v.ny = normals[n * 3 + 1];
                     v.nz = normals[n * 3 + 2];
+                }
 
-                    return v;
+                // -------------------------------------------------
+                // v/vt/vn
+                // -------------------------------------------------
+                else {
+
+                    sscanf_s(str.c_str(), "%d/%d/%d", &p, &t, &n);
+
+                    p--;
+                    t--;
+                    n--;
+
+                    v.x = positions[p * 3 + 0];
+                    v.y = positions[p * 3 + 1];
+                    v.z = positions[p * 3 + 2];
+
+                    v.u = texcoords[t * 2 + 0];
+                    v.v = texcoords[t * 2 + 1];
+
+                    v.nx = normals[n * 3 + 0];
+                    v.ny = normals[n * 3 + 1];
+                    v.nz = normals[n * 3 + 2];
+                }
+
+                return v;
                 };
 
 

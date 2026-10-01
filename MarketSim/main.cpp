@@ -20,6 +20,8 @@
 #include "model.h"
 #include <algorithm>
 #include "decorations.h"
+#include "text.h"
+#include <format>
 
 Camera cam;
 Building build;
@@ -124,8 +126,10 @@ int main() {
 
     build.CreateBuilding();
 
-    decor.initDecoration("res/models/builds/build1.obj", DecType::BUILD1,
-        "res/models/builds/tex.png");
+    decor.initDecoration("res/models/builds/build2.obj", DecType::BUILD2,
+        "res/models/builds/build2Tex.png");
+    decor.initDecoration("res/models/trees/tree.obj", DecType::TREE,
+        "res/models/trees/tex.jpg");
     decor.initPositions();
 
     glfwSetCursorPosCallback(window, mouse_callback);
@@ -144,6 +148,7 @@ int main() {
 
         drawSky();
         drawGround(cam.getCamPos().x, cam.getCamPos().z);
+        drawRoad(0.01,-30.0f,10.0f,20);
 
         glEnable(GL_POLYGON_OFFSET_FILL);
         glPolygonOffset(-2.0f, -2.0f);
@@ -153,8 +158,12 @@ int main() {
 
         //base.Draw({0.0f, 0.5f,15.0f},0.0f,60.0f);
 
-        decor.drawAllDecorations(DecType::BUILD1);
-        if (decor.checkCollision(cam, DecType::BUILD1)) cam.getCamPos() = cam.getOldCamPos();
+        decor.drawAllDecorations(DecType::BUILD2);
+        decor.drawAllDecorations(DecType::TREE);
+        if (decor.checkCollision(cam, DecType::BUILD2)) cam.getCamPos() = cam.getOldCamPos();
+        if (decor.checkCollision(cam, DecType::TREE)) cam.getCamPos() = cam.getOldCamPos();
+        
+        RenderTextHUD(ECRAN_W / 2, ECRAN_H / 2, 1.0f, 1.0f, 1.0f, std::format("{}", fps).c_str(), ECRAN_W, ECRAN_H);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

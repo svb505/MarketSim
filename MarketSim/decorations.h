@@ -7,17 +7,21 @@
 
 enum class DecType {
 	BUILD1,
-	BUILD2
+	BUILD2,
+	TREE
 };
+
+extern std::map<DecType, float> scales;
 
 class Decorations {
 private:
-	int buildsCount = 6;
+	int buildsCount = 4;
+	int treesCount = 4;
 	float buildXStep = 20.0f;
 
 	std::vector<svbmath::Vec3> allPositions;
 
-	svbmath::Vec3 buildBasePos = {0.0f,0.1f,0.0f};
+	svbmath::Vec3 buildBasePos = {0.0f,0.0f,0.0f};
 
 	std::map<DecType, OBJModel*> models;
 public:
