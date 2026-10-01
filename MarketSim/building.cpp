@@ -315,15 +315,15 @@ void Building::DrawBuilding() {
 
     float h = 4.0f;
 
-    DrawQuad({ sx1, 0.2f, sz1 }, { sx2, 0.2f, sz1 }, { sx2, h, sz1 },{ sx1, h, sz1 }, 
+    DrawQuad({ sx1, 0.0f, sz1 }, { sx2, 0.0f, sz1 }, { sx2, h, sz1 },{ sx1, h, sz1 },
         wall1Texture);
-    DrawQuad({ sx1, 0.2f, sz2 }, { sx1, 0.2f, sz1 }, { sx1, h, sz1 }, { sx1, h, sz2 }, 
-        wall1Texture);
-
-    DrawWallWithOpening({ sx1, 0.2f, sz2 }, { sx2, 0.2f, sz2 }, h, 5.0f, 7.0f, true, 
+    DrawQuad({ sx1, 0.0f, sz2 }, { sx1, 0.0f, sz1 }, { sx1, h, sz1 }, { sx1, h, sz2 },
         wall1Texture);
 
-    DrawWallWithOpening({ sx2, 0.2f, sz1 }, { sx2, 0.2f, sz2 }, h, 1.0f, 3.0f, false, 
+    DrawWallWithOpening({ sx1, 0.0f, sz2 }, { sx2, 0.0f, sz2 }, h, 5.0f, 7.0f, true,
+        wall1Texture);
+
+    DrawWallWithOpening({ sx2, 0.0f, sz1 }, { sx2, 0.0f, sz2 }, h, 1.0f, 3.0f, false,
         wall1Texture);
 
     float wx1 = 6.0f;

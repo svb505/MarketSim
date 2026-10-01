@@ -138,7 +138,7 @@ void drawSky() {
 void drawGround(float camX, float camZ){
     GLuint grassTex = allTextures["GRASS"];
 
-    float step = 4.0f;
+    float step = 3.0f;
 
     glColor3f(1.0f, 1.0f, 1.0f);
 
