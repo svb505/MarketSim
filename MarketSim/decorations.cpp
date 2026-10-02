@@ -7,7 +7,7 @@
 #include <iostream>
 
 std::map<DecType, float> scales = { {DecType::BUILD1,1.0f},
-                                    {DecType::BUILD2, 0.25},
+                                    {DecType::BUILD2, 1.0f},
                                     {DecType::TREE, 0.25},
                                     {DecType::LAMP, 1.25}
 };
@@ -19,16 +19,16 @@ void Decorations::initPositions() {
         svbmath::Vec3 bufferPos = currentPos;
 
         if (i < 3) bufferPos.x += buildXStep * (i + 1);
-        else  bufferPos.x -= buildXStep * (i - 2);
+        else bufferPos.x -= buildXStep * (i - 2);
 
         allPositions.push_back(bufferPos);
     }
-
     for (int i = 0; i < buildsCount; i++) {
         svbmath::Vec3 bufferPos = currentPos;
-        bufferPos.z = 25.0f;
+        bufferPos.z = 35.0f;
 
         if (i < 3) bufferPos.x += buildXStep * (i + 1);
+        else if (i == 3) bufferPos.x = -10.0f;
         else  bufferPos.x -= buildXStep * (i - 2);
 
         allPositions.push_back(bufferPos);
@@ -37,12 +37,12 @@ void Decorations::initPositions() {
     // Здания, закрывающие конец улицы
     svbmath::Vec3 endBuilding1 = currentPos;
     endBuilding1.x = -35.0f;
-    endBuilding1.z = 15.0f;
+    endBuilding1.z = 10.0f;
     allPositions.push_back(endBuilding1);
 
     svbmath::Vec3 endBuilding2 = currentPos;
     endBuilding2.x = 80.0f;
-    endBuilding2.z = 15.0f;
+    endBuilding2.z = 10.0f;
     allPositions.push_back(endBuilding2);
 
     for (int i = 0; i < treesCount; i++) {
@@ -107,22 +107,22 @@ void Decorations::drawAllDecorations(DecType decType) {
         break;
     }
 
-    if (decType != DecType::TREE) {
+    if (decType == DecType::BUILD1 || decType == DecType::BUILD2) {
         for (int i = 0; i < buildsCount * 2; i++) {
             auto pos = allPositions[i];
 
-            if (decType == DecType::BUILD2) pos.y -= 2.0f;
+            if (decType == DecType::BUILD2) pos.y += 2.5f;
 
             models[decType]->Draw(pos, yaw, 0.0f);
         }
 
         auto pos1 = allPositions[buildsCount * 2];
-        pos1.y -= 2.0f;
+        pos1.y += 2.5f;
         auto pos2 = allPositions[buildsCount * 2 + 1]; 
-        pos2.y -= 2.0f;
+        pos2.y += 2.5f;
 
-        models[decType]->Draw(pos1, 90.0f, 0.0f);
-        models[decType]->Draw(pos2, 90.0f, 0.0f);
+        models[decType]->Draw(pos1, 0.0f, 0.0f);
+        models[decType]->Draw(pos2, 0.0f, 0.0f);
     }
     if (decType == DecType::TREE) {
         for (int i = treesStart; i < treesStart + treesCount; i++) {
@@ -145,7 +145,7 @@ void Decorations::drawAllDecorations(DecType decType) {
 bool Decorations::checkCollision(Camera& cam, DecType decType) {
     auto mod = models[decType];
 
-    float step = (decType == DecType::BUILD2) ? 2.0f : 0.0f;
+    float step = (decType == DecType::BUILD2) ? 2.5f : 0.0f;
 
     int startIndex = 0;
     int count = 0;
@@ -154,7 +154,7 @@ bool Decorations::checkCollision(Camera& cam, DecType decType) {
         startIndex = buildsCount * 2 + 2;
         count = treesCount;
     }
-    if (decType == DecType::LAMP) {
+   else if (decType == DecType::LAMP) {
         startIndex = buildsCount * 2 + 2 + treesCount;
         count = lampsCount;
     }
@@ -167,8 +167,6 @@ bool Decorations::checkCollision(Camera& cam, DecType decType) {
 
     for (int i = startIndex; i < startIndex + count; i++) {
         bool rotated = false;
-
-        if (decType != DecType::TREE && i >= buildsCount * 2) rotated = true;
 
         svbmath::Vec3 pos = allPositions[i];
 
@@ -188,15 +186,15 @@ bool Decorations::checkCollision(Camera& cam, DecType decType) {
             newBounds.min.z = minZ + pos.z;
             newBounds.max.z = maxZ + pos.z;
 
-            newBounds.min.y = mod->bounds.min.y * mod->scale + pos.y - step;
-            newBounds.max.y = mod->bounds.max.y * mod->scale + pos.y - step;
+            newBounds.min.y = mod->bounds.min.y * mod->scale + pos.y + step;
+            newBounds.max.y = mod->bounds.max.y * mod->scale + pos.y + step;
         }
         else{
             newBounds.min.x = mod->bounds.min.x * mod->scale + pos.x;
             newBounds.max.x = mod->bounds.max.x * mod->scale + pos.x;
 
-            newBounds.min.y = mod->bounds.min.y * mod->scale + pos.y - step;
-            newBounds.max.y = mod->bounds.max.y * mod->scale + pos.y - step;
+            newBounds.min.y = mod->bounds.min.y * mod->scale + pos.y + step;
+            newBounds.max.y = mod->bounds.max.y * mod->scale + pos.y + step;
 
             newBounds.min.z = mod->bounds.min.z * mod->scale + pos.z;
             newBounds.max.z = mod->bounds.max.z * mod->scale + pos.z;

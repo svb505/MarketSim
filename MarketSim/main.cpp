@@ -6,6 +6,10 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
 #include <iostream>
 #include <cmath>
 #include "camera.h"
@@ -22,11 +26,13 @@
 #include "decorations.h"
 #include "text.h"
 #include <format>
+#include "GUI.h"
 
 Camera cam;
 Building build;
 OBJModel base;
 Decorations decor;
+GUI gui;
 
 void setMatrix(float left, float right, float bottom, float top, float nearP, float farP) {
     glMatrixMode(GL_PROJECTION);
@@ -36,17 +42,20 @@ void setMatrix(float left, float right, float bottom, float top, float nearP, fl
 
     glMatrixMode(GL_MODELVIEW);
 }
-void countFps(double& deltaTime, double& lastTime, double& currentTime, int& frames, float& fps, float& fpsTimer) {
-    deltaTime = currentTime - lastTime;
+void countFps(FPS& fpsVars, double& lastTime, double& currentTime) {
+    fpsVars.deltaTime = currentTime - lastTime;
     lastTime = currentTime;
 
-    fpsTimer += deltaTime;
-    frames++;
+    fpsVars.fpsTimer += fpsVars.deltaTime;
+    fpsVars.frames++;
 
-    if (fpsTimer >= 1.0f) {
-        fps = frames / fpsTimer;
-        frames = 0;
-        fpsTimer = 0.0f;
+    if (fpsVars.fpsTimer >= 1.0f) {
+        if (fpsVars.fps < fpsVars.minFps || fpsVars.minFps == 0.0f) fpsVars.minFps = fpsVars.fps;
+        if (fpsVars.fps > fpsVars.maxFps) fpsVars.maxFps = fpsVars.fps;
+
+        fpsVars.fps = fpsVars.frames / fpsVars.fpsTimer;
+        fpsVars.frames = 0;
+        fpsVars.fpsTimer = 0.0f;
     }
 }
 void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
@@ -113,9 +122,7 @@ int main() {
         params.farPlane);
 
     double lastTime = glfwGetTime();
-    double deltaTime = 0.0;
-    float fpsTimer = 0.0f, fps = 0.0f;
-    int frames = 0;
+    FPS fpsVars;
 
     initLighting();
     LoadAllTextures();
@@ -127,7 +134,7 @@ int main() {
     build.CreateBuilding();
 
     decor.initDecoration("res/models/builds/build2.obj", DecType::BUILD2,
-        "res/models/builds/build2Tex.png");
+        "res/models/builds/BUIL.jpg");
     decor.initDecoration("res/models/trees/tree.obj", DecType::TREE,
         "res/models/trees/tex.jpg");
     decor.initDecoration("res/models/streetlamp/streetlamp.obj", DecType::LAMP,
@@ -138,14 +145,25 @@ int main() {
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
+    gui.setupGui(window);
+
     while (!glfwWindowShouldClose(window)) {
         double currentTime = glfwGetTime();
 
-        countFps(deltaTime, lastTime, currentTime, frames, fps, fpsTimer);
+        countFps(fpsVars, lastTime, currentTime);
 
-        processInput(window, cam, deltaTime);
+        processInput(window, cam, fpsVars.deltaTime);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        //
+
+        ImGui::Render();
+
 
         cam.setupCamera();
 
@@ -168,11 +186,19 @@ int main() {
         if (decor.checkCollision(cam, DecType::TREE)) cam.getCamPos() = cam.getOldCamPos();
         if (decor.checkCollision(cam, DecType::LAMP)) cam.getCamPos() = cam.getOldCamPos();
         
-        RenderTextHUD(ECRAN_W / 2, ECRAN_H / 2, 1.0f, 1.0f, 1.0f, std::format("{}", fps).c_str(), ECRAN_W, ECRAN_H);
+        RenderTextHUD(ECRAN_W / 2, ECRAN_H / 2, 1.0f, 1.0f, 1.0f, 
+            std::format("{:.0f}", fpsVars.fps).c_str(), ECRAN_W, ECRAN_H);
+        RenderTextHUD(ECRAN_W / 2, ECRAN_H / 2 - 10.0F, 1.0f, 1.0f, 1.0f,
+            std::format("MIN: {:.0f}", fpsVars.minFps).c_str(), ECRAN_W, ECRAN_H);
+        RenderTextHUD(ECRAN_W / 2, ECRAN_H / 2 - 20.0f, 1.0f, 1.0f, 1.0f,
+            std::format("MAX: {:.0f}", fpsVars.maxFps).c_str(), ECRAN_W, ECRAN_H);
 
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
+    gui.destroyGui();
 
     glfwDestroyWindow(window);
     glfwTerminate();

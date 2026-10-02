@@ -301,7 +301,7 @@ bool OBJModel::LoadOBJ(const std::string& filename,float scale){
         };
     }
 
-    std::cout << "Model loaded\n" << "Vertices: " << vertices.size() << std::endl;
+    std::cout << "Model loaded: " << filename << "\nVertices: " << vertices.size() << std::endl;
 
     return true;
 }

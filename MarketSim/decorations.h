@@ -18,8 +18,8 @@ class Decorations {
 private:
 	int buildsCount = 4;
 	int treesCount = 4;
-	int lampsCount = 8;
-	float buildXStep = 20.0f;
+	int lampsCount = 5;
+	float buildXStep = 25.0f;
 
 	std::vector<svbmath::Vec3> allPositions;
 
