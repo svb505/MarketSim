@@ -130,6 +130,9 @@ int main() {
         "res/models/builds/build2Tex.png");
     decor.initDecoration("res/models/trees/tree.obj", DecType::TREE,
         "res/models/trees/tex.jpg");
+    decor.initDecoration("res/models/streetlamp/streetlamp.obj", DecType::LAMP,
+        "res/models/streetlamp/texture.png");
+    
     decor.initPositions();
 
     glfwSetCursorPosCallback(window, mouse_callback);
@@ -160,8 +163,10 @@ int main() {
 
         decor.drawAllDecorations(DecType::BUILD2);
         decor.drawAllDecorations(DecType::TREE);
+        decor.drawAllDecorations(DecType::LAMP);
         if (decor.checkCollision(cam, DecType::BUILD2)) cam.getCamPos() = cam.getOldCamPos();
         if (decor.checkCollision(cam, DecType::TREE)) cam.getCamPos() = cam.getOldCamPos();
+        if (decor.checkCollision(cam, DecType::LAMP)) cam.getCamPos() = cam.getOldCamPos();
         
         RenderTextHUD(ECRAN_W / 2, ECRAN_H / 2, 1.0f, 1.0f, 1.0f, std::format("{}", fps).c_str(), ECRAN_W, ECRAN_H);
 

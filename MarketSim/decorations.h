@@ -8,7 +8,8 @@
 enum class DecType {
 	BUILD1,
 	BUILD2,
-	TREE
+	TREE,
+	LAMP
 };
 
 extern std::map<DecType, float> scales;
@@ -17,6 +18,7 @@ class Decorations {
 private:
 	int buildsCount = 4;
 	int treesCount = 4;
+	int lampsCount = 8;
 	float buildXStep = 20.0f;
 
 	std::vector<svbmath::Vec3> allPositions;

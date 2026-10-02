@@ -136,7 +136,7 @@ void drawSky() {
     glEnable(GL_DEPTH_TEST);
 }
 void drawGround(float camX, float camZ){
-    GLuint grassTex = allTextures["GRASS"];
+    GLuint grassTex = allTextures["ASPHALT"];
 
     float step = 3.0f;
 

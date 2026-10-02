@@ -10,8 +10,82 @@
 #include "stb_image.h"
 #include "svbmath.h"
 
+bool OBJModel::LoadMTL(const std::string& filename){
+    std::ifstream file(filename);
+
+    if (!file.is_open()){
+        std::cout << "Cannot open MTL: " << filename << std::endl;
+        return false;
+    }
+
+    Material* current = nullptr;
+
+    std::string line;
+
+    while (std::getline(file, line))
+    {
+        std::stringstream ss(line);
+
+        std::string type;
+        ss >> type;
+
+        if (type == "newmtl")
+        {
+            std::string name;
+            ss >> name;
+
+            materials.push_back({});
+            materials.back().name = name;
+
+            current = &materials.back();
+        }
+        else if (!current)
+        {
+            continue;
+        }
+        else if (type == "Ka")
+        {
+            ss >> current->Ka[0]
+                >> current->Ka[1]
+                >> current->Ka[2];
+        }
+        else if (type == "Kd")
+        {
+            ss >> current->Kd[0]
+                >> current->Kd[1]
+                >> current->Kd[2];
+        }
+        else if (type == "Ks")
+        {
+            ss >> current->Ks[0]
+                >> current->Ks[1]
+                >> current->Ks[2];
+        }
+        else if (type == "Ns")
+        {
+            ss >> current->Ns;
+        }
+        else if (type == "d")
+        {
+            ss >> current->d;
+        }
+    }
+
+    return true;
+}
 bool OBJModel::LoadOBJ(const std::string& filename,float scale){
+    vertices.clear();
+    materials.clear();
+    materialGroups.clear();
+
     this->scale = scale;
+
+    std::string directory;
+
+    size_t slash = filename.find_last_of("/\\");
+
+    if (slash != std::string::npos)
+        directory = filename.substr(0, slash + 1);
 
     std::ifstream file(filename);
 
@@ -32,6 +106,7 @@ bool OBJModel::LoadOBJ(const std::string& filename,float scale){
 
         std::string type;
         ss >> type;
+
 
         // POSITION
         if (type == "v"){
@@ -61,6 +136,24 @@ bool OBJModel::LoadOBJ(const std::string& filename,float scale){
             normals.push_back(x);
             normals.push_back(y);
             normals.push_back(z);
+        }
+        //MTL
+        else if (type == "mtllib") {
+            std::string mtlFile;
+            ss >> mtlFile;
+
+            LoadMTL(directory + mtlFile);
+        }
+        else if (type == "usemtl") {
+            std::string materialName;
+            ss >> materialName;
+
+            MaterialGroup group;
+
+            group.material.name = materialName;
+            group.startVertex = vertices.size();
+
+            materialGroups.push_back(group);
         }
         // FACE
         else if (type == "f"){
@@ -163,6 +256,36 @@ bool OBJModel::LoadOBJ(const std::string& filename,float scale){
         }
     }
 
+    for (auto& group : materialGroups){
+        for (const auto& material : materials){
+            if (material.name == group.material.name){
+                group.material = material;
+                break;
+            }
+        }
+    }
+    if (materialGroups.empty() && !vertices.empty()){
+        MaterialGroup group;
+
+        group.startVertex = 0;
+        group.vertexCount = vertices.size();
+
+        materialGroups.push_back(group);
+    }
+
+    for (size_t i = 0; i < materialGroups.size(); i++){
+        if (i + 1 < materialGroups.size()){
+            materialGroups[i].vertexCount =
+                materialGroups[i + 1].startVertex -
+                materialGroups[i].startVertex;
+        }
+        else{
+            materialGroups[i].vertexCount =
+                vertices.size() -
+                materialGroups[i].startVertex;
+        }
+    }
+
     bounds.min = { vertices[0].x, vertices[0].y, vertices[0].z };
     bounds.max = { vertices[0].x, vertices[0].y, vertices[0].z };
 
@@ -225,7 +348,27 @@ void OBJModel::Draw(svbmath::Vec3 pos, float yaw, float pitch){
 
 
     // DRAW
-    glDrawArrays( GL_TRIANGLES, 0,vertices.size() );
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+
+    for (const auto& group : materialGroups){
+        GLfloat ambient[] = {group.material.Ka[0], group.material.Ka[1],
+            group.material.Ka[2], 1.0f};
+
+        GLfloat diffuse[] = { group.material.Kd[0], group.material.Kd[1],
+            group.material.Kd[2],group.material.d};
+
+        GLfloat specular[] = { group.material.Ks[0], group.material.Ks[1],
+            group.material.Ks[2],1.0f};
+
+        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular);
+
+        glMaterialf(GL_FRONT_AND_BACK,GL_SHININESS,group.material.Ns);
+
+        glDrawArrays(GL_TRIANGLES, group.startVertex,group.vertexCount);
+    }
 
     // DISABLE
 

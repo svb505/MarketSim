@@ -10,10 +10,28 @@ struct Vertex{
     float nx, ny, nz;    // normal
     float u, v;          // UV
 };
+struct Material{
+    std::string name;
+
+    float Ka[3] = { 1.0f, 1.0f, 1.0f };
+    float Kd[3] = { 1.0f, 1.0f, 1.0f };
+    float Ks[3] = { 1.0f, 1.0f, 1.0f };
+
+    float Ns = 0.0f;
+    float d = 1.0f;
+};
+
+struct MaterialGroup{
+    Material material;
+    size_t startVertex = 0;
+    size_t vertexCount = 0;
+};
 
 class OBJModel{
 private:
     std::vector<Vertex> vertices;
+    std::vector<MaterialGroup> materialGroups;
+    std::vector<Material> materials;
 
     GLuint vbo = 0;
     GLuint texture = 0;
@@ -22,6 +40,7 @@ public:
     Bounds bounds;
     float scale = 0.0f;
 
+    bool LoadMTL(const std::string& filename);
     bool LoadOBJ(const std::string& filename,float scale);
     bool LoadTexture(const std::string& filename);
 
