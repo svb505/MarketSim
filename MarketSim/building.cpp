@@ -292,11 +292,11 @@ void Building::CreateBuilding() {
 
     shelves.push_back(shelf2);
 
-    cashRegister.position = { -5.0f,0.7f, 3.7f };
+    cashRegister.position = { -4.0f,0.7f, 3.7f };
 
-    cashRegister.width = 0.5f;
+    cashRegister.width = 1.5f;
     cashRegister.height = 1.4f;
-    cashRegister.depth = 1.2f;
+    cashRegister.depth = 2.2f;
 
     Bounds cashAABB = MakeAABB(cashRegister.position, cashRegister.width, cashRegister.height, cashRegister.depth);
 
