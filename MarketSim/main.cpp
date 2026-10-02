@@ -27,6 +27,7 @@
 #include "text.h"
 #include <format>
 #include "GUI.h"
+#include "drone.h"
 
 Camera cam;
 Building build;
@@ -93,7 +94,7 @@ int main() {
     }
 
     glfwWindowHint(GLFW_SAMPLES, 16);
-    GLFWwindow* window = glfwCreateWindow(ECRAN_W, ECRAN_H, "FPV Market - V0.0.1", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(ECRAN_W, ECRAN_H, "FPV Market - V0.3.5", NULL, NULL);
     if (!window) {
         std::cout << "Failed to create window\n";
         glfwTerminate();
@@ -164,6 +165,7 @@ int main() {
 
         ImGui::Render();
 
+        
 
         cam.setupCamera();
 
@@ -173,6 +175,8 @@ int main() {
 
         glEnable(GL_POLYGON_OFFSET_FILL);
         glPolygonOffset(-2.0f, -2.0f);
+
+        drawFPVEquipment();
 
         build.DrawBuilding();
         if (build.checkCollision(cam)) cam.getCamPos() = cam.getOldCamPos();

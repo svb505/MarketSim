@@ -4,6 +4,7 @@
 #include "model.h"
 #include "camera.h"
 #include <map>
+#include <memory>
 
 enum class DecType {
 	BUILD1,
@@ -12,6 +13,12 @@ enum class DecType {
 	LAMP
 };
 
+struct DecorationInstance
+{
+	DecType type;
+	svbmath::Vec3 position;
+	float rotationY;
+};
 extern std::map<DecType, float> scales;
 
 class Decorations {
@@ -24,11 +31,18 @@ private:
 	std::vector<svbmath::Vec3> allPositions;
 
 	svbmath::Vec3 buildBasePos = {0.0f,0.0f,0.0f};
+	std::vector<DecorationInstance> decorations;
 
-	std::map<DecType, OBJModel*> models;
+	std::map<DecType, std::unique_ptr<OBJModel>> models;
 public:
+	void addDecoration(DecType type,svbmath::Vec3 pos,float rotationY);
+	void addBuildings();
+	void addEndBuildings();
+	void addTrees();
+	void addLamps();
+	Bounds getWorldBounds(const OBJModel& model, const DecorationInstance& decoration);
+	void initDecoration(const std::string& modelPath, DecType decType,const std::string& texturePath);
 	void initPositions();
-	void initDecoration(std::string modelPath, DecType decType, std::string texturePath = "");
 	void drawAllDecorations(DecType decType);
 	bool checkCollision(Camera& cam, DecType decType);
 };

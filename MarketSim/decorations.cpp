@@ -3,206 +3,196 @@
 #include "model.h"
 #include "svbmath.h"
 #include "camera.h"
-#include <vector>
 #include <iostream>
+#include <memory>
+#include <string>
+#include <vector>
+#include <map>
 
-std::map<DecType, float> scales = { {DecType::BUILD1,1.0f},
-                                    {DecType::BUILD2, 1.0f},
-                                    {DecType::TREE, 0.25},
-                                    {DecType::LAMP, 1.25}
+
+std::map<DecType, float> scales ={
+    { DecType::BUILD1, 1.0f },
+    { DecType::BUILD2, 1.0f },
+    { DecType::TREE,  0.25f },
+    { DecType::LAMP,  1.25f }
 };
 
-void Decorations::initPositions() {
-    svbmath::Vec3 currentPos = buildBasePos;
 
-    for (int i = 0; i < buildsCount; i++) {
-        svbmath::Vec3 bufferPos = currentPos;
+static float getModelScale(DecType type){
+    auto it = scales.find(type);
 
-        if (i < 3) bufferPos.x += buildXStep * (i + 1);
-        else bufferPos.x -= buildXStep * (i - 2);
+    if (it == scales.end()) return 1.0f;
 
-        allPositions.push_back(bufferPos);
-    }
-    for (int i = 0; i < buildsCount; i++) {
-        svbmath::Vec3 bufferPos = currentPos;
-        bufferPos.z = 35.0f;
-
-        if (i < 3) bufferPos.x += buildXStep * (i + 1);
-        else if (i == 3) bufferPos.x = -10.0f;
-        else  bufferPos.x -= buildXStep * (i - 2);
-
-        allPositions.push_back(bufferPos);
-    }
-
-    // Здания, закрывающие конец улицы
-    svbmath::Vec3 endBuilding1 = currentPos;
-    endBuilding1.x = -35.0f;
-    endBuilding1.z = 10.0f;
-    allPositions.push_back(endBuilding1);
-
-    svbmath::Vec3 endBuilding2 = currentPos;
-    endBuilding2.x = 80.0f;
-    endBuilding2.z = 10.0f;
-    allPositions.push_back(endBuilding2);
-
-    for (int i = 0; i < treesCount; i++) {
-        svbmath::Vec3 bufferPos = currentPos;
-
-        bufferPos.z = 18.0f;
-
-        if (i < 3) bufferPos.x += buildXStep * (i + 1);
-        else  bufferPos.x -= buildXStep * (i - 2);
-
-        allPositions.push_back(bufferPos);
-    }
-
-    for (int i = 0; i < lampsCount; i++) {
-        svbmath::Vec3 bufferPos = currentPos;
-
-        bufferPos.z = 6.5f;
-
-        if (i < 3) bufferPos.x += buildXStep * (i + 1);
-        else  bufferPos.x -= buildXStep * (i - 2);
-
-        allPositions.push_back(bufferPos);
-    }
-
-
+    return it->second;
 }
-void Decorations::initDecoration(std::string modelPath, DecType decType, 
-	std::string texturePath) {
+void Decorations::addDecoration(DecType type,svbmath::Vec3 pos,float rotationY){
+    DecorationInstance decoration;
 
-    float scale = scales[decType];
+    decoration.type = type;
+    decoration.position = pos;
+    decoration.rotationY = rotationY;
 
-	models.emplace(decType, new OBJModel());
-
-	models[decType]->LoadOBJ(modelPath, scale);
-	if (texturePath != "") models[decType]->LoadTexture(texturePath);
-
-	models[decType]->CreateVBO();
+    decorations.push_back(decoration);
 }
-void Decorations::drawAllDecorations(DecType decType) {
+void Decorations::initPositions(){
+    decorations.clear();
+
+    addBuildings();
+    addEndBuildings();
+    addTrees();
+    addLamps();
+}
+void Decorations::addBuildings(){
+    for (int i = 0; i < buildsCount; ++i){
+        float x;
+
+        if (i < 3) x = buildBasePos.x + buildXStep * (i + 1);
+        else x = buildBasePos.x - buildXStep * (i - 2);
+
+        addDecoration(DecType::BUILD2,{x, buildBasePos.y + 2.5f, buildBasePos.z},0.0f);
+    }
+
+    for (int i = 0; i < buildsCount; ++i){
+        float x;
+
+        if (i < 3) x = buildBasePos.x + buildXStep * (i + 1);
+        else if (i == 3)  x = -10.0f;
+        else x = buildBasePos.x - buildXStep * (i - 2);
+
+        addDecoration(DecType::BUILD2, {x, buildBasePos.y + 2.5f,35.0f }, 0.0f);
+    }
+}
+void Decorations::addEndBuildings() {
+    addDecoration(DecType::BUILD2, { -35.0f, buildBasePos.y + 2.5f,10.0f }, 0.0f);
+    addDecoration(DecType::BUILD2,{80.0f, buildBasePos.y + 2.5f,10.0f},0.0f);
+}
+void Decorations::addTrees(){
+    for (int i = 0; i < treesCount; ++i){
+        float x;
+
+        if (i < 3) x = buildBasePos.x + buildXStep * (i + 1);
+        else x = buildBasePos.x - buildXStep * (i - 2);
+
+        addDecoration(DecType::TREE, { x,buildBasePos.y, 18.0f },0.0f);
+    }
+}
+void Decorations::addLamps(){
+    for (int i = 0; i < lampsCount; ++i){
+        float x;
+
+        if (i < 3) x = buildBasePos.x + buildXStep * (i + 1);
+        else x = buildBasePos.x - buildXStep * (i - 2);
+
+        addDecoration(DecType::LAMP,{ x,buildBasePos.y,6.5f },0.0f);
+    }
+}
+void Decorations::initDecoration(const std::string& modelPath, DecType decType,
+    const std::string& texturePath){
+
+    float scale = getModelScale(decType);
+
+    auto model = std::make_unique<OBJModel>();
+
+    if (!model->LoadOBJ(modelPath, scale)){
+        std::cout << "Failed to load decoration model: " << modelPath << std::endl;
+
+        return;
+    }
+
+    if (!texturePath.empty())  model->LoadTexture(texturePath);
+
+    model->CreateVBO();
+
+    models[decType] = std::move(model);
+}
+void Decorations::drawAllDecorations(DecType decType){
+    auto modelIt = models.find(decType);
+
+    if (modelIt == models.end()) return;
+
+    OBJModel* model = modelIt->second.get();
+
+    if (!model) return;
+
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
 
-    float yaw = 0.0f;
-    int treesStart = buildsCount * 2 + 2;
-    int lampsStart = buildsCount * 2 + 2 + treesCount;
 
-    switch (decType) {
-    case DecType::BUILD1:
-        yaw = 90.0f;
-        break;
+    for (const DecorationInstance& decoration : decorations) {
+        if (decoration.type != decType) continue;
 
-    case DecType::BUILD2:
-        yaw = 0.0f;
-        break;
-
-    case DecType::TREE:
-        yaw = 0.0f;
-        break;
-    case DecType::LAMP:
-        yaw = 0.0f;
-        break;
+        model->Draw( decoration.position, decoration.rotationY,0.0f);
     }
 
-    if (decType == DecType::BUILD1 || decType == DecType::BUILD2) {
-        for (int i = 0; i < buildsCount * 2; i++) {
-            auto pos = allPositions[i];
-
-            if (decType == DecType::BUILD2) pos.y += 2.5f;
-
-            models[decType]->Draw(pos, yaw, 0.0f);
-        }
-
-        auto pos1 = allPositions[buildsCount * 2];
-        pos1.y += 2.5f;
-        auto pos2 = allPositions[buildsCount * 2 + 1]; 
-        pos2.y += 2.5f;
-
-        models[decType]->Draw(pos1, 0.0f, 0.0f);
-        models[decType]->Draw(pos2, 0.0f, 0.0f);
-    }
-    if (decType == DecType::TREE) {
-        for (int i = treesStart; i < treesStart + treesCount; i++) {
-            auto pos = allPositions[i];
-
-            models[decType]->Draw(pos, yaw, 0.0f);
-        }
-    }
-    if (decType == DecType::LAMP) {
-        for (int i = lampsStart; i < lampsStart + lampsCount; i++) {
-            auto pos = allPositions[i];
-
-            models[decType]->Draw(pos, yaw, 0.0f);
-        }
-    }
 
     glDisable(GL_CULL_FACE);
-            
 }
-bool Decorations::checkCollision(Camera& cam, DecType decType) {
-    auto mod = models[decType];
+Bounds Decorations::getWorldBounds(const OBJModel& model, const DecorationInstance& decoration){
+    Bounds worldBounds = model.bounds;
 
-    float step = (decType == DecType::BUILD2) ? 2.5f : 0.0f;
+    const float scale = model.scale;
 
-    int startIndex = 0;
-    int count = 0;
+    const svbmath::Vec3& position = decoration.position;
+    float rotation = decoration.rotationY;
 
-    if (decType == DecType::TREE) {
-        startIndex = buildsCount * 2 + 2;
-        count = treesCount;
+    while (rotation < 0.0f) rotation += 360.0f;
+    while (rotation >= 360.0f) rotation -= 360.0f;
+
+
+    if (rotation == 90.0f){
+        float minX = -model.bounds.max.z * scale;
+
+        float maxX = -model.bounds.min.z * scale;
+
+        float minZ = model.bounds.min.x * scale;
+
+        float maxZ = model.bounds.max.x * scale;
+
+        worldBounds.min.x = minX + position.x;
+
+        worldBounds.max.x = maxX + position.x;
+
+        worldBounds.min.z = minZ + position.z;
+
+        worldBounds.max.z = maxZ + position.z;
     }
-   else if (decType == DecType::LAMP) {
-        startIndex = buildsCount * 2 + 2 + treesCount;
-        count = lampsCount;
+    else{
+        worldBounds.min.x = model.bounds.min.x * scale + position.x;
+
+        worldBounds.max.x = model.bounds.max.x * scale + position.x;
+
+        worldBounds.min.z = model.bounds.min.z * scale + position.z;
+
+        worldBounds.max.z = model.bounds.max.z * scale + position.z;
     }
-    else {
-        startIndex = 0;
-        count = buildsCount * 2 + 2;
+
+
+    worldBounds.min.y = model.bounds.min.y * scale + position.y;
+
+    worldBounds.max.y =  model.bounds.max.y * scale + position.y;
+
+
+    return worldBounds;
+}
+bool Decorations::checkCollision(Camera& cam,DecType decType){
+    auto modelIt = models.find(decType);
+
+    if (modelIt == models.end()) return false;
+
+    OBJModel* model = modelIt->second.get();
+
+    if (!model) return false;
+
+    for (const DecorationInstance& decoration : decorations){
+        if (decoration.type != decType)continue;
+
+        Bounds worldBounds = getWorldBounds(*model, decoration);
+
+
+        if (checkAABBCollision(worldBounds, cam.getCamPos())) return true;
     }
 
-
-
-    for (int i = startIndex; i < startIndex + count; i++) {
-        bool rotated = false;
-
-        svbmath::Vec3 pos = allPositions[i];
-
-        Bounds newBounds = mod->bounds;
-
-        if (rotated){
-            // rotation 90 degres
-            float minX = -mod->bounds.max.z * mod->scale;
-            float maxX = -mod->bounds.min.z * mod->scale;
-
-            float minZ = mod->bounds.min.x * mod->scale;
-            float maxZ = mod->bounds.max.x * mod->scale;
-
-            newBounds.min.x = minX + pos.x;
-            newBounds.max.x = maxX + pos.x;
-
-            newBounds.min.z = minZ + pos.z;
-            newBounds.max.z = maxZ + pos.z;
-
-            newBounds.min.y = mod->bounds.min.y * mod->scale + pos.y + step;
-            newBounds.max.y = mod->bounds.max.y * mod->scale + pos.y + step;
-        }
-        else{
-            newBounds.min.x = mod->bounds.min.x * mod->scale + pos.x;
-            newBounds.max.x = mod->bounds.max.x * mod->scale + pos.x;
-
-            newBounds.min.y = mod->bounds.min.y * mod->scale + pos.y + step;
-            newBounds.max.y = mod->bounds.max.y * mod->scale + pos.y + step;
-
-            newBounds.min.z = mod->bounds.min.z * mod->scale + pos.z;
-            newBounds.max.z = mod->bounds.max.z * mod->scale + pos.z;
-        }
-
-        if (checkAABBCollision(newBounds, cam.getCamPos()))
-            return true;
-    }
 
     return false;
 }
