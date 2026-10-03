@@ -5,6 +5,8 @@
 #include <cmath>
 #include "camera.h"
 #include "variables.h"
+#include "drone.h"
+#include "svbmath.h"
 
 inline bool isDown(GLFWwindow* w, int key) {
     return glfwGetKey(w, key) == GLFW_PRESS;
@@ -16,7 +18,8 @@ inline bool isPressed(GLFWwindow* w, int key, bool& prev) {
     return result;
 }
 
-void processInput(GLFWwindow* window, Camera& cam, float dt) {
+void processInput(GLFWwindow* window, Camera& cam, FPVDrone& drone,float dt,
+    svbmath::Vec3 point) {
     cam.getOldCamPos() = cam.getCamPos();
 
     auto& params = cam.getCamParams();
@@ -35,7 +38,37 @@ void processInput(GLFWwindow* window, Camera& cam, float dt) {
     float rightZ = -sin(yawRad);
 
     static bool prevAlt = false;
+    static bool prevE = false;
 
+    bool pressE = isPressed(window, GLFW_KEY_E, prevE);
+
+    if (pressE) {
+        if (drawEquipModel && placeObj) {
+            drone.addPlacedObj(objName, point);
+
+            drawEquipModel = false;
+            objName.clear();
+            placeObj = false;
+        }
+        else if (!drawEquipModel && canTakeObj) {
+            auto& boxes = drone.getOrderEquip();
+            int& index = drone.getCurrentIndex();
+
+            for (auto& box : boxes) {
+                if (!box.render)
+                    continue;
+
+                if (index >= 0 &&
+                    index < static_cast<int>(box.equip.size())) {
+                    objName = box.equip[index];
+                    ++index;
+
+                    drawEquipModel = true;
+                    break;
+                }
+            }
+        }
+    }
     if (isPressed(window, GLFW_KEY_LEFT_ALT, prevAlt)) hideCursor = !hideCursor;
     if (isDown(window, GLFW_KEY_LEFT_SHIFT)) currentSpeed *= 2;
     if (isDown(window, GLFW_KEY_ESCAPE)) glfwSetWindowShouldClose(window, true);
@@ -55,8 +88,4 @@ void processInput(GLFWwindow* window, Camera& cam, float dt) {
         pos.x -= rightX * currentSpeed * dt;
         pos.z -= rightZ * currentSpeed * dt;
     }
-
-    if (isDown(window, GLFW_KEY_Q)) pos.y -= moveSpeed * dt;
-    if (isDown(window, GLFW_KEY_E)) pos.y += moveSpeed * dt;
-
 }

@@ -2,11 +2,60 @@
 #include "texture.h"
 #include <glad/glad.h>
 #include "svbmath.h"
-#include "svbRandom.h"
+#include "variables.h"
 
-void drawBox(float width, float height, float depth, svbmath::Vec3 pos) {
-    GLuint texture = (returnRandomNum(0.0f, 1.0f) < 0.5) ? allTextures["BOX1"] : allTextures["BOX2"];
-    
+void render2DIcon(std::string iconName, svbmath::Vec2 pos, float size) {
+    glDisable(GL_DEPTH_TEST);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+
+    glOrtho(0, ECRAN_W, ECRAN_H, 0, -1, 1);
+
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
+
+    GLuint icon = allTextures[iconName];
+
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, icon);
+
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+    glBegin(GL_QUADS);
+
+    glTexCoord2f(0, 0);
+    glVertex2f(pos.x, pos.y);
+
+    glTexCoord2f(1, 0);
+    glVertex2f(pos.x + size, pos.y);
+
+    glTexCoord2f(1, 1);
+    glVertex2f(pos.x + size, pos.y + size);
+
+    glTexCoord2f(0, 1);
+    glVertex2f(pos.x, pos.y + size);
+
+    glEnd();
+
+    glDisable(GL_TEXTURE_2D);
+
+    glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
+
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+
+    glDisable(GL_BLEND);
+
+    glEnable(GL_DEPTH_TEST);
+}
+void drawBox(float width, float height, float depth, svbmath::Vec3 pos, GLuint texture) { 
     width /= 2.0f;
     height /= 2.0f;
     depth /= 2.0f;

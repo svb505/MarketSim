@@ -6,6 +6,7 @@
 #include <unordered_map>
 
 extern std::string texturePath;
+extern std::string iconPath;
 
 extern std::map<std::string, GLuint> allTextures;
 extern std::unordered_map<std::string, GLuint> loadedTextures;

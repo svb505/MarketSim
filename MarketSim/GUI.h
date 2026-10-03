@@ -8,6 +8,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "drone.h"
+#include <algorithm>
 
 class GUI {
 private:
@@ -31,6 +32,7 @@ public:
 	}
 	void renderOrderWindow(FPVDrone& drone, BuildingSettings& build) {
 		ImGui::Begin("Order window");
+
 		auto equip = drone.getEquipPrice();
 
 		ImGui::Text("Balance: %.1f", myBalance);
@@ -41,7 +43,11 @@ public:
 
 		for (const auto& [key, value] : equip) {
 			//Name - Price
-			ImGui::Text("%s - %s$",key.c_str(), value);
+			if (std::ranges::find(card, key) != card.end()) {
+				ImGui::TextColored({0.0f,0.8f,0.0f,1.0f}, "%s - %.1f$", key.c_str(), value);
+			}
+			else ImGui::Text("%s - %.1f$", key.c_str(), value);
+			
 
 			ImGui::SameLine(150);
 
@@ -57,8 +63,11 @@ public:
 
 			for (auto& element : card) totalPrice += equip[element];
 			
-			if (myBalance >= totalPrice) drone.sendPackage(card,build);
-			else ImGui::TextColored({1.0f,0.0f,0.0f,0.0f}, "NOT ENOUGHT MONEY IN BALANCE");
+			if (myBalance >= totalPrice) { 
+				myBalance -= totalPrice;
+				drone.sendPackage(card, build); 
+			}
+			else ImGui::TextColored({1.0f,0.0f,0.0f,1.0f}, "NOT ENOUGHT MONEY IN BALANCE");
 		}
 
 		ImGui::End();

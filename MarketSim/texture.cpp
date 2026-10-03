@@ -7,6 +7,7 @@
 #include <unordered_map>
 
 std::string texturePath = "res/textures/";
+std::string iconPath = "res/icons/";
 
 std::unordered_map<std::string, GLuint> loadedTextures;
 std::map<std::string, GLuint> allTextures;
@@ -24,7 +25,8 @@ std::unordered_map<std::string, std::string> texturesNamesAndPaths = {
     {"ROAD", texturePath + "road.jpg"},
     {"ASPHALT", texturePath + "asphalt.png"},
     {"BOX1", texturePath + "box1.jpg"},
-    {"BOX2", texturePath + "box2.jpg"}
+    {"BOX2", texturePath + "box2.jpg"},
+    {"HAND", iconPath + "hand.png"}
 };
 
 void LoadAllTextures() {

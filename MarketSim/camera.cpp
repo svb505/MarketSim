@@ -3,6 +3,9 @@
 #include "camera.h"
 #include <GL/glu.h>
 
+svbmath::Vec3& Camera::getCamForward() {
+    return cameraForward;
+}
 svbmath::Vec3& Camera::getCamPos() {
     return cameraPos;
 }
@@ -24,13 +27,10 @@ void Camera::setupCamera() {
     float yawRad = camParams.cameraYaw * 3.1415926f / 180.0f;
     float pitchRad = camParams.cameraPitch * 3.1415926f / 180.0f;
 
-   
-    float dirX = cos(pitchRad) * sin(yawRad);
-    float dirY = sin(pitchRad);
-    float dirZ = cos(pitchRad) * cos(yawRad);
+    cameraForward = { cos(pitchRad) * sin(yawRad), sin(pitchRad), cos(pitchRad) * cos(yawRad) };
 
-    gluLookAt(cameraPos.x, cameraPos.y, cameraPos.z, cameraPos.x + dirX, cameraPos.y + dirY,
-        cameraPos.z + dirZ, 0, 1, 0);
+    gluLookAt(cameraPos.x, cameraPos.y, cameraPos.z, cameraPos.x + cameraForward.x, 
+        cameraPos.y + cameraForward.y, cameraPos.z + cameraForward.z, 0, 1, 0);
     
 }
 svbmath::Vec3 Camera::returnForwardVector() {

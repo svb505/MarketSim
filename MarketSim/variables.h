@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 
 struct FPS {
     double deltaTime = 0.0;
@@ -6,8 +7,12 @@ struct FPS {
     int frames = 0;
 };
 
+extern std::string objName;
 extern float myBalance;
 extern int ECRAN_W;
 extern int ECRAN_H;
 extern float sensitivity;
 extern bool hideCursor;
+extern bool canTakeObj;
+extern bool drawEquipModel;
+extern bool placeObj;

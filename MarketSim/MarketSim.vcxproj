@@ -139,6 +139,7 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="actions.cpp" />
     <ClCompile Include="bounds.cpp" />
     <ClCompile Include="building.cpp" />
     <ClCompile Include="camera.cpp" />
@@ -159,6 +160,7 @@
     <ClCompile Include="variables.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="actions.h" />
     <ClInclude Include="bounds.h" />
     <ClInclude Include="building.h" />
     <ClInclude Include="camera.h" />

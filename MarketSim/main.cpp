@@ -28,6 +28,7 @@
 #include <format>
 #include "GUI.h"
 #include "drone.h"
+#include "actions.h"
 
 Camera cam;
 Building build;
@@ -154,6 +155,8 @@ int main() {
 
     gui.setupGui(window);
 
+    svbmath::Vec3 point;
+
     while (!glfwWindowShouldClose(window)) {
         updateCursorMode(window);
 
@@ -161,7 +164,7 @@ int main() {
 
         countFps(fpsVars, lastTime, currentTime);
 
-        processInput(window, cam, fpsVars.deltaTime);
+        processInput(window, cam, drone,fpsVars.deltaTime, point);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -184,11 +187,37 @@ int main() {
 
         drone.delivery(fpsVars.deltaTime);
         drone.drawAllBoxes();
+        drone.checkBoxesIntersection(cam);
 
+        
+
+        // Предмет в руке
+        if (drawEquipModel && !objName.empty()) {
+            drone.drawEquipModel(objName, cam, false);
+        }
+
+        // Все предметы, которые уже лежат на столе
+        drone.drawAllPlacedObjects();
+
+        // Каждый кадр заново проверяем точку установки
+        placeObj = false;
+
+        if (drawEquipModel && !objName.empty()) {
+            svbmath::Vec3 lookPoint;
+
+            if (getCashRegisterLookPoint(
+                cam.getCamPos(),
+                cam.getCamForward(),
+                build.getCashRegister(),
+                lookPoint))
+            {
+                point = lookPoint;
+                placeObj = true;
+            }
+        }
+        
         build.DrawBuilding();
         if (build.checkCollision(cam)) cam.getCamPos() = cam.getOldCamPos();
-
-        //base.Draw({0.0f, 0.5f,15.0f},0.0f,60.0f);
 
         decor.drawAllDecorations(DecType::BUILD2);
         decor.drawAllDecorations(DecType::TREE);
@@ -196,13 +225,11 @@ int main() {
         if (decor.checkCollision(cam, DecType::BUILD2)) cam.getCamPos() = cam.getOldCamPos();
         if (decor.checkCollision(cam, DecType::TREE)) cam.getCamPos() = cam.getOldCamPos();
         if (decor.checkCollision(cam, DecType::LAMP)) cam.getCamPos() = cam.getOldCamPos();
-        
-        RenderTextHUD(ECRAN_W / 2, ECRAN_H / 2, 1.0f, 1.0f, 1.0f, 
-            std::format("{:.0f}", fpsVars.fps).c_str(), ECRAN_W, ECRAN_H);
-        RenderTextHUD(ECRAN_W / 2, ECRAN_H / 2 - 10.0F, 1.0f, 1.0f, 1.0f,
-            std::format("MIN: {:.0f}", fpsVars.minFps).c_str(), ECRAN_W, ECRAN_H);
-        RenderTextHUD(ECRAN_W / 2, ECRAN_H / 2 - 20.0f, 1.0f, 1.0f, 1.0f,
-            std::format("MAX: {:.0f}", fpsVars.maxFps).c_str(), ECRAN_W, ECRAN_H);
+       
+        if (drone.getShowText()) {
+            RenderTextHUD(ECRAN_W / 2, ECRAN_H / 2, 1.0f, 0.0f, 0.0f,
+                "Your package has arrived", ECRAN_W, ECRAN_H );
+        }
 
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
