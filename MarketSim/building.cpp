@@ -7,6 +7,9 @@
 #include "bounds.h"
 #include "building.h"
 
+std::vector<Shelf>& Building::getShelves() {
+    return shelves;
+}
 CashRegister& Building::getCashRegister() {
     return cashRegister;
 }

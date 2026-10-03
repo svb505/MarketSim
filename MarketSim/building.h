@@ -55,6 +55,7 @@ private:
 public:
     CashRegister& getCashRegister();
     BuildingSettings& getBuildSettings();
+    std::vector<Shelf>& getShelves();
 
     void DrawQuad(svbmath::Vec3 a, svbmath::Vec3 b, svbmath::Vec3 c, svbmath::Vec3 d,
         GLuint texture = 0);

@@ -157,6 +157,8 @@ int main() {
 
     svbmath::Vec3 point;
 
+    drone.initCoordinatesForShelves(build);
+
     while (!glfwWindowShouldClose(window)) {
         updateCursorMode(window);
 
@@ -189,10 +191,11 @@ int main() {
         drone.drawAllBoxes();
         drone.checkBoxesIntersection(cam);
         drone.checkIfCanCreateDrone(cam, build.getCashRegister());
+        drone.checkIfCanPlaceInShelf(cam);
 
         if (canDrawEquipModel && !objName.empty()) drone.drawEquipModel(objName, cam, false, base);
 
-        drone.drawAllPlacedObjects();
+        drone.drawAllPlacedObjects(base);
 
         placeObj = false;
 

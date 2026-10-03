@@ -10,6 +10,10 @@
 #include "building.h"
 #include "model.h"
 
+struct ShelfSetting {
+    svbmath::Vec3 pos;
+    bool busy = false;
+};
 struct Package {
     std::vector<std::string> equip;
     svbmath::Vec3 pos;
@@ -36,6 +40,7 @@ private:
 
     std::vector<Package> boxesWithEquip = {};
     std::vector<PlacedObject> placedObjects;
+    std::vector<ShelfSetting> positionsOnShelves;
 
     float deliveryTime = 10.0; //sec
     float textTime = 3.0f;
@@ -52,8 +57,10 @@ public:
     const std::vector<std::string>& getBaseEquip();
     const std::map<std::string, float>& getEquipPrice();
     bool isPlaced(const std::string& name) const;
+    std::vector<svbmath::Vec3> generateShelfPoints(const Shelf& shelf);
 
-    void drawAllPlacedObjects();
+    void checkIfCanPlaceInShelf(Camera& cam);
+    void drawAllPlacedObjects(OBJModel& objmodel);
     void addPlacedObj(std::string name, svbmath::Vec3 pos);
     void sendPackage(std::vector<std::string>& equip, BuildingSettings& build);
     void delivery(float dt);
@@ -61,6 +68,7 @@ public:
     void checkBoxesIntersection(Camera& cam);
     void drawEquipModel(std::string model, Camera& cam, bool placed, OBJModel& objmodel);
     void checkIfCanCreateDrone(Camera& cam, CashRegister& build);
+    void initCoordinatesForShelves(Building& build);
 
     void drawCube(float sx, float sy, float sz);
     void drawCylinder(float radius, float height, int segments = 16);

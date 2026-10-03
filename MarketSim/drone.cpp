@@ -9,8 +9,75 @@
 #include "model.h"
 #include <iostream>
 
+std::vector<svbmath::Vec3> FPVDrone::generateShelfPoints(const Shelf& shelf){
+    std::vector<svbmath::Vec3> points;
+
+    const int count = 5;
+
+    if (shelf.width >= shelf.depth){
+        for (int row = 0; row < 2; row++){
+            float y = row == 0 ? shelf.max.y : shelf.min.y;
+
+            for (int i = 0; i < count; i++){
+                float t = (float)i / (count - 1);
+
+                float x = shelf.min.x +
+                    (shelf.max.x - shelf.min.x) * t;
+
+                float z = shelf.position.z;
+
+                points.push_back({ x, y, z });
+            }
+        }
+    }
+    else{
+        for (int row = 0; row < 2; row++){
+            float y = row == 0 ? shelf.max.y : shelf.min.y;
+
+            for (int i = 0; i < count; i++){
+                float t = (float)i / (count - 1);
+
+                float z = shelf.min.z +
+                    (shelf.max.z - shelf.min.z) * t;
+
+                float x = shelf.position.x;
+
+                points.push_back({ x, y, z });
+            }
+        }
+    }
+
+    return points;
+}
 std::vector<PlacedObject>& FPVDrone::getPlacedEquip() {
     return placedObjects;
+}
+void FPVDrone::initCoordinatesForShelves(Building& build) {
+    for (const auto& shelf : build.getShelves()){
+        auto points = generateShelfPoints(shelf);
+
+        for (const auto& point : points) positionsOnShelves.push_back({point,false});
+    }
+    
+}
+void FPVDrone::checkIfCanPlaceInShelf(Camera& cam) {
+    
+    std::cout << objName << std::endl;
+
+    for (auto& obj : positionsOnShelves) {
+        if (svbmath::InRadius(cam.getCamPos(), obj.pos, 1.0f) && 
+            (objName == "FPV Drone T1" || objName == "FPV Drone T2") && !obj.busy) {
+            addPlacedObj(objName, obj.pos);
+
+            obj.busy = true;
+
+            objName.clear();
+            placeObj = false;
+            canDrawEquipModel = false;
+
+            return;
+        }
+    }
 }
 bool FPVDrone::isPlaced(const std::string& name) const {
     for (const auto& obj : placedObjects) {
@@ -38,7 +105,7 @@ void FPVDrone::drawAllBoxes() {
     for (auto& box : boxesWithEquip) if (box.render) 
         drawBox(0.6f, 0.6f, 0.6f, box.pos, box.texture);
 }
-void FPVDrone::drawAllPlacedObjects() {
+void FPVDrone::drawAllPlacedObjects(OBJModel& objmodel) {
     for (const auto& obj : placedObjects) {
         glPushMatrix();
 
@@ -54,6 +121,8 @@ void FPVDrone::drawAllPlacedObjects() {
         if (obj.name == baseEquipment[4]) drawPropeller(localPos, false);
         if (obj.name == baseEquipment[5]) drawRemoteController(localPos);
         if (obj.name == baseEquipment[6]) drawFPVGoggles(localPos);
+        if (obj.name == baseEquipment[7]) objmodel.Draw(localPos, 0.0f, 90.0f);
+        if (obj.name == "FPV Drone T2") drawFPVDrone(localPos);
 
         glPopMatrix();
     }
@@ -180,13 +249,15 @@ void FPVDrone::sendPackage(std::vector<std::string>& equip, BuildingSettings& bu
     GLuint texture = (returnRandomNum(0.0f, 1.0f) < 0.5) ? allTextures["BOX1"] : allTextures["BOX2"];
 
     boxesWithEquip.push_back({equip, boxPos, texture, false});
+    
+    currentIndex = 0;
     inDelivery = true;
 }
 void FPVDrone::delivery(float dt) {
     if (inDelivery) {
         if (deliveryTime > 0.0f) deliveryTime -= dt;
         else {
-            deliveryTime = 30.0f;
+            deliveryTime = 10.0f;
             inDelivery = false;
             showText = true;
 
