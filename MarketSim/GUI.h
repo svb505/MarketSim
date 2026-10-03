@@ -66,6 +66,7 @@ public:
 			if (myBalance >= totalPrice) { 
 				myBalance -= totalPrice;
 				drone.sendPackage(card, build); 
+				card.clear();
 			}
 			else ImGui::TextColored({1.0f,0.0f,0.0f,1.0f}, "NOT ENOUGHT MONEY IN BALANCE");
 		}

@@ -14,5 +14,6 @@ extern int ECRAN_H;
 extern float sensitivity;
 extern bool hideCursor;
 extern bool canTakeObj;
-extern bool drawEquipModel;
+extern bool canDrawEquipModel;
 extern bool placeObj;
+extern bool canCreateDrone;

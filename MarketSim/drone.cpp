@@ -6,6 +6,12 @@
 #include "svbRandom.h"
 #include "renders.h"
 #include "actions.h"
+#include "model.h"
+#include <iostream>
+
+std::vector<PlacedObject>& FPVDrone::getPlacedEquip() {
+    return placedObjects;
+}
 bool FPVDrone::isPlaced(const std::string& name) const {
     for (const auto& obj : placedObjects) {
         if (obj.name == name)
@@ -52,7 +58,32 @@ void FPVDrone::drawAllPlacedObjects() {
         glPopMatrix();
     }
 }
-void FPVDrone::drawEquipModel(std::string model,Camera& cam,bool placed) {
+void FPVDrone::checkIfCanCreateDrone(Camera& cam, CashRegister& build) {
+    Components comp;
+    svbmath::Vec3 basePos;
+    int idx = 0;
+
+    for (auto& obj : placedObjects) {
+        if (idx == 0) basePos = obj.pos;
+
+        if (obj.name == "Frame") comp.frame++;
+        if (obj.name == "Camera") comp.camera++;
+        if (obj.name == "Battery") comp.battery++;
+        if (obj.name == "Motor") comp.motor++;
+        if (obj.name == "Propeller") comp.propeller++;
+        if (obj.name == "Controller") comp.controller++;
+        if (obj.name == "Goggles") comp.goggles++;
+
+        idx++;
+    }
+
+    if (comp.battery >= 1 && comp.frame >= 1 && comp.camera >= 1 && comp.motor >= 4 && 
+        comp.propeller >= 4 && comp.controller >= 1 && comp.goggles >= 1 && 
+        svbmath::InRadius(cam.getCamPos(), build.position, 5.0f)){
+        canCreateDrone = true;
+    }
+}
+void FPVDrone::drawEquipModel(std::string model,Camera& cam,bool placed,OBJModel& objmodel) {    
     if (placed) {
         for (const auto& obj : placedObjects) {
             if (obj.name != model)
@@ -71,6 +102,8 @@ void FPVDrone::drawEquipModel(std::string model,Camera& cam,bool placed) {
             if (model == baseEquipment[4]) drawPropeller(localPos, false);
             if (model == baseEquipment[5]) drawRemoteController(localPos);
             if (model == baseEquipment[6]) drawFPVGoggles(localPos);
+            if (model == baseEquipment[7]) objmodel.Draw(localPos,0.0f,0.0f);
+            if (model == "FPV Drone T2") drawFPVDrone(localPos);
 
             glPopMatrix();
         }
@@ -94,6 +127,8 @@ void FPVDrone::drawEquipModel(std::string model,Camera& cam,bool placed) {
     if (model == baseEquipment[4]) drawPropeller(localPos, false);
     if (model == baseEquipment[5]) drawRemoteController(localPos);
     if (model == baseEquipment[6]) drawFPVGoggles(localPos);
+    if (model == baseEquipment[7]) objmodel.Draw(localPos, 0.0f, 0.0f);
+    if (model == "FPV Drone T2") drawFPVDrone(localPos);
 
     glPopMatrix();
 }

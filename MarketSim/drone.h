@@ -8,6 +8,7 @@
 #include <string>
 #include "svbmath.h"
 #include "building.h"
+#include "model.h"
 
 struct Package {
     std::vector<std::string> equip;
@@ -21,13 +22,17 @@ struct PlacedObject {
     std::string name;
     svbmath::Vec3 pos;
 };
+struct Components {
+    int frame = 0, camera = 0, battery = 0, motor = 0, propeller = 0, controller = 0, goggles = 0;
+};
+
 class FPVDrone {
 private:
     std::vector<std::string> baseEquipment = {"Frame","Camera","Battery", "Motor",
-        "Propeller","Controller" ,"Goggles",};
-    std::map<std::string, float> equipmentPrice = {{"Frame",100.0f},{"Camera",300.0f},
+        "Propeller","Controller" ,"Goggles","FPV Drone T1"};
+    std::map<std::string, float> equipmentPrice = { {"Frame",100.0f},{"Camera",300.0f},
         {"Battery",250.0f} ,{"Motor",350.0f} ,{"Propeller",150.0f}, {"Controller",100.0f},
-        {"Goggles",250.0f}};
+        {"Goggles",250.0f},{"FPV Drone T1",1000.0f} };
 
     std::vector<Package> boxesWithEquip = {};
     std::vector<PlacedObject> placedObjects;
@@ -43,6 +48,7 @@ public:
     bool getShowText();
     int& getCurrentIndex();
     std::vector<Package>& getOrderEquip();
+    std::vector<PlacedObject>& getPlacedEquip();
     const std::vector<std::string>& getBaseEquip();
     const std::map<std::string, float>& getEquipPrice();
     bool isPlaced(const std::string& name) const;
@@ -53,7 +59,8 @@ public:
     void delivery(float dt);
     void drawAllBoxes();
     void checkBoxesIntersection(Camera& cam);
-    void drawEquipModel(std::string model, Camera& cam, bool placed);
+    void drawEquipModel(std::string model, Camera& cam, bool placed, OBJModel& objmodel);
+    void checkIfCanCreateDrone(Camera& cam, CashRegister& build);
 
     void drawCube(float sx, float sy, float sz);
     void drawCylinder(float radius, float height, int segments = 16);

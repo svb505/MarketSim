@@ -43,14 +43,14 @@ void processInput(GLFWwindow* window, Camera& cam, FPVDrone& drone,float dt,
     bool pressE = isPressed(window, GLFW_KEY_E, prevE);
 
     if (pressE) {
-        if (drawEquipModel && placeObj) {
+        if (canDrawEquipModel && placeObj) {
             drone.addPlacedObj(objName, point);
 
-            drawEquipModel = false;
+            canDrawEquipModel = false;
             objName.clear();
             placeObj = false;
         }
-        else if (!drawEquipModel && canTakeObj) {
+        else if (!canDrawEquipModel && canTakeObj) {
             auto& boxes = drone.getOrderEquip();
             int& index = drone.getCurrentIndex();
 
@@ -63,10 +63,15 @@ void processInput(GLFWwindow* window, Camera& cam, FPVDrone& drone,float dt,
                     objName = box.equip[index];
                     ++index;
 
-                    drawEquipModel = true;
+                    canDrawEquipModel = true;
                     break;
                 }
             }
+        }
+        else if (canCreateDrone) {
+            drone.getPlacedEquip().clear();
+            objName = "FPV Drone T2";
+            canDrawEquipModel = true;
         }
     }
     if (isPressed(window, GLFW_KEY_LEFT_ALT, prevAlt)) hideCursor = !hideCursor;

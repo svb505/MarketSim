@@ -188,29 +188,19 @@ int main() {
         drone.delivery(fpsVars.deltaTime);
         drone.drawAllBoxes();
         drone.checkBoxesIntersection(cam);
+        drone.checkIfCanCreateDrone(cam, build.getCashRegister());
 
-        
+        if (canDrawEquipModel && !objName.empty()) drone.drawEquipModel(objName, cam, false, base);
 
-        // Предмет в руке
-        if (drawEquipModel && !objName.empty()) {
-            drone.drawEquipModel(objName, cam, false);
-        }
-
-        // Все предметы, которые уже лежат на столе
         drone.drawAllPlacedObjects();
 
-        // Каждый кадр заново проверяем точку установки
         placeObj = false;
 
-        if (drawEquipModel && !objName.empty()) {
+        if (canDrawEquipModel && !objName.empty()) {
             svbmath::Vec3 lookPoint;
 
-            if (getCashRegisterLookPoint(
-                cam.getCamPos(),
-                cam.getCamForward(),
-                build.getCashRegister(),
-                lookPoint))
-            {
+            if (getCashRegisterLookPoint(cam.getCamPos(), cam.getCamForward(),
+                build.getCashRegister(),lookPoint)){
                 point = lookPoint;
                 placeObj = true;
             }

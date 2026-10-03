@@ -7,5 +7,6 @@ float sensitivity = 0.05f;
 float myBalance = 3000.0f;
 bool hideCursor = true;
 bool canTakeObj = false;
-bool drawEquipModel = false;
+bool canDrawEquipModel = false;
 bool placeObj = false;
+bool canCreateDrone = false;
