@@ -17,3 +17,5 @@ extern bool canTakeObj;
 extern bool canDrawEquipModel;
 extern bool placeObj;
 extern bool canCreateDrone;
+extern float priceForT1;
+extern float priceForT2;

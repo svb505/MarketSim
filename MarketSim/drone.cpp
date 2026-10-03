@@ -9,41 +9,39 @@
 #include "model.h"
 #include <iostream>
 
-std::vector<svbmath::Vec3> FPVDrone::generateShelfPoints(const Shelf& shelf){
+std::vector<svbmath::Vec3> FPVDrone::generateShelfPoints(const Shelf& shelf) {
     std::vector<svbmath::Vec3> points;
 
     const int count = 5;
 
-    if (shelf.width >= shelf.depth){
-        for (int row = 0; row < 2; row++){
-            float y = row == 0 ? shelf.max.y : shelf.min.y;
+    if (shelf.width >= shelf.depth) {
 
-            for (int i = 0; i < count; i++){
-                float t = (float)i / (count - 1);
+        float y = shelf.max.y;
 
-                float x = shelf.min.x +
-                    (shelf.max.x - shelf.min.x) * t;
+        for (int i = 0; i < count; i++) {
+            float t = static_cast<float>(i) / (count - 1);
 
-                float z = shelf.position.z;
+            float x = shelf.min.x +
+                (shelf.max.x - shelf.min.x) * t;
 
-                points.push_back({ x, y, z });
-            }
+            float z = shelf.position.z;
+
+            points.push_back({ x, y, z });
         }
     }
-    else{
-        for (int row = 0; row < 2; row++){
-            float y = row == 0 ? shelf.max.y : shelf.min.y;
+    else {
 
-            for (int i = 0; i < count; i++){
-                float t = (float)i / (count - 1);
+        float y = shelf.max.y;
 
-                float z = shelf.min.z +
-                    (shelf.max.z - shelf.min.z) * t;
+        for (int i = 0; i < count; i++) {
+            float t = static_cast<float>(i) / (count - 1);
 
-                float x = shelf.position.x;
+            float z = shelf.min.z +
+                (shelf.max.z - shelf.min.z) * t;
 
-                points.push_back({ x, y, z });
-            }
+            float x = shelf.position.x;
+
+            points.push_back({ x, y, z });
         }
     }
 
@@ -51,6 +49,22 @@ std::vector<svbmath::Vec3> FPVDrone::generateShelfPoints(const Shelf& shelf){
 }
 std::vector<PlacedObject>& FPVDrone::getPlacedEquip() {
     return placedObjects;
+}
+void FPVDrone::drawAvaibleShelfPos() {
+    for (auto& shelf : positionsOnShelves) {
+
+        bool occupied = false;
+
+        for (const auto& obj : placedObjects) {
+            if (svbmath::InRadius(obj.pos, shelf.pos, 0.01f)) {
+                occupied = true;
+                break;
+            }
+        }
+
+        if (!shelf.busy && !occupied)
+            drawQuad(0.4f, 0.4f, 0.4f, shelf.pos);
+    }
 }
 void FPVDrone::initCoordinatesForShelves(Building& build) {
     for (const auto& shelf : build.getShelves()){
@@ -61,9 +75,6 @@ void FPVDrone::initCoordinatesForShelves(Building& build) {
     
 }
 void FPVDrone::checkIfCanPlaceInShelf(Camera& cam) {
-    
-    std::cout << objName << std::endl;
-
     for (auto& obj : positionsOnShelves) {
         if (svbmath::InRadius(cam.getCamPos(), obj.pos, 1.0f) && 
             (objName == "FPV Drone T1" || objName == "FPV Drone T2") && !obj.busy) {

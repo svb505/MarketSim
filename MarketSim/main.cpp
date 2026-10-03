@@ -196,6 +196,7 @@ int main() {
         if (canDrawEquipModel && !objName.empty()) drone.drawEquipModel(objName, cam, false, base);
 
         drone.drawAllPlacedObjects(base);
+        drone.drawAvaibleShelfPos();
 
         placeObj = false;
 

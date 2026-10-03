@@ -83,6 +83,12 @@ public:
 		ImGui::Text("MIN FPS: %.0f",fps.minFps);
 		ImGui::Text("MAX FPS : % .0f",fps.maxFps);
 		ImGui::Text("CURRENT FPS : % .0f",fps.fps);
+		ImGui::Dummy({ 0.0f,10.0f });
+		ImGui::Text("FPV Drone T1 price: %.0f", priceForT1);
+		ImGui::Text("FPV Drone T2 price: % .0f", priceForT2);
+		ImGui::Dummy({ 0.0f,10.0f });
+		ImGui::InputFloat("Enter price for T1", &priceForT1);
+		ImGui::InputFloat("Enter price for T2", &priceForT2);
 
 		ImGui::End();
 	}

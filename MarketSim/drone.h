@@ -59,6 +59,7 @@ public:
     bool isPlaced(const std::string& name) const;
     std::vector<svbmath::Vec3> generateShelfPoints(const Shelf& shelf);
 
+    void drawAvaibleShelfPos();
     void checkIfCanPlaceInShelf(Camera& cam);
     void drawAllPlacedObjects(OBJModel& objmodel);
     void addPlacedObj(std::string name, svbmath::Vec3 pos);

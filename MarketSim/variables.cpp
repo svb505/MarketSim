@@ -10,3 +10,5 @@ bool canTakeObj = false;
 bool canDrawEquipModel = false;
 bool placeObj = false;
 bool canCreateDrone = false;
+float priceForT1 = 0.0f;
+float priceForT2 = 0.0f;
