@@ -4,6 +4,7 @@
 #include "input.h"
 #include <cmath>
 #include "camera.h"
+#include "variables.h"
 
 inline bool isDown(GLFWwindow* w, int key) {
     return glfwGetKey(w, key) == GLFW_PRESS;
@@ -33,6 +34,9 @@ void processInput(GLFWwindow* window, Camera& cam, float dt) {
     float rightX = cos(yawRad);
     float rightZ = -sin(yawRad);
 
+    static bool prevAlt = false;
+
+    if (isPressed(window, GLFW_KEY_LEFT_ALT, prevAlt)) hideCursor = !hideCursor;
     if (isDown(window, GLFW_KEY_LEFT_SHIFT)) currentSpeed *= 2;
     if (isDown(window, GLFW_KEY_ESCAPE)) glfwSetWindowShouldClose(window, true);
     if (isDown(window, GLFW_KEY_W)) {

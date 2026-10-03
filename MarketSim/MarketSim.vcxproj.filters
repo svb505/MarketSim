@@ -63,6 +63,12 @@
     <ClCompile Include="drone.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="renders.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="svbRandom.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h">
@@ -102,6 +108,12 @@
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="drone.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="renders.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="svbRandom.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
   </ItemGroup>

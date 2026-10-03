@@ -151,7 +151,9 @@
     <ClCompile Include="lighting.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="model.cpp" />
+    <ClCompile Include="renders.cpp" />
     <ClCompile Include="svbmath.cpp" />
+    <ClCompile Include="svbRandom.cpp" />
     <ClCompile Include="text.cpp" />
     <ClCompile Include="texture.cpp" />
     <ClCompile Include="variables.cpp" />
@@ -165,8 +167,10 @@
     <ClInclude Include="environnement.h" />
     <ClInclude Include="input.h" />
     <ClInclude Include="model.h" />
+    <ClInclude Include="renders.h" />
     <ClInclude Include="sound.h" />
     <ClInclude Include="svbmath.h" />
+    <ClInclude Include="svbRandom.h" />
     <ClInclude Include="text.h" />
     <ClInclude Include="texture.h" />
     <ClInclude Include="variables.h" />

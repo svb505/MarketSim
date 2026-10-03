@@ -6,6 +6,8 @@ struct FPS {
     int frames = 0;
 };
 
+extern float myBalance;
 extern int ECRAN_W;
 extern int ECRAN_H;
 extern float sensitivity;
+extern bool hideCursor;

@@ -7,6 +7,12 @@
 #include "bounds.h"
 #include "building.h"
 
+CashRegister& Building::getCashRegister() {
+    return cashRegister;
+}
+BuildingSettings& Building::getBuildSettings() {
+    return build;
+}
 void Building::DrawQuad(svbmath::Vec3 a, svbmath::Vec3 b, svbmath::Vec3 c, svbmath::Vec3 d,
     GLuint texture) {
 

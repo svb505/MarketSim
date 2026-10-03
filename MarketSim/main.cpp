@@ -34,7 +34,12 @@ Building build;
 OBJModel base;
 Decorations decor;
 GUI gui;
+FPVDrone drone;
 
+void updateCursorMode(GLFWwindow* window){
+    if (hideCursor)  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    else glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+}
 void setMatrix(float left, float right, float bottom, float top, float nearP, float farP) {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -60,6 +65,8 @@ void countFps(FPS& fpsVars, double& lastTime, double& currentTime) {
     }
 }
 void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+    if (!hideCursor) return;
+
     CameraParams& params = cam.getCamParams();
 
     static bool first = true;
@@ -144,11 +151,12 @@ int main() {
     decor.initPositions();
 
     glfwSetCursorPosCallback(window, mouse_callback);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     gui.setupGui(window);
 
     while (!glfwWindowShouldClose(window)) {
+        updateCursorMode(window);
+
         double currentTime = glfwGetTime();
 
         countFps(fpsVars, lastTime, currentTime);
@@ -161,11 +169,9 @@ int main() {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        //
+        gui.renderAll(fpsVars, drone, build.getBuildSettings());
 
         ImGui::Render();
-
-        
 
         cam.setupCamera();
 
@@ -176,7 +182,8 @@ int main() {
         glEnable(GL_POLYGON_OFFSET_FILL);
         glPolygonOffset(-2.0f, -2.0f);
 
-        drawFPVEquipment();
+        drone.delivery(fpsVars.deltaTime);
+        drone.drawAllBoxes();
 
         build.DrawBuilding();
         if (build.checkCollision(cam)) cam.getCamPos() = cam.getOldCamPos();

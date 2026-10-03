@@ -23,6 +23,8 @@ std::unordered_map<std::string, std::string> texturesNamesAndPaths = {
     {"GRASS", texturePath + "grass.jpg"},
     {"ROAD", texturePath + "road.jpg"},
     {"ASPHALT", texturePath + "asphalt.png"},
+    {"BOX1", texturePath + "box1.jpg"},
+    {"BOX2", texturePath + "box2.jpg"}
 };
 
 void LoadAllTextures() {
