@@ -32,11 +32,11 @@ struct Components {
 
 class FPVDrone {
 private:
-    std::vector<std::string> baseEquipment = {"Frame","Camera","Battery", "Motor",
-        "Propeller","Controller" ,"Goggles","FPV Drone T1"};
-    std::map<std::string, float> equipmentPrice = { {"Frame",100.0f},{"Camera",300.0f},
-        {"Battery",250.0f} ,{"Motor",350.0f} ,{"Propeller",150.0f}, {"Controller",100.0f},
-        {"Goggles",250.0f},{"FPV Drone T1",1000.0f} };
+    std::vector<std::string> baseEquipment = {"Cadre","Camera","Batterie", "Moteur",
+        "Hélice","Controlleur" ,"Lunettes","FPV Drone T1"};
+    std::map<std::string, float> equipmentPrice = { {"Cadre",100.0f},{"Camera",300.0f},
+        {"Batterie",250.0f} ,{"Moteur",350.0f} ,{"Hélice",150.0f}, {"Controlleur",100.0f},
+        {"Lunettes",250.0f},{"FPV Drone T1",1000.0f} };
 
     std::vector<Package> boxesWithEquip = {};
     std::vector<PlacedObject> placedObjects;

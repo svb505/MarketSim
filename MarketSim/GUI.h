@@ -32,13 +32,13 @@ public:
 		ImGui::StyleColorsDark();
 	}
 	void renderOrderWindow(FPVDrone& drone, BuildingSettings& build) {
-		ImGui::Begin("Order window");
+		ImGui::Begin("Fenêtre de commande");
 
 		auto equip = drone.getEquipPrice();
 
-		ImGui::Text("Balance: %.1f", myBalance);
+		ImGui::Text("Solde: %.1f", myBalance);
 		ImGui::Dummy({0.0f,10.0f});
-		ImGui::Text("Items in card: %d", card.size());
+		ImGui::Text("Articles dans le panier: %d", card.size());
 		ImGui::Dummy({ 0.0f,10.0f });
 
 
@@ -52,14 +52,14 @@ public:
 
 			ImGui::SameLine(150);
 
-			if (ImGui::Button(("Add to cart##" + key).c_str())) card.push_back(key);
-			if (ImGui::Button(("Delete from cart##" + key).c_str())) card.erase(
+			if (ImGui::Button(("Ajouter à panier##" + key).c_str())) card.push_back(key);
+			if (ImGui::Button(("Supprimer de panier##" + key).c_str())) card.erase(
 				std::remove(card.begin(), card.end(), key),
 				card.end()
 			);
 		}
 		ImGui::Dummy({ 0.0f,10.0f });
-		if (ImGui::Button("Buy all")) {
+		if (ImGui::Button("Acheter tout")) {
 			float totalPrice = 0.0f;
 
 			for (auto& element : card) totalPrice += equip[element];
@@ -72,27 +72,27 @@ public:
 				drone.sendPackage(card, build); 
 				card.clear();
 			}
-			else ImGui::TextColored({1.0f,0.0f,0.0f,1.0f}, "NOT ENOUGHT MONEY IN BALANCE");
+			else ImGui::TextColored({1.0f,0.0f,0.0f,1.0f}, "Fonds insuffisants sur le solde");
 		}
 
 		ImGui::End();
 	}
 	void renderMainWindow(FPS& fps) {
 		ImGui::SetNextWindowSize(ImVec2(300.0f, 250.0f));
-		ImGui::Begin("Main settings");
+		ImGui::Begin("Fenêtre générale");
 
-		if (ImGui::Button("Order menu")) orderWin = true;
+		if (ImGui::Button("Fenêtre de commande")) orderWin = true;
 		ImGui::Dummy({ 0.0f,10.0f });
 
 		ImGui::Text("MIN FPS: %.0f",fps.minFps);
 		ImGui::Text("MAX FPS : % .0f",fps.maxFps);
-		ImGui::Text("CURRENT FPS : % .0f",fps.fps);
+		ImGui::Text("FPS ACTUELLE: % .0f",fps.fps);
 		ImGui::Dummy({ 0.0f,10.0f });
-		ImGui::Text("FPV Drone T1 price: %.0f", priceForT1);
-		ImGui::Text("FPV Drone T2 price: % .0f", priceForT2);
+		ImGui::Text("FPV Drone T1 prix: %.0f", priceForT1);
+		ImGui::Text("FPV Drone T2 prix: % .0f", priceForT2);
 		ImGui::Dummy({ 0.0f,10.0f });
-		ImGui::InputFloat("Enter price for T1", &priceForT1);
-		ImGui::InputFloat("Enter price for T2", &priceForT2);
+		ImGui::InputFloat("Saisir le prix pour T1", &priceForT1);
+		ImGui::InputFloat("Saisir le prix pour T2", &priceForT2);
 
 		ImGui::End();
 	}

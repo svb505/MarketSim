@@ -272,7 +272,7 @@ void Building::CreateBuilding() {
     shelf1.position = { -1.0f,1.0f,-3.8f };
 
     shelf1.width = 7.0f;
-    shelf1.height = 2.0f;
+    shelf1.height = 1.2f;
     shelf1.depth = 0.7f;
 
     shelf1.texture = allTextures["WOOD"];
@@ -289,7 +289,7 @@ void Building::CreateBuilding() {
     shelf2.position = { 4.8f,1.0f,-0.8f };
 
     shelf2.width = 0.7f;
-    shelf2.height = 2.0f;
+    shelf2.height = 1.2f;
     shelf2.depth = 5.0f;
 
     shelf2.texture = allTextures["WOOD"];

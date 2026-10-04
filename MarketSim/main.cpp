@@ -30,6 +30,7 @@
 #include "drone.h"
 #include "actions.h"
 #include "database.h"
+#include "sound.h"
 
 Camera cam;
 Building build;
@@ -37,6 +38,7 @@ OBJModel base;
 Decorations decor;
 GUI gui;
 FPVDrone drone;
+Sound sound;
 
 void updateCursorMode(GLFWwindow* window){
     if (hideCursor)  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -92,7 +94,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     yoffset *= sensitivity;
 
     params.cameraYaw += -(float)xoffset;
-    params.cameraPitch -= -(float)yoffset;
+    params.cameraPitch -= (float)yoffset;
 }
 int main() {
     CameraParams& params = cam.getCamParams();
@@ -143,6 +145,9 @@ int main() {
     initLighting();
     LoadAllTextures();
 
+    sound.setupBuffers();
+    sound.createSources();
+
     base.LoadOBJ("res/models/fpv/base.obj", 1.0f);
     base.LoadTexture("res/models/fpv/texture_diffuse.png");
     base.CreateVBO();
@@ -173,7 +178,7 @@ int main() {
 
         countFps(fpsVars, lastTime, currentTime);
 
-        processInput(window, cam, drone,fpsVars.deltaTime, point);
+        processInput(window, cam, drone,fpsVars.deltaTime, point, sound);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

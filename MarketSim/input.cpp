@@ -7,6 +7,7 @@
 #include "variables.h"
 #include "drone.h"
 #include "svbmath.h"
+#include "sound.h"
 
 inline bool isDown(GLFWwindow* w, int key) {
     return glfwGetKey(w, key) == GLFW_PRESS;
@@ -19,7 +20,7 @@ inline bool isPressed(GLFWwindow* w, int key, bool& prev) {
 }
 
 void processInput(GLFWwindow* window, Camera& cam, FPVDrone& drone,float dt,
-    svbmath::Vec3 point) {
+    svbmath::Vec3 point, Sound& sound) {
     cam.getOldCamPos() = cam.getCamPos();
 
     auto& params = cam.getCamParams();
@@ -78,18 +79,75 @@ void processInput(GLFWwindow* window, Camera& cam, FPVDrone& drone,float dt,
     if (isDown(window, GLFW_KEY_LEFT_SHIFT)) currentSpeed *= 2;
     if (isDown(window, GLFW_KEY_ESCAPE)) glfwSetWindowShouldClose(window, true);
     if (isDown(window, GLFW_KEY_W)) {
+        auto& src = sound.sources["Steps"];
+
+        ALint state;
+
+        alGetSourcei(src, AL_SOURCE_STATE, &state);
+    
+        if (!sound.stepsPlayed) {
+            sound.playSound(src, cam.getCamPos());
+
+            sound.stepsPlayed = true;
+        }
+
+        if (state == AL_STOPPED) sound.stepsPlayed = false;
+
+
         pos.x += forwardX * currentSpeed * dt;
         pos.z += forwardZ * currentSpeed * dt;
     }
     if (isDown(window, GLFW_KEY_S)) {
+        auto& src = sound.sources["Steps"];
+
+        ALint state;
+
+        alGetSourcei(src, AL_SOURCE_STATE, &state);
+
+        if (!sound.stepsPlayed) {
+            sound.playSound(src, cam.getCamPos());
+
+            sound.stepsPlayed = true;
+        }
+
+        if (state == AL_STOPPED) sound.stepsPlayed = false;
+
         pos.x -= forwardX * currentSpeed * dt;
         pos.z -= forwardZ * currentSpeed * dt;
     }
     if (isDown(window, GLFW_KEY_A)) {
+        auto& src = sound.sources["Steps"];
+
+        ALint state;
+
+        alGetSourcei(src, AL_SOURCE_STATE, &state);
+
+        if (!sound.stepsPlayed) {
+            sound.playSound(src, cam.getCamPos());
+
+            sound.stepsPlayed = true;
+        }
+
+        if (state == AL_STOPPED) sound.stepsPlayed = false;
+
         pos.x += rightX * currentSpeed * dt;
         pos.z += rightZ * currentSpeed * dt;
     }
     if (isDown(window, GLFW_KEY_D)) {
+        auto& src = sound.sources["Steps"];
+
+        ALint state;
+
+        alGetSourcei(src, AL_SOURCE_STATE, &state);
+
+        if (!sound.stepsPlayed) {
+            sound.playSound(src, cam.getCamPos());
+
+            sound.stepsPlayed = true;
+        }
+
+        if (state == AL_STOPPED) sound.stepsPlayed = false;
+
         pos.x -= rightX * currentSpeed * dt;
         pos.z -= rightZ * currentSpeed * dt;
     }

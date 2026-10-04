@@ -13,16 +13,19 @@ std::vector<svbmath::Vec3> FPVDrone::generateShelfPoints(const Shelf& shelf) {
     std::vector<svbmath::Vec3> points;
 
     const int count = 5;
+    const float edgeOffset = 0.3f;
 
     if (shelf.width >= shelf.depth) {
 
         float y = shelf.max.y;
 
+        float minX = shelf.min.x + edgeOffset;
+        float maxX = shelf.max.x - edgeOffset;
+
         for (int i = 0; i < count; i++) {
             float t = static_cast<float>(i) / (count - 1);
 
-            float x = shelf.min.x +
-                (shelf.max.x - shelf.min.x) * t;
+            float x = minX + (maxX - minX) * t;
 
             float z = shelf.position.z;
 
@@ -33,11 +36,13 @@ std::vector<svbmath::Vec3> FPVDrone::generateShelfPoints(const Shelf& shelf) {
 
         float y = shelf.max.y;
 
+        float minZ = shelf.min.z + edgeOffset;
+        float maxZ = shelf.max.z - edgeOffset;
+
         for (int i = 0; i < count; i++) {
             float t = static_cast<float>(i) / (count - 1);
 
-            float z = shelf.min.z +
-                (shelf.max.z - shelf.min.z) * t;
+            float z = minZ + (maxZ - minZ) * t;
 
             float x = shelf.position.x;
 
@@ -123,7 +128,7 @@ void FPVDrone::drawAllPlacedObjects(OBJModel& objmodel) {
         glTranslatef(obj.pos.x, obj.pos.y, obj.pos.z);
         glScalef(0.25f, 0.25f, 0.25f);
 
-        svbmath::Vec3 localPos = { 0.0f, 0.0f, 0.0f };
+        svbmath::Vec3 localPos = { 0.0f, 0.3f, 0.0f };
 
         if (obj.name == baseEquipment[0]) drawDroneFrame(localPos);
         if (obj.name == baseEquipment[1]) drawDroneCamera(localPos);
@@ -132,7 +137,7 @@ void FPVDrone::drawAllPlacedObjects(OBJModel& objmodel) {
         if (obj.name == baseEquipment[4]) drawPropeller(localPos, false);
         if (obj.name == baseEquipment[5]) drawRemoteController(localPos);
         if (obj.name == baseEquipment[6]) drawFPVGoggles(localPos);
-        if (obj.name == baseEquipment[7]) objmodel.Draw(localPos, 0.0f, 90.0f);
+        if (obj.name == baseEquipment[7]) objmodel.Draw(localPos, 0.0f, 0.0f);
         if (obj.name == "FPV Drone T2") drawFPVDrone(localPos);
 
         glPopMatrix();
@@ -146,13 +151,13 @@ void FPVDrone::checkIfCanCreateDrone(Camera& cam, CashRegister& build) {
     for (auto& obj : placedObjects) {
         if (idx == 0) basePos = obj.pos;
 
-        if (obj.name == "Frame") comp.frame++;
-        if (obj.name == "Camera") comp.camera++;
-        if (obj.name == "Battery") comp.battery++;
-        if (obj.name == "Motor") comp.motor++;
-        if (obj.name == "Propeller") comp.propeller++;
-        if (obj.name == "Controller") comp.controller++;
-        if (obj.name == "Goggles") comp.goggles++;
+        if (obj.name == baseEquipment[0]) comp.frame++;
+        if (obj.name == baseEquipment[1]) comp.camera++;
+        if (obj.name == baseEquipment[2]) comp.battery++;
+        if (obj.name == baseEquipment[3]) comp.motor++;
+        if (obj.name == baseEquipment[4]) comp.propeller++;
+        if (obj.name == baseEquipment[5]) comp.controller++;
+        if (obj.name == baseEquipment[6]) comp.goggles++;
 
         idx++;
     }
