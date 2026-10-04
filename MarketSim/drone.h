@@ -58,6 +58,7 @@ public:
     const std::map<std::string, float>& getEquipPrice();
     bool isPlaced(const std::string& name) const;
     std::vector<svbmath::Vec3> generateShelfPoints(const Shelf& shelf);
+    std::vector<ShelfSetting>& getShelfPositions();
 
     void drawAvaibleShelfPos();
     void checkIfCanPlaceInShelf(Camera& cam);

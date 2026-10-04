@@ -31,6 +31,7 @@
 #include "actions.h"
 #include "database.h"
 #include "sound.h"
+#include "bot.h"
 
 Camera cam;
 Building build;
@@ -39,6 +40,7 @@ Decorations decor;
 GUI gui;
 FPVDrone drone;
 Sound sound;
+Bot bot;
 
 void updateCursorMode(GLFWwindow* window){
     if (hideCursor)  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -178,6 +180,12 @@ int main() {
 
         countFps(fpsVars, lastTime, currentTime);
 
+        if (!bot.isActive()) {
+            bot.spawn(drone, build);
+        }
+
+        bot.update(fpsVars.deltaTime, drone, build);
+
         processInput(window, cam, drone,fpsVars.deltaTime, point, sound);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -204,6 +212,8 @@ int main() {
         drone.checkBoxesIntersection(cam);
         drone.checkIfCanCreateDrone(cam, build.getCashRegister());
         drone.checkIfCanPlaceInShelf(cam);
+
+        bot.draw();
 
         if (canDrawEquipModel && !objName.empty()) drone.drawEquipModel(objName, cam, false, base);
 

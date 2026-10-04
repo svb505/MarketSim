@@ -1,0 +1,44 @@
+#pragma once
+#include "svbmath.h"
+#include "camera.h"
+#include "drone.h"
+#include "building.h"
+
+enum class BotState {
+    GoingToShelf,
+    GoingToCash,
+    Leaving
+};
+
+class Bot {
+private:
+    svbmath::Vec3 position;
+
+    svbmath::Vec3 targetShelf;
+    svbmath::Vec3 cashTarget;
+
+    std::string droneModel;
+
+    BotState state = BotState::GoingToShelf;
+
+    float speed = 1.5f;
+
+    bool carryingDrone = false;
+
+    bool active = false;
+
+private:
+    bool findDrone(FPVDrone& drone);
+    void takeDrone(FPVDrone& drone);
+
+    void moveTo(const svbmath::Vec3& target, float dt);
+
+public:
+    void update(float dt, FPVDrone& drone, Building& building);
+
+    void draw();
+
+    bool isActive() const;
+
+    void spawn(FPVDrone& drone, Building& building);
+};

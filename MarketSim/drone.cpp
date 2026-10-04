@@ -95,6 +95,9 @@ void FPVDrone::checkIfCanPlaceInShelf(Camera& cam) {
         }
     }
 }
+std::vector<ShelfSetting>& FPVDrone::getShelfPositions() {
+    return positionsOnShelves;
+}
 bool FPVDrone::isPlaced(const std::string& name) const {
     for (const auto& obj : placedObjects) {
         if (obj.name == name)
