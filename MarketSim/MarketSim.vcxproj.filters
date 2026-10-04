@@ -72,6 +72,9 @@
     <ClCompile Include="actions.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="database.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h">
@@ -120,6 +123,9 @@
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="actions.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="database.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
   </ItemGroup>

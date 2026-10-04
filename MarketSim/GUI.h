@@ -9,6 +9,7 @@
 #include "imgui_impl_opengl3.h"
 #include "drone.h"
 #include <algorithm>
+#include "database.h"
 
 class GUI {
 private:
@@ -64,7 +65,10 @@ public:
 			for (auto& element : card) totalPrice += equip[element];
 			
 			if (myBalance >= totalPrice) { 
-				myBalance -= totalPrice;
+				saveDataForPlayer(totalPrice, "-");
+
+				for (auto& p : getDataForPlayer().players) myBalance = p.balance;
+				
 				drone.sendPackage(card, build); 
 				card.clear();
 			}

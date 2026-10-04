@@ -29,6 +29,7 @@
 #include "GUI.h"
 #include "drone.h"
 #include "actions.h"
+#include "database.h"
 
 Camera cam;
 Building build;
@@ -95,6 +96,12 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 }
 int main() {
     CameraParams& params = cam.getCamParams();
+
+    if (!dbIsExists()) createDb();
+
+    for (auto& p : getDataForPlayer().players) {
+        myBalance = p.balance;
+    }
 
     if (!glfwInit()) {
         std::cout << "Failed to initialize GLFW\n";

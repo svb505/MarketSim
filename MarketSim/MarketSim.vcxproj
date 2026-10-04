@@ -143,6 +143,7 @@
     <ClCompile Include="bounds.cpp" />
     <ClCompile Include="building.cpp" />
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="database.cpp" />
     <ClCompile Include="decorations.cpp" />
     <ClCompile Include="drone.cpp" />
     <ClCompile Include="environnement.cpp" />
@@ -164,6 +165,7 @@
     <ClInclude Include="bounds.h" />
     <ClInclude Include="building.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="database.h" />
     <ClInclude Include="decorations.h" />
     <ClInclude Include="drone.h" />
     <ClInclude Include="environnement.h" />
