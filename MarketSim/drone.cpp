@@ -114,9 +114,6 @@ const std::vector<std::string>& FPVDrone::getBaseEquip() {
 const std::map<std::string, float>& FPVDrone::getEquipPrice() {
     return equipmentPrice;
 }
-int& FPVDrone::getCurrentIndex() {
-    return currentIndex;
-}
 std::vector<Package>& FPVDrone::getOrderEquip() {
     return boxesWithEquip;
 }
@@ -223,20 +220,15 @@ void FPVDrone::drawEquipModel(std::string model,Camera& cam,bool placed,OBJModel
 void FPVDrone::checkBoxesIntersection(Camera& cam) {
     canTakeObj = false;
 
-    for (auto it = boxesWithEquip.begin();
-        it != boxesWithEquip.end(); )
-    {
+    for (auto it = boxesWithEquip.begin(); it != boxesWithEquip.end(); ){
         Package& box = *it;
 
-        if (currentIndex >= static_cast<int>(box.equip.size())) {
+        if (box.currentIndex >= static_cast<int>(box.equip.size())) {
             it = boxesWithEquip.erase(it);
             continue;
         }
 
-        if (box.render &&
-            canInteract(cam.getCamPos(), cam.getCamForward(),
-                box.pos, 4.0f))
-        {
+        if (box.render && canInteract(cam.getCamPos(),cam.getCamForward(),box.pos,4.0f)) {
             canTakeObj = true;
 
             float size = 64.0f;
@@ -244,8 +236,8 @@ void FPVDrone::checkBoxesIntersection(Camera& cam) {
             float y = ECRAN_H - size - 60.0f;
 
             render2DIcon("HAND", { x, y }, size);
-            RenderTextHUD(x - 30.0f, y - 30.0f, 1.0f,
-                1.0f, 1.0f, "E", ECRAN_W, ECRAN_H);
+
+            RenderTextHUD( x - 30.0f, y - 30.0f, 1.0f,1.0f,1.0f,"E", ECRAN_W, ECRAN_H);
         }
 
         ++it;
@@ -267,9 +259,7 @@ void FPVDrone::sendPackage(std::vector<std::string>& equip, BuildingSettings& bu
     
     GLuint texture = (returnRandomNum(0.0f, 1.0f) < 0.5) ? allTextures["BOX1"] : allTextures["BOX2"];
 
-    boxesWithEquip.push_back({equip, boxPos, texture, false});
-    
-    currentIndex = 0;
+    boxesWithEquip.push_back({ equip, boxPos, texture, false, 0 });
     inDelivery = true;
 }
 void FPVDrone::delivery(float dt) {

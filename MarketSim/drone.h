@@ -20,6 +20,7 @@ struct Package {
 
     GLuint texture;
 
+    int currentIndex = 0;
     bool render = false;
 };
 struct PlacedObject {
@@ -47,11 +48,8 @@ private:
 
     bool showText = false;
     bool inDelivery = false;
-
-    int currentIndex = 0;
 public:
     bool getShowText();
-    int& getCurrentIndex();
     std::vector<Package>& getOrderEquip();
     std::vector<PlacedObject>& getPlacedEquip();
     const std::vector<std::string>& getBaseEquip();

@@ -8,6 +8,7 @@
 #include "drone.h"
 #include "svbmath.h"
 #include "sound.h"
+#include "actions.h"
 
 inline bool isDown(GLFWwindow* w, int key) {
     return glfwGetKey(w, key) == GLFW_PRESS;
@@ -53,16 +54,22 @@ void processInput(GLFWwindow* window, Camera& cam, FPVDrone& drone,float dt,
         }
         else if (!canDrawEquipModel && canTakeObj) {
             auto& boxes = drone.getOrderEquip();
-            int& index = drone.getCurrentIndex();
 
             for (auto& box : boxes) {
                 if (!box.render)
                     continue;
 
-                if (index >= 0 &&
-                    index < static_cast<int>(box.equip.size())) {
-                    objName = box.equip[index];
-                    ++index;
+                if (!canInteract(cam.getCamPos(),
+                    cam.getCamForward(),
+                    box.pos,
+                    4.0f))
+                    continue;
+
+                if (box.currentIndex >= 0 &&
+                    box.currentIndex < static_cast<int>(box.equip.size())) {
+
+                    objName = box.equip[box.currentIndex];
+                    ++box.currentIndex;
 
                     canDrawEquipModel = true;
                     break;
