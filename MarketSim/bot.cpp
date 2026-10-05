@@ -59,7 +59,8 @@ bool Bot::findDrone(FPVDrone& drone) {
     for (const auto& obj : objects) {
 
         if (obj.name != getStringFromJson("DRONE_Achetee") &&
-            obj.name != getStringFromJson("DRONE_Assemblee"))
+            obj.name != getStringFromJson("DRONE_Assemblee") && 
+            obj.name != drone.getBaseEquip()[5] && obj.name != drone.getBaseEquip()[6])
             continue;
 
         targetShelf = obj.pos;
@@ -92,11 +93,7 @@ void Bot::spawn(FPVDrone& drone, Building& building) {
     std::cout << "Target drone: " << droneModel << "\n";
 }
 
-void Bot::moveTo(
-    const svbmath::Vec3& target,
-    float dt,
-    Building& building)
-{
+void Bot::moveTo(const svbmath::Vec3& target,float dt,Building& building){
     svbmath::Vec3 direction = {
         target.x - position.x,
         0.0f,
@@ -222,10 +219,12 @@ void Bot::update( float dt, FPVDrone& drone, Building& building){
         moveTo(cashTarget, dt, building);
 
         if (InRadiusXZ(position, cashTarget, 0.5f)){
-            float price;
+            float price  = 0.0f;
 
             if (droneModel == getStringFromJson("DRONE_Achetee")) price = priceForT1;
-            else price = priceForT2;
+            else if (droneModel == getStringFromJson("DRONE_Assemblee")) price = priceForT2;
+            else if (droneModel == drone.getBaseEquip()[5]) price = priceForController;
+            else if (droneModel == drone.getBaseEquip()[6]) price = priceForGoggles;
 
             myBalance += price;
 

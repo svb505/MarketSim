@@ -12,3 +12,5 @@ bool placeObj = false;
 bool canCreateDrone = false;
 float priceForT1 = 0.0f;
 float priceForT2 = 0.0f;
+extern float priceForController = 0.0f;
+extern float priceForGoggles = 0.0f;

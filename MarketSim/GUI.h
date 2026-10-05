@@ -117,14 +117,18 @@ public:
 		ImGui::InputFloat("1##", &priceForT1);
 		ImGui::Text("Saisir le prix pour assemblee");
 		ImGui::InputFloat("2##", &priceForT2);
+		ImGui::Text("Saisir le prix pour des lunettes");
+		ImGui::InputFloat("3##", &priceForGoggles);
+		ImGui::Text("Saisir le prix pour  le controlleur");
+		ImGui::InputFloat("4##", &priceForController);
 		ImGui::Dummy({ 0.0f,20.0f });
 
 		ImGui::Text("Saisir le nom pour le drone assemblee");
-		ImGui::InputText("3##",bufNameAs,sizeof(bufNameAs));
+		ImGui::InputText("5##",bufNameAs,sizeof(bufNameAs));
 		if (ImGui::Button("Appliquer##")) changePlayerConfig("DRONE_Assemblee", bufNameAs);
 
 		ImGui::Text("Saisir le nom pour le drone achetee");
-		ImGui::InputText("4##", bufNameAch, sizeof(bufNameAch));
+		ImGui::InputText("6##", bufNameAch, sizeof(bufNameAch));
 		if (ImGui::Button("Appliquer")) changePlayerConfig("DRONE_Achetee",bufNameAch);
 
 		ImGui::Dummy({ 0.0f,20.0f });
@@ -136,8 +140,6 @@ public:
 		componentText("Batterie: %d / %d", comp.battery, 1);
 		componentText("Moteur: %d / %d", comp.motor, 4);
 		componentText("Hélice: %d / %d", comp.propeller, 4);
-		componentText("Controlleur: %d / %d", comp.controller, 1);
-		componentText("Lunettes: %d / %d", comp.goggles, 1);
 
 		ImGui::End();
 	}

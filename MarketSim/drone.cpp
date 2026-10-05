@@ -119,7 +119,8 @@ void FPVDrone::initCoordinatesForShelves(Building& build) {
 void FPVDrone::checkIfCanPlaceInShelf(Camera& cam) {
     for (auto& obj : positionsOnShelves) {
         if (svbmath::InRadius(cam.getCamPos(), obj.pos, 1.0f) && 
-            (objName == baseEquipment[7] || objName == getStringFromJson("DRONE_Assemblee")) && !obj.busy) {
+            (objName == baseEquipment[7] || objName == getStringFromJson("DRONE_Assemblee")
+                || objName == baseEquipment[5] || objName == baseEquipment[6]) && !obj.busy) {
             addPlacedObj(objName, obj.pos);
 
             obj.busy = true;
@@ -194,15 +195,12 @@ void FPVDrone::checkIfCanCreateDrone(Camera& cam, CashRegister& build) {
         if (obj.name == baseEquipment[2]) comp.battery++;
         if (obj.name == baseEquipment[3]) comp.motor++;
         if (obj.name == baseEquipment[4]) comp.propeller++;
-        if (obj.name == baseEquipment[5]) comp.controller++;
-        if (obj.name == baseEquipment[6]) comp.goggles++;
 
         idx++;
     }
 
     if (comp.battery >= 1 && comp.frame >= 1 && comp.camera >= 1 && comp.motor >= 4 && 
-        comp.propeller >= 4 && comp.controller >= 1 && comp.goggles >= 1 && 
-        svbmath::InRadius(cam.getCamPos(), build.position, 5.0f)){
+        comp.propeller >= 4 && svbmath::InRadius(cam.getCamPos(), build.position, 5.0f)){
         canCreateDrone = true;
     }
 }
