@@ -37,6 +37,15 @@ private:
     Components comp;
     std::string name = getStringFromJson("DRONE_Achetee");
 
+    OBJModel frame;
+    OBJModel batt;
+    OBJModel camModel;
+    OBJModel gogglesModel;
+    OBJModel fpv;
+    OBJModel motorModel;
+    OBJModel propellerModel;
+    OBJModel controllerModel;
+
     std::vector<std::string> baseEquipment = {"Cadre","Camera","Batterie", "Moteur",
         "Hélice","Controlleur" ,"Lunettes",name};
     std::map<std::string, float> equipmentPrice = { {"Cadre",100.0f},{"Camera",300.0f},
@@ -53,6 +62,8 @@ private:
     bool showText = false;
     bool inDelivery = false;
 public:
+    void init();
+
     Components& getComp();
     bool getShowText();
     std::vector<Package>& getOrderEquip();

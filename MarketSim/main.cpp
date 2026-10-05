@@ -171,6 +171,7 @@ int main() {
 
     svbmath::Vec3 point;
 
+    drone.init();
     drone.initCoordinatesForShelves(build);
 
     while (!glfwWindowShouldClose(window)) {
