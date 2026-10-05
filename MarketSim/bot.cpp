@@ -6,6 +6,41 @@
 #include "renders.h"
 #include "database.h"
 
+static bool CircleIntersectsAABB(const svbmath::Vec3& pos, float radius, float minX, float maxX, float minZ, float maxZ) {
+    float closestX = std::max(minX, std::min(pos.x, maxX));
+    float closestZ = std::max(minZ, std::min(pos.z, maxZ));
+
+    float dx = pos.x - closestX;
+    float dz = pos.z - closestZ;
+
+    return dx * dx + dz * dz <= radius * radius;
+}
+bool Bot::checkCollision(const svbmath::Vec3& newPos, Building& building){
+    const float botRadius = 0.35f;
+    auto cash = building.getCashRegister();
+
+    const float cashHalfX = 0.7f;
+    const float cashHalfZ = 0.5f;
+
+    if (CircleIntersectsAABB( newPos, botRadius, cash.position.x - cashHalfX, cash.position.x + cashHalfX, cash.position.z - cashHalfZ, cash.position.z + cashHalfZ)){
+        return true;
+    }
+
+    auto& shelves = building.getShelves();
+
+    for (const auto& shelf : shelves){
+        const float shelfHalfX = 0.8f;
+        const float shelfHalfZ = 0.35f;
+
+        if (CircleIntersectsAABB(newPos,botRadius, shelf.position.x - shelfHalfX, shelf.position.x + shelfHalfX,shelf.position.z - shelfHalfZ,
+            shelf.position.z + shelfHalfZ)){
+            return true;
+        }
+    }
+
+    return false;
+}
+
 static bool InRadiusXZ(const svbmath::Vec3& a, const svbmath::Vec3& b, float radius){
     float dx = a.x - b.x;
     float dz = a.z - b.z;
@@ -46,7 +81,7 @@ void Bot::spawn(FPVDrone& drone, Building& building) {
 
     cashTarget = building.getCashRegister().position;
 
-    cashTarget.z += 0.8f;
+    cashTarget.z += 1.3f;
 
     state = BotState::GoingToShelf;
 
@@ -57,11 +92,21 @@ void Bot::spawn(FPVDrone& drone, Building& building) {
     std::cout << "Target drone: " << droneModel << "\n";
 }
 
-void Bot::moveTo(const svbmath::Vec3& target, float dt) {
+void Bot::moveTo(
+    const svbmath::Vec3& target,
+    float dt,
+    Building& building)
+{
+    svbmath::Vec3 direction = {
+        target.x - position.x,
+        0.0f,
+        target.z - position.z
+    };
 
-    svbmath::Vec3 direction = { target.x - position.x, 0.0f, target.z - position.z};
-
-    float distance = std::sqrt( direction.x * direction.x + direction.z * direction.z);
+    float distance = std::sqrt(
+        direction.x * direction.x +
+        direction.z * direction.z
+    );
 
     if (distance < 0.05f)
         return;
@@ -69,8 +114,42 @@ void Bot::moveTo(const svbmath::Vec3& target, float dt) {
     direction.x /= distance;
     direction.z /= distance;
 
-    position.x += direction.x * speed * dt;
-    position.z += direction.z * speed * dt;
+    float moveDistance = speed * dt;
+
+    svbmath::Vec3 newPos = position;
+
+    newPos.x += direction.x * moveDistance;
+    newPos.z += direction.z * moveDistance;
+
+    // Не разрешаем проходить сквозь препятствие
+    if (!checkCollision(newPos, building))
+    {
+        position = newPos;
+        return;
+    }
+
+    // Если вперед нельзя — пробуем двигаться только по X
+    newPos = position;
+    newPos.x += direction.x * moveDistance;
+
+    if (!checkCollision(newPos, building))
+    {
+        position.x = newPos.x;
+        return;
+    }
+
+    // Если по X нельзя — пробуем только по Z
+    newPos = position;
+    newPos.z += direction.z * moveDistance;
+
+    if (!checkCollision(newPos, building))
+    {
+        position.z = newPos.z;
+        return;
+    }
+
+    // Если оба направления заблокированы —
+    // остаёмся на месте
 }
 
 void Bot::takeDrone(FPVDrone& drone) {
@@ -122,7 +201,7 @@ void Bot::update( float dt, FPVDrone& drone, Building& building){
 
     case BotState::GoingToShelf:
 
-        moveTo(targetShelf, dt);
+        moveTo(targetShelf, dt, building);
 
         if (InRadiusXZ(
             position,
@@ -140,7 +219,7 @@ void Bot::update( float dt, FPVDrone& drone, Building& building){
 
 
     case BotState::GoingToCash:
-        moveTo(cashTarget, dt);
+        moveTo(cashTarget, dt, building);
 
         if (InRadiusXZ(position, cashTarget, 0.5f)){
             float price;

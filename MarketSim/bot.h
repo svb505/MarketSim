@@ -31,9 +31,13 @@ private:
     bool findDrone(FPVDrone& drone);
     void takeDrone(FPVDrone& drone);
 
-    void moveTo(const svbmath::Vec3& target, float dt);
+    void moveTo(const svbmath::Vec3& target,
+        float dt,
+        Building& building);
 
 public:
+
+    bool checkCollision(const svbmath::Vec3& newPos, Building& building);
     void update(float dt, FPVDrone& drone, Building& building);
 
     void draw();
