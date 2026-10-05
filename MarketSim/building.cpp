@@ -277,7 +277,7 @@ void Building::CreateBuilding() {
 
     shelf1.texture = allTextures["WOOD"];
 
-    Bounds aabb1 = MakeAABB(shelf1.position, shelf1.width, shelf1.height, shelf1.depth);
+    Bounds aabb1 = MakeAABB(shelf1.position, shelf1.width + 0.3f, shelf1.height + 0.2f, shelf1.depth + 0.3f);
 
     shelf1.min = aabb1.min;
     shelf1.max = aabb1.max;
@@ -294,7 +294,7 @@ void Building::CreateBuilding() {
 
     shelf2.texture = allTextures["WOOD"];
 
-    Bounds aabb2 = MakeAABB(shelf2.position, shelf2.width, shelf2.height, shelf2.depth);
+    Bounds aabb2 = MakeAABB( shelf2.position, shelf2.width + 0.3f, shelf2.height + 0.2f,shelf2.depth + 0.3f );
 
     shelf2.min = aabb2.min;
     shelf2.max = aabb2.max;
@@ -307,7 +307,8 @@ void Building::CreateBuilding() {
     cashRegister.height = 1.4f;
     cashRegister.depth = 2.2f;
 
-    Bounds cashAABB = MakeAABB(cashRegister.position, cashRegister.width, cashRegister.height, cashRegister.depth);
+    Bounds cashAABB = MakeAABB(cashRegister.position,cashRegister.width + 0.3f,
+        cashRegister.height + 0.2f, cashRegister.depth + 0.3f);
 
     cashRegister.min = cashAABB.min;
     cashRegister.max = cashAABB.max;
