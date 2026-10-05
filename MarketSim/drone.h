@@ -9,6 +9,7 @@
 #include "svbmath.h"
 #include "building.h"
 #include "model.h"
+#include "jsonParcer.h"
 
 struct ShelfSetting {
     svbmath::Vec3 pos;
@@ -34,12 +35,13 @@ struct Components {
 class FPVDrone {
 private:
     Components comp;
+    std::string name = getStringFromJson("DRONE_Achetee");
 
     std::vector<std::string> baseEquipment = {"Cadre","Camera","Batterie", "Moteur",
-        "Hélice","Controlleur" ,"Lunettes","FPV Drone T1"};
+        "Hélice","Controlleur" ,"Lunettes",name};
     std::map<std::string, float> equipmentPrice = { {"Cadre",100.0f},{"Camera",300.0f},
         {"Batterie",250.0f} ,{"Moteur",350.0f} ,{"Hélice",150.0f}, {"Controlleur",100.0f},
-        {"Lunettes",250.0f},{"FPV Drone T1",1000.0f} };
+        {"Lunettes",250.0f},{name,1000.0f} };
 
     std::vector<Package> boxesWithEquip = {};
     std::vector<PlacedObject> placedObjects;

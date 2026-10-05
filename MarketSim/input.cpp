@@ -78,7 +78,7 @@ void processInput(GLFWwindow* window, Camera& cam, FPVDrone& drone,float dt,
         }
         else if (canCreateDrone) {
             drone.getPlacedEquip().clear();
-            objName = "FPV Drone T2";
+            objName = getStringFromJson("DRONE_Assemblee");
             canDrawEquipModel = true;
         }
     }

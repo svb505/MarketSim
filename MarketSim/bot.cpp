@@ -58,8 +58,8 @@ bool Bot::findDrone(FPVDrone& drone) {
 
     for (const auto& obj : objects) {
 
-        if (obj.name != "FPV Drone T1" &&
-            obj.name != "FPV Drone T2")
+        if (obj.name != getStringFromJson("DRONE_Achetee") &&
+            obj.name != getStringFromJson("DRONE_Assemblee"))
             continue;
 
         targetShelf = obj.pos;
@@ -224,7 +224,7 @@ void Bot::update( float dt, FPVDrone& drone, Building& building){
         if (InRadiusXZ(position, cashTarget, 0.5f)){
             float price;
 
-            if (droneModel == "FPV Drone T1") price = priceForT1;
+            if (droneModel == getStringFromJson("DRONE_Achetee")) price = priceForT1;
             else price = priceForT2;
 
             myBalance += price;

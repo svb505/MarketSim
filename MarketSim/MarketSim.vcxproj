@@ -150,6 +150,7 @@
     <ClCompile Include="environnement.cpp" />
     <ClCompile Include="GUI.h" />
     <ClCompile Include="input.cpp" />
+    <ClCompile Include="jsonParcer.cpp" />
     <ClCompile Include="lighting.h" />
     <ClCompile Include="lighting.cpp" />
     <ClCompile Include="main.cpp" />
@@ -172,6 +173,7 @@
     <ClInclude Include="drone.h" />
     <ClInclude Include="environnement.h" />
     <ClInclude Include="input.h" />
+    <ClInclude Include="jsonParcer.h" />
     <ClInclude Include="model.h" />
     <ClInclude Include="renders.h" />
     <ClInclude Include="sound.h" />

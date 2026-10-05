@@ -8,6 +8,7 @@
 #include "actions.h"
 #include "model.h"
 #include <iostream>
+#include "jsonParcer.h"
 
 Components& FPVDrone::getComp() {
     return comp;
@@ -85,7 +86,7 @@ void FPVDrone::initCoordinatesForShelves(Building& build) {
 void FPVDrone::checkIfCanPlaceInShelf(Camera& cam) {
     for (auto& obj : positionsOnShelves) {
         if (svbmath::InRadius(cam.getCamPos(), obj.pos, 1.0f) && 
-            (objName == "FPV Drone T1" || objName == "FPV Drone T2") && !obj.busy) {
+            (objName == baseEquipment[7] || objName == getStringFromJson("DRONE_Assemblee")) && !obj.busy) {
             addPlacedObj(objName, obj.pos);
 
             obj.busy = true;
@@ -141,7 +142,7 @@ void FPVDrone::drawAllPlacedObjects(OBJModel& objmodel) {
         if (obj.name == baseEquipment[5]) drawRemoteController(localPos);
         if (obj.name == baseEquipment[6]) drawFPVGoggles(localPos);
         if (obj.name == baseEquipment[7]) objmodel.Draw(localPos, 0.0f, 0.0f);
-        if (obj.name == "FPV Drone T2") drawFPVDrone(localPos);
+        if (obj.name == getStringFromJson("DRONE_Assemblee")) drawFPVDrone(localPos);
 
         glPopMatrix();
     }
@@ -192,7 +193,7 @@ void FPVDrone::drawEquipModel(std::string model,Camera& cam,bool placed,OBJModel
             if (model == baseEquipment[5]) drawRemoteController(localPos);
             if (model == baseEquipment[6]) drawFPVGoggles(localPos);
             if (model == baseEquipment[7]) objmodel.Draw(localPos,0.0f,0.0f);
-            if (model == "FPV Drone T2") drawFPVDrone(localPos);
+            if (model == getStringFromJson("DRONE_Assemblee")) drawFPVDrone(localPos);
 
             glPopMatrix();
         }
@@ -217,7 +218,7 @@ void FPVDrone::drawEquipModel(std::string model,Camera& cam,bool placed,OBJModel
     if (model == baseEquipment[5]) drawRemoteController(localPos);
     if (model == baseEquipment[6]) drawFPVGoggles(localPos);
     if (model == baseEquipment[7]) objmodel.Draw(localPos, 0.0f, 0.0f);
-    if (model == "FPV Drone T2") drawFPVDrone(localPos);
+    if (model == getStringFromJson("DRONE_Assemblee")) drawFPVDrone(localPos);
 
     glPopMatrix();
 }

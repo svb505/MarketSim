@@ -10,9 +10,15 @@
 #include "drone.h"
 #include <algorithm>
 #include "database.h"
+#include "jsonParcer.h"
+
+
 
 class GUI {
 private:
+	char bufNameAch[256]{};
+	char bufNameAs[256]{};
+
 	bool orderWin = false;
 	std::vector<std::string> card = {};
 public:
@@ -37,7 +43,7 @@ public:
 		auto equip = drone.getEquipPrice();
 
 		ImGui::Text("Solde: %.1f", myBalance);
-		ImGui::Dummy({0.0f,10.0f});
+		ImGui::Dummy({ 0.0f,10.0f });
 		ImGui::Text("Articles dans le panier: %d", card.size());
 		ImGui::Dummy({ 0.0f,10.0f });
 
@@ -45,10 +51,10 @@ public:
 		for (const auto& [key, value] : equip) {
 			//Name - Price
 			if (std::ranges::find(card, key) != card.end()) {
-				ImGui::TextColored({0.0f,0.8f,0.0f,1.0f}, "%s - %.1f$", key.c_str(), value);
+				ImGui::TextColored({ 0.0f,0.8f,0.0f,1.0f }, "%s - %.1f$", key.c_str(), value);
 			}
 			else ImGui::Text("%s - %.1f$", key.c_str(), value);
-			
+
 
 			ImGui::SameLine(150);
 
@@ -63,16 +69,16 @@ public:
 			float totalPrice = 0.0f;
 
 			for (auto& element : card) totalPrice += equip[element];
-			
-			if (myBalance >= totalPrice) { 
+
+			if (myBalance >= totalPrice) {
 				saveDataForPlayer(totalPrice, "-");
 
 				for (auto& p : getDataForPlayer().players) myBalance = p.balance;
-				
-				drone.sendPackage(card, build); 
+
+				drone.sendPackage(card, build);
 				card.clear();
 			}
-			else ImGui::TextColored({1.0f,0.0f,0.0f,1.0f}, "Fonds insuffisants sur le solde");
+			else ImGui::TextColored({ 1.0f,0.0f,0.0f,1.0f }, "Fonds insuffisants sur le solde");
 		}
 
 		ImGui::End();
@@ -96,19 +102,30 @@ public:
 		if (ImGui::Button("Fenêtre de commande")) orderWin = true;
 		ImGui::Dummy({ 0.0f,10.0f });
 
-		ImGui::Text("MIN FPS: %.0f",fps.minFps);
-		ImGui::Text("MAX FPS : % .0f",fps.maxFps);
-		ImGui::Text("FPS ACTUELLE: % .0f",fps.fps);
+		ImGui::Text("MIN FPS: %.0f", fps.minFps);
+		ImGui::Text("MAX FPS : % .0f", fps.maxFps);
+		ImGui::Text("FPS ACTUELLE: % .0f", fps.fps);
 
 		ImGui::Dummy({ 0.0f,10.0f });
 
-		ImGui::Text("FPV Drone T1 prix: %.0f", priceForT1);
-		ImGui::Text("FPV Drone T2 prix: % .0f", priceForT2);
+		ImGui::Text("%s prix: %.0f", getStringFromJson("DRONE_Achetee"), priceForT1);
+		ImGui::Text("%s prix: % .0f", getStringFromJson("DRONE_Assemblee"), priceForT2);
 
 		ImGui::Dummy({ 0.0f,10.0f });
 
-		ImGui::InputFloat("Saisir le prix pour T1", &priceForT1);
-		ImGui::InputFloat("Saisir le prix pour T2", &priceForT2);
+		ImGui::Text("Saisir le prix pour achetee");
+		ImGui::InputFloat("1##", &priceForT1);
+		ImGui::Text("Saisir le prix pour assemblee");
+		ImGui::InputFloat("2##", &priceForT2);
+		ImGui::Dummy({ 0.0f,20.0f });
+
+		ImGui::Text("Saisir le nom pour le drone assemblee");
+		ImGui::InputText("3##",bufNameAs,sizeof(bufNameAs));
+		if (ImGui::Button("Appliquer##")) changePlayerConfig("DRONE_Assemblee", bufNameAs);
+
+		ImGui::Text("Saisir le nom pour le drone achetee");
+		ImGui::InputText("4##", bufNameAch, sizeof(bufNameAch));
+		if (ImGui::Button("Appliquer")) changePlayerConfig("DRONE_Achetee",bufNameAch);
 
 		ImGui::Dummy({ 0.0f,20.0f });
 
@@ -126,8 +143,8 @@ public:
 	}
 
 	void renderAll(FPS& fps, FPVDrone& drone, BuildingSettings& build) {
-		renderMainWindow(fps,drone);
+		renderMainWindow(fps, drone);
 
-		if (orderWin) renderOrderWindow(drone,build);
+		if (orderWin) renderOrderWindow(drone, build);
 	}
 };
