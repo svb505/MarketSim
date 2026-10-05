@@ -77,8 +77,20 @@ public:
 
 		ImGui::End();
 	}
-	void renderMainWindow(FPS& fps) {
-		ImGui::SetNextWindowSize(ImVec2(300.0f, 250.0f));
+	void renderMainWindow(FPS& fps, FPVDrone& drone) {
+		auto componentText = [](const char* text, int current, int required) {
+			if (current >= required)
+				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
+
+			ImGui::Text(text, current, required);
+
+			if (current >= required)
+				ImGui::PopStyleColor();
+			};
+
+		auto comp = drone.getComp();
+
+		ImGui::SetNextWindowSize(ImVec2(300.0f, 650.0f));
 		ImGui::Begin("Fenêtre générale");
 
 		if (ImGui::Button("Fenêtre de commande")) orderWin = true;
@@ -87,18 +99,34 @@ public:
 		ImGui::Text("MIN FPS: %.0f",fps.minFps);
 		ImGui::Text("MAX FPS : % .0f",fps.maxFps);
 		ImGui::Text("FPS ACTUELLE: % .0f",fps.fps);
+
 		ImGui::Dummy({ 0.0f,10.0f });
+
 		ImGui::Text("FPV Drone T1 prix: %.0f", priceForT1);
 		ImGui::Text("FPV Drone T2 prix: % .0f", priceForT2);
+
 		ImGui::Dummy({ 0.0f,10.0f });
+
 		ImGui::InputFloat("Saisir le prix pour T1", &priceForT1);
 		ImGui::InputFloat("Saisir le prix pour T2", &priceForT2);
+
+		ImGui::Dummy({ 0.0f,20.0f });
+
+		ImGui::Text("ASSEMLEE");
+
+		componentText("Cadre: %d / %d", comp.frame, 1);
+		componentText("Camera: %d / %d", comp.camera, 1);
+		componentText("Batterie: %d / %d", comp.battery, 1);
+		componentText("Moteur: %d / %d", comp.motor, 4);
+		componentText("Hélice: %d / %d", comp.propeller, 4);
+		componentText("Controlleur: %d / %d", comp.controller, 1);
+		componentText("Lunettes: %d / %d", comp.goggles, 1);
 
 		ImGui::End();
 	}
 
 	void renderAll(FPS& fps, FPVDrone& drone, BuildingSettings& build) {
-		renderMainWindow(fps);
+		renderMainWindow(fps,drone);
 
 		if (orderWin) renderOrderWindow(drone,build);
 	}

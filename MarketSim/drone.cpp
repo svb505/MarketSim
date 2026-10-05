@@ -9,6 +9,9 @@
 #include "model.h"
 #include <iostream>
 
+Components& FPVDrone::getComp() {
+    return comp;
+}
 std::vector<svbmath::Vec3> FPVDrone::generateShelfPoints(const Shelf& shelf) {
     std::vector<svbmath::Vec3> points;
 
@@ -144,7 +147,8 @@ void FPVDrone::drawAllPlacedObjects(OBJModel& objmodel) {
     }
 }
 void FPVDrone::checkIfCanCreateDrone(Camera& cam, CashRegister& build) {
-    Components comp;
+    comp = { 0,0,0,0,0,0,0 };
+
     svbmath::Vec3 basePos;
     int idx = 0;
 
