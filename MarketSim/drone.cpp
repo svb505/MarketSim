@@ -9,14 +9,15 @@
 #include "model.h"
 #include <iostream>
 #include "jsonParcer.h"
+#include "text.h"
 
 void FPVDrone::init() {
     frame.LoadOBJ("res/models/fpv_frame/fpv_frame.obj", 5.0f);
     frame.LoadTexture("res/models/fpv_frame/fpv_frame_carbon.png");
     frame.CreateVBO();
 
-    batt.LoadOBJ("res/models/fpv_bat/lipo_battery.obj", 6.0f);
-    batt.LoadTexture("res/models/fpv_bat/lipo_battery_texture.png");
+    batt.LoadOBJ("res/models/fpv_bat/battery.obj", 6.0f);
+    batt.LoadTexture("res/models/fpv_bat/battery_texture.png");
     batt.CreateVBO();
 
     camModel.LoadOBJ("res/models/fpv_cam/fpv_camera.obj", 5.0f);
@@ -39,8 +40,8 @@ void FPVDrone::init() {
     propellerModel.LoadTexture("res/models/fpv_propeller/fpv_atlas.png");
     propellerModel.CreateVBO();
 
-    controllerModel.LoadOBJ("res/models/fpv_controller/fpv_joystick.obj", 0.1f);
-    controllerModel.LoadTexture("res/models/fpv_controller/fpv_atlas.png");
+    controllerModel.LoadOBJ("res/models/fpv_controller/controller.obj", 4.0f);
+    controllerModel.LoadTexture("res/models/fpv_controller/controller_texture.png");
     controllerModel.CreateVBO();
 }
 Components& FPVDrone::getComp() {
@@ -173,10 +174,24 @@ void FPVDrone::drawAllPlacedObjects(OBJModel& objmodel) {
         if (obj.name == baseEquipment[2]) batt.Draw(localPos, 0.0f,0.0f);
         if (obj.name == baseEquipment[3]) motorModel.Draw(localPos, 0.0f,0.0f);
         if (obj.name == baseEquipment[4]) propellerModel.Draw(localPos, 0.0f,0.0f);
-        if (obj.name == baseEquipment[5]) controllerModel.Draw(localPos, 0.0f,0.0f);
-        if (obj.name == baseEquipment[6]) gogglesModel.Draw(localPos, 0.0f,0.0f);
-        if (obj.name == baseEquipment[7]) objmodel.Draw(localPos, 0.0f, 0.0f);
-        if (obj.name == getStringFromJson("DRONE_Assemblee")) fpv.Draw(localPos, 0.0f,0.0f);
+        if (obj.name == baseEquipment[5]) {
+            RenderTextWorld(localPos.x, localPos.y + 0.2f, localPos.z,1,1,1,"Controlleur");
+            controllerModel.Draw(localPos, 0.0f, 0.0f);
+        }
+        if (obj.name == baseEquipment[6]) {
+            RenderTextWorld(localPos.x, localPos.y + 0.2f, localPos.z, 1, 1, 1, "Lunettes");
+            gogglesModel.Draw(localPos, 0.0f, 0.0f);
+        }
+        if (obj.name == baseEquipment[7]) {
+            RenderTextWorld(localPos.x, localPos.y + 0.2f, localPos.z, 1, 1, 1, 
+                name.c_str());
+            objmodel.Draw(localPos, 0.0f, 0.0f);
+        }
+        if (obj.name == getStringFromJson("DRONE_Assemblee")) {
+            RenderTextWorld(localPos.x, localPos.y + 0.2f, localPos.z, 1, 1, 1, 
+                getStringFromJson("DRONE_Assemblee").c_str());
+            fpv.Draw(localPos, 0.0f, 0.0f);
+        }
 
         glPopMatrix();
     }
