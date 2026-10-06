@@ -21,3 +21,4 @@ extern float priceForT1;
 extern float priceForT2;
 extern float priceForController;
 extern float priceForGoggles;
+extern bool isOpen;

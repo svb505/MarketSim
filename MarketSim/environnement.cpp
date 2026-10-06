@@ -118,10 +118,10 @@ void drawSky() {
 
     glColor3f(1, 1, 1);
 
-    glTexCoord2f(0, 1); glVertex2f(-1, 1);
-    glTexCoord2f(1, 1); glVertex2f(1, 1);
-    glTexCoord2f(1, 0); glVertex2f(1, -1);
-    glTexCoord2f(0, 0); glVertex2f(-1, -1);
+    glTexCoord2f(0, 0); glVertex2f(-1, 1);
+    glTexCoord2f(1, 0); glVertex2f(1, 1);
+    glTexCoord2f(1, 1); glVertex2f(1, -1);
+    glTexCoord2f(0, 1); glVertex2f(-1, -1);
 
     glEnd();
 
@@ -135,7 +135,7 @@ void drawSky() {
     glDisable(GL_TEXTURE_2D);
     glEnable(GL_DEPTH_TEST);
 }
-void drawGround(float camX, float camZ){
+void drawGround() {
     GLuint grassTex = allTextures["ASPHALT"];
 
     float step = 3.0f;
@@ -145,13 +145,14 @@ void drawGround(float camX, float camZ){
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, grassTex);
 
-    for (float x = -size; x < size; x += step){
-        for (float z = -size; z < size; z += step) {
-            float x1 = camX + x;
-            float z1 = camZ + z;
+    for (float x = -100.0f; x < 100.0f; x += step) {
+        for (float z = -100.0f; z < 100.0f; z += step) {
 
-            float x2 = x1 + step;
-            float z2 = z1 + step;
+            float x1 = x;
+            float z1 = z;
+
+            float x2 = x + step;
+            float z2 = z + step;
 
             glBegin(GL_QUADS);
 
@@ -173,7 +174,6 @@ void drawGround(float camX, float camZ){
         }
     }
 
-    glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_TEXTURE_2D);
 }
 

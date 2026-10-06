@@ -13,7 +13,7 @@ enum class BotState {
 class Bot {
 private:
     svbmath::Vec3 position;
-
+    svbmath::Vec3 shelfApproachTarget;
     svbmath::Vec3 targetShelf;
     svbmath::Vec3 cashTarget;
 
@@ -21,7 +21,7 @@ private:
 
     BotState state = BotState::GoingToShelf;
 
-    float speed = 1.5f;
+    float speed = 3.5f;
 
     bool carryingDrone = false;
 
@@ -29,7 +29,7 @@ private:
 
 private:
     bool findDrone(FPVDrone& drone);
-    void takeDrone(FPVDrone& drone);
+    bool takeDrone(FPVDrone& drone);
 
     void moveTo(const svbmath::Vec3& target,
         float dt,

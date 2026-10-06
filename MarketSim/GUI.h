@@ -19,7 +19,6 @@ private:
 	char bufNameAch[256]{};
 	char bufNameAs[256]{};
 
-	bool orderWin = false;
 	std::vector<std::string> card = {};
 public:
 	void destroyGui() {
@@ -37,53 +36,7 @@ public:
 
 		ImGui::StyleColorsDark();
 	}
-	void renderOrderWindow(FPVDrone& drone, BuildingSettings& build) {
-		ImGui::Begin("Fenêtre de commande");
-
-		auto equip = drone.getEquipPrice();
-
-		ImGui::Text("Solde: %.1f", myBalance);
-		ImGui::Dummy({ 0.0f,10.0f });
-		ImGui::Text("Articles dans le panier: %d", card.size());
-		ImGui::Dummy({ 0.0f,10.0f });
-
-
-		for (const auto& [key, value] : equip) {
-			//Name - Price
-			if (std::ranges::find(card, key) != card.end()) {
-				ImGui::TextColored({ 0.0f,0.8f,0.0f,1.0f }, "%s - %.1f$", key.c_str(), value);
-			}
-			else ImGui::Text("%s - %.1f$", key.c_str(), value);
-
-
-			ImGui::SameLine(150);
-
-			if (ImGui::Button(("Ajouter à panier##" + key).c_str())) card.push_back(key);
-			if (ImGui::Button(("Supprimer de panier##" + key).c_str())) card.erase(
-				std::remove(card.begin(), card.end(), key),
-				card.end()
-			);
-		}
-		ImGui::Dummy({ 0.0f,10.0f });
-		if (ImGui::Button("Acheter tout")) {
-			float totalPrice = 0.0f;
-
-			for (auto& element : card) totalPrice += equip[element];
-
-			if (myBalance >= totalPrice) {
-				saveDataForPlayer(totalPrice, "-");
-
-				for (auto& p : getDataForPlayer().players) myBalance = p.balance;
-
-				drone.sendPackage(card, build);
-				card.clear();
-			}
-			else ImGui::TextColored({ 1.0f,0.0f,0.0f,1.0f }, "Fonds insuffisants sur le solde");
-		}
-
-		ImGui::End();
-	}
-	void renderMainWindow(FPS& fps, FPVDrone& drone) {
+	void renderMainWindow(FPS& fps, FPVDrone& drone, BuildingSettings& build) {
 		auto componentText = [](const char* text, int current, int required) {
 			if (current >= required)
 				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
@@ -99,7 +52,51 @@ public:
 		ImGui::SetNextWindowSize(ImVec2(300.0f, 650.0f));
 		ImGui::Begin("Fenêtre générale");
 
-		if (ImGui::Button("Fenêtre de commande")) orderWin = true;
+		ImGui::Checkbox("Ouvrir le magasin",&isOpen);
+
+		if (ImGui::CollapsingHeader("Fenêtre de commande")) {
+			auto equip = drone.getEquipPrice();
+
+			ImGui::Text("Solde: %.1f", myBalance);
+			ImGui::Dummy({ 0.0f,10.0f });
+			ImGui::Text("Articles dans le panier: %d", card.size());
+			ImGui::Dummy({ 0.0f,10.0f });
+
+
+			for (const auto& [key, value] : equip) {
+				//Name - Price
+				if (std::ranges::find(card, key) != card.end()) {
+					ImGui::TextColored({ 0.0f,0.8f,0.0f,1.0f }, "%s - %.1f$", key.c_str(), value);
+				}
+				else ImGui::Text("%s - %.1f$", key.c_str(), value);
+
+
+				ImGui::SameLine(150);
+
+				if (ImGui::Button(("Ajouter à panier##" + key).c_str())) card.push_back(key);
+				if (ImGui::Button(("Supprimer de panier##" + key).c_str())) card.erase(
+					std::remove(card.begin(), card.end(), key),
+					card.end()
+				);
+			}
+			ImGui::Dummy({ 0.0f,10.0f });
+			if (ImGui::Button("Acheter tout")) {
+				float totalPrice = 0.0f;
+
+				for (auto& element : card) totalPrice += equip[element];
+
+				if (myBalance >= totalPrice) {
+					saveDataForPlayer(totalPrice, "-");
+
+					for (auto& p : getDataForPlayer().players) myBalance = p.balance;
+
+					drone.sendPackage(card, build);
+					card.clear();
+				}
+				else ImGui::TextColored({ 1.0f,0.0f,0.0f,1.0f }, "Fonds insuffisants sur le solde");
+			}
+		}
+
 		ImGui::Dummy({ 0.0f,10.0f });
 
 		ImGui::Text("MIN FPS: %.0f", fps.minFps);
@@ -133,7 +130,7 @@ public:
 
 		ImGui::Dummy({ 0.0f,20.0f });
 
-		ImGui::Text("ASSEMLEE");
+		ImGui::Text("ASSEMLER");
 
 		componentText("Cadre: %d / %d", comp.frame, 1);
 		componentText("Camera: %d / %d", comp.camera, 1);
@@ -145,8 +142,6 @@ public:
 	}
 
 	void renderAll(FPS& fps, FPVDrone& drone, BuildingSettings& build) {
-		renderMainWindow(fps, drone);
-
-		if (orderWin) renderOrderWindow(drone, build);
+		renderMainWindow(fps, drone, build);
 	}
 };

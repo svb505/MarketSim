@@ -202,7 +202,7 @@ int main() {
         cam.setupCamera();
 
         drawSky();
-        drawGround(cam.getCamPos().x, cam.getCamPos().z);
+        drawGround();
         drawRoad(0.01,-30.0f,10.0f,10);
 
         glEnable(GL_POLYGON_OFFSET_FILL);
