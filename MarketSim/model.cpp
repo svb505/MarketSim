@@ -9,12 +9,14 @@
 #include <iostream>
 #include "stb_image.h"
 #include "svbmath.h"
+#include "logger.h"
+#include <format>
 
 bool OBJModel::LoadMTL(const std::string& filename){
     std::ifstream file(filename);
 
     if (!file.is_open()){
-        std::cout << "Cannot open MTL: " << filename << std::endl;
+        LOG_ERROR(std::format("Cannot open MTL: {}",filename));
         return false;
     }
 
@@ -29,8 +31,7 @@ bool OBJModel::LoadMTL(const std::string& filename){
         std::string type;
         ss >> type;
 
-        if (type == "newmtl")
-        {
+        if (type == "newmtl") {
             std::string name;
             ss >> name;
 
@@ -39,36 +40,24 @@ bool OBJModel::LoadMTL(const std::string& filename){
 
             current = &materials.back();
         }
-        else if (!current)
-        {
-            continue;
-        }
-        else if (type == "Ka")
-        {
+        else if (!current)  continue;
+        else if (type == "Ka"){
             ss >> current->Ka[0]
                 >> current->Ka[1]
                 >> current->Ka[2];
         }
-        else if (type == "Kd")
-        {
+        else if (type == "Kd"){
             ss >> current->Kd[0]
                 >> current->Kd[1]
                 >> current->Kd[2];
         }
-        else if (type == "Ks")
-        {
+        else if (type == "Ks"){
             ss >> current->Ks[0]
                 >> current->Ks[1]
                 >> current->Ks[2];
         }
-        else if (type == "Ns")
-        {
-            ss >> current->Ns;
-        }
-        else if (type == "d")
-        {
-            ss >> current->d;
-        }
+        else if (type == "Ns") ss >> current->Ns;
+        else if (type == "d") ss >> current->d;
     }
 
     return true;
@@ -90,7 +79,7 @@ bool OBJModel::LoadOBJ(const std::string& filename,float scale){
     std::ifstream file(filename);
 
     if (!file.is_open()){ 
-        std::cout << "Cannot open: " << filename << std::endl;
+        LOG_ERROR(std::format("Cannot open: {}",filename));
 
         return false;
     }
@@ -301,7 +290,7 @@ bool OBJModel::LoadOBJ(const std::string& filename,float scale){
         };
     }
 
-    std::cout << "Model loaded: " << filename << "\nVertices: " << vertices.size() << std::endl;
+    LOG_INFO(std::format("Model loaded: {} | Vertices: {}", filename, vertices.size()));
 
     return true;
 }
@@ -393,7 +382,7 @@ bool OBJModel::LoadTexture(const std::string& filename){
     unsigned char* data = stbi_load( filename.c_str(), &width,&height, &channels,4);
 
     if (!data){
-        std::cout << "Cannot load texture: " << filename<< std::endl;
+        LOG_ERROR(std::format("Cannot load texture: {}", filename));
 
         return false;
     }

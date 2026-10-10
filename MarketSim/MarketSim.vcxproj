@@ -153,6 +153,7 @@
     <ClCompile Include="jsonParcer.cpp" />
     <ClCompile Include="lighting.h" />
     <ClCompile Include="lighting.cpp" />
+    <ClCompile Include="logger.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="model.cpp" />
     <ClCompile Include="renders.cpp" />
@@ -174,6 +175,7 @@
     <ClInclude Include="environnement.h" />
     <ClInclude Include="input.h" />
     <ClInclude Include="jsonParcer.h" />
+    <ClInclude Include="logger.h" />
     <ClInclude Include="model.h" />
     <ClInclude Include="renders.h" />
     <ClInclude Include="sound.h" />

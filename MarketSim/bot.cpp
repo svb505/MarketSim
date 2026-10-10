@@ -6,7 +6,8 @@
 #include "variables.h"
 #include "database.h"
 #include "renders.h"
-
+#include <format>
+#include "logger.h"
 
 static bool CircleIntersectsAABB(const svbmath::Vec3& pos,float radius,float minX,float maxX,float minZ,float maxZ){
     float closestX =
@@ -266,8 +267,7 @@ void Bot::spawn(
         cash.min.z - 0.4f;
 
 
-    state =
-        BotState::GoingToShelf;
+    state = BotState::GoingToShelf;
 
 
     carryingDrone = false;
@@ -275,27 +275,10 @@ void Bot::spawn(
     active = true;
 
 
-    std::cout
-        << "BOT SPAWNED\n";
-
-    std::cout
-        << "Target drone: "
-        << droneModel
-        << "\n";
-
-    std::cout
-        << "Drone position: "
-        << targetShelf.x
-        << " "
-        << targetShelf.z
-        << "\n";
-
-    std::cout
-        << "Approach position: "
-        << shelfApproachTarget.x
-        << " "
-        << shelfApproachTarget.z
-        << "\n";
+    LOG_INFO("BOT SPAWNED");
+    LOG_INFO(std::format("Target drone: {}", droneModel));
+    LOG_INFO(std::format("Drone position: x: {} z: {}", targetShelf.x,targetShelf.z));
+    LOG_INFO(std::format("Approach position: x: {} z: {}", shelfApproachTarget.x, shelfApproachTarget.z));
 }
 
 
@@ -303,11 +286,7 @@ void Bot::spawn(
 // MOVEMENT
 // ============================================================
 
-void Bot::moveTo(
-    const svbmath::Vec3& target,
-    float dt,
-    Building& building)
-{
+void Bot::moveTo( const svbmath::Vec3& target,float dt,  Building& building){
     svbmath::Vec3 direction = {
         target.x - position.x,
         0.0f,
@@ -544,14 +523,11 @@ bool Bot::takeDrone(
             drone.getShelfPositions();
 
 
-        for (auto& shelf :
-            shelfPositions)
-        {
+        for (auto& shelf : shelfPositions){
             if (InRadiusXZ(
                 shelf.pos,
                 targetShelf,
-                0.2f))
-            {
+                0.2f)){
                 shelf.busy = false;
 
                 break;
@@ -562,18 +538,14 @@ bool Bot::takeDrone(
         carryingDrone = true;
 
 
-        std::cout
-            << "BOT TOOK: "
-            << droneModel
-            << "\n";
+        LOG_INFO(std::format("BOT TOOK: {}", droneModel));
 
 
         return true;
     }
 
 
-    std::cout
-        << "BOT FAILED TO TAKE DRONE\n";
+    LOG_INFO("BOT FAILED TO TAKE DRONE");
 
 
     return false;
@@ -613,14 +585,11 @@ void Bot::update(
             shelfApproachTarget,
             0.45f))
         {
-            if (takeDrone(drone))
-            {
-                state =
-                    BotState::GoingToCash;
+            if (takeDrone(drone)){
+                state = BotState::GoingToCash;
 
 
-                std::cout
-                    << "BOT GOING TO CASH\n";
+               LOG_INFO("BOT GOING TO CASH");
             }
         }
 
@@ -693,22 +662,11 @@ void Bot::update(
             );
 
 
-            std::cout
-                << "SOLD: "
-                << droneModel
-                << " for "
-                << price
-                << "\n";
+            LOG_INFO(std::format("SOLD: {} for {}", droneModel, price));
+            LOG_INFO(std::format("Balance: {}", myBalance));
 
 
-            std::cout
-                << "Balance: "
-                << myBalance
-                << "\n";
-
-
-            state =
-                BotState::Leaving;
+            state = BotState::Leaving;
         }
 
         break;
@@ -723,8 +681,7 @@ void Bot::update(
     {
         active = false;
 
-        std::cout
-            << "BOT LEFT\n";
+        LOG_INFO("BOT LEFT");
 
         break;
     }

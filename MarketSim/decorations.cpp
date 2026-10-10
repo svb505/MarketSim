@@ -8,7 +8,8 @@
 #include <string>
 #include <vector>
 #include <map>
-
+#include "logger.h"
+#include <format>
 
 std::map<DecType, float> scales ={
     { DecType::BUILD1, 1.0f },
@@ -94,7 +95,7 @@ void Decorations::initDecoration(const std::string& modelPath, DecType decType,
     auto model = std::make_unique<OBJModel>();
 
     if (!model->LoadOBJ(modelPath, scale)){
-        std::cout << "Failed to load decoration model: " << modelPath << std::endl;
+        LOG_ERROR(std::format("Failed to load decoration model: {}",modelPath));
 
         return;
     }

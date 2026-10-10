@@ -81,6 +81,9 @@
     <ClCompile Include="jsonParcer.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="logger.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h">
@@ -138,6 +141,9 @@
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="jsonParcer.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="logger.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
   </ItemGroup>

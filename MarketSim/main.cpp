@@ -33,6 +33,7 @@
 #include "sound.h"
 #include "bot.h"
 #include "renders.h"
+#include "logger.h"
 
 Camera cam;
 Building build;
@@ -100,6 +101,8 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     params.cameraPitch -= (float)yoffset;
 }
 int main() {
+    Logger::initLogger();
+
     CameraParams& params = cam.getCamParams();
 
     if (!dbIsExists()) createDb();
@@ -109,14 +112,14 @@ int main() {
     }
 
     if (!glfwInit()) {
-        std::cout << "Failed to initialize GLFW\n";
+        LOG_ERROR("Failed to initialize GLFW");
         return -1;
     }
 
     glfwWindowHint(GLFW_SAMPLES, 16);
-    GLFWwindow* window = glfwCreateWindow(ECRAN_W, ECRAN_H, "FPV Market - V0.3.5", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(ECRAN_W, ECRAN_H, "FPV Market - V0.8.7", NULL, NULL);
     if (!window) {
-        std::cout << "Failed to create window\n";
+        LOG_ERROR("Failed to create window");
         glfwTerminate();
         return -1;
     }
@@ -125,7 +128,7 @@ int main() {
     glfwMakeContextCurrent(window);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)){
-        std::cout << "Failed to initialize GLAD\n";
+        LOG_ERROR("Failed to initialize GLAD");
 
         glfwDestroyWindow(window);
         glfwTerminate();
@@ -262,6 +265,8 @@ int main() {
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
+    Logger::shutDown();
 
     gui.destroyGui();
 
