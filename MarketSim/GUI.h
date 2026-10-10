@@ -137,6 +137,7 @@ public:
 		componentText("Batterie: %d / %d", comp.battery, 1);
 		componentText("Moteur: %d / %d", comp.motor, 4);
 		componentText("Hélice: %d / %d", comp.propeller, 4);
+		componentText("Controlleur de vol: %d / %d", comp.fc, 1);
 
 		ImGui::End();
 	}

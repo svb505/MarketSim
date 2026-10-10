@@ -10,39 +10,55 @@
 #include <iostream>
 #include "jsonParcer.h"
 #include "text.h"
+#include <memory>
+#include <utility>
 
+void FPVDrone::consumeComponents() {
+    struct Need { std::vector<int> idx; int count; };
+    const std::vector<Need> needs = {
+        {{0, 16}, 1},      // frame
+        {{1}, 1},          // camera
+        {{2, 8, 9}, 1},    // battery
+        {{3}, 4},          // motors
+        {{4, 10, 11}, 4},  // propellers
+        {{12, 13}, 1}      // fc
+    };
+
+    auto matches = [&](const std::string& n, const std::vector<int>& idx) {
+        for (int i : idx) if (n == baseEquipment[i]) return true;
+        return false;
+        };
+
+    for (const auto& need : needs) {
+        int left = need.count;
+        for (auto it = placedObjects.begin(); it != placedObjects.end() && left > 0; ) {
+            if (matches(it->name, need.idx)) {
+                for (auto& s : positionsOnShelves)
+                    if (svbmath::InRadius(s.pos, it->pos, 0.01f))
+                        s.busy = false;   // освободить слот
+                it = placedObjects.erase(it);
+                --left;
+            }
+            else {
+                ++it;
+            }
+        }
+    }
+}
 void FPVDrone::init() {
-    frame.LoadOBJ("res/models/fpv_frame/fpv_frame.obj", 5.0f);
-    frame.LoadTexture("res/models/fpv_frame/fpv_frame_carbon.png");
-    frame.CreateVBO();
-
-    batt.LoadOBJ("res/models/fpv_bat/battery.obj", 6.0f);
-    batt.LoadTexture("res/models/fpv_bat/battery_texture.png");
-    batt.CreateVBO();
-
-    camModel.LoadOBJ("res/models/fpv_cam/fpv_camera.obj", 5.0f);
-    camModel.LoadTexture("res/models/fpv_cam/fpv_camera_texture.png");
-    camModel.CreateVBO();
-
-    gogglesModel.LoadOBJ("res/models/fpv_goggles/fpv_goggles.obj", 5.0f);
-    gogglesModel.LoadTexture("res/models/fpv_goggles/fpv_goggles_texture.png");
-    gogglesModel.CreateVBO();
-
-    fpv.LoadOBJ("res/models/fpv_assemblee/fpv_drone.obj", 5.0f);
+    fpv.LoadOBJ("res/models/fpv_assemblee/fpv_drone.obj", 6.0f);
     fpv.LoadTexture("res/models/fpv_assemblee/fpv_drone_texture.png");
     fpv.CreateVBO();
 
-    motorModel.LoadOBJ("res/models/fpv_motor/fpv_motor.obj", 0.07f);
-    motorModel.LoadTexture("res/models/fpv_motor/fpv_atlas.png");
-    motorModel.CreateVBO();
+    for (const auto& [objName, paths] : allCompPaths) {
+        auto model = std::make_unique<OBJModel>();
 
-    propellerModel.LoadOBJ("res/models/fpv_propeller/fpv_propeller.obj", 0.04f);
-    propellerModel.LoadTexture("res/models/fpv_propeller/fpv_atlas.png");
-    propellerModel.CreateVBO();
+        model->LoadOBJ(paths.model, paths.scale);
+        model->LoadTexture(paths.texture);
+        model->CreateVBO();
 
-    controllerModel.LoadOBJ("res/models/fpv_controller/controller.obj", 4.0f);
-    controllerModel.LoadTexture("res/models/fpv_controller/controller_texture.png");
-    controllerModel.CreateVBO();
+        allCompModels.emplace(objName, std::move(model));
+    }
 }
 Components& FPVDrone::getComp() {
     return comp;
@@ -121,7 +137,9 @@ void FPVDrone::checkIfCanPlaceInShelf(Camera& cam) {
     for (auto& obj : positionsOnShelves) {
         if (svbmath::InRadius(cam.getCamPos(), obj.pos, 1.0f) && 
             (objName == baseEquipment[7] || objName == getStringFromJson("DRONE_Assemblee")
-                || objName == baseEquipment[5] || objName == baseEquipment[6]) && !obj.busy) {
+                || objName == baseEquipment[5] || objName == baseEquipment[6] || 
+                objName == baseEquipment[14] || objName == baseEquipment[15]) && !obj.busy) {
+
             addPlacedObj(objName, obj.pos);
 
             obj.busy = true;
@@ -169,28 +187,18 @@ void FPVDrone::drawAllPlacedObjects(OBJModel& objmodel) {
 
         svbmath::Vec3 localPos = { 0.0f, 0.3f, 0.0f };
 
-        if (obj.name == baseEquipment[0]) frame.Draw(localPos, 0.0f, 0.0f);
-        if (obj.name == baseEquipment[1]) camModel.Draw(localPos, 0.0f,0.0f);
-        if (obj.name == baseEquipment[2]) batt.Draw(localPos, 0.0f,0.0f);
-        if (obj.name == baseEquipment[3]) motorModel.Draw(localPos, 0.0f,0.0f);
-        if (obj.name == baseEquipment[4]) propellerModel.Draw(localPos, 0.0f,0.0f);
-        if (obj.name == baseEquipment[5]) {
-            RenderTextWorld(localPos.x, localPos.y + 0.2f, localPos.z,1,1,1,"Controlleur");
-            controllerModel.Draw(localPos, 0.0f, 0.0f);
-        }
-        if (obj.name == baseEquipment[6]) {
-            RenderTextWorld(localPos.x, localPos.y + 0.2f, localPos.z, 1, 1, 1, "Lunettes");
-            gogglesModel.Draw(localPos, 0.0f, 0.0f);
-        }
         if (obj.name == baseEquipment[7]) {
-            RenderTextWorld(localPos.x, localPos.y + 0.2f, localPos.z, 1, 1, 1, 
-                name.c_str());
+            RenderTextWorld(localPos.x, localPos.y + 0.2f, localPos.z, 1, 1, 1, name.c_str());
             objmodel.Draw(localPos, 0.0f, 0.0f);
         }
+
         if (obj.name == getStringFromJson("DRONE_Assemblee")) {
-            RenderTextWorld(localPos.x, localPos.y + 0.2f, localPos.z, 1, 1, 1, 
+            RenderTextWorld(localPos.x, localPos.y + 0.2f, localPos.z, 1, 1, 1,
                 getStringFromJson("DRONE_Assemblee").c_str());
             fpv.Draw(localPos, 0.0f, 0.0f);
+        }
+        if (obj.name != getStringFromJson("DRONE_Assemblee") && obj.name != baseEquipment[7]) {
+            allCompModels[obj.name]->Draw(localPos, 0.0f, 0.0f);
         }
 
         glPopMatrix();
@@ -205,25 +213,25 @@ void FPVDrone::checkIfCanCreateDrone(Camera& cam, CashRegister& build) {
     for (auto& obj : placedObjects) {
         if (idx == 0) basePos = obj.pos;
 
-        if (obj.name == baseEquipment[0]) comp.frame++;
+        if (obj.name == baseEquipment[0] || obj.name == baseEquipment[16]) comp.frame++;
         if (obj.name == baseEquipment[1]) comp.camera++;
-        if (obj.name == baseEquipment[2]) comp.battery++;
+        if (obj.name == baseEquipment[2] || obj.name == baseEquipment[8] || obj.name == baseEquipment[9]) comp.battery++;
         if (obj.name == baseEquipment[3]) comp.motor++;
-        if (obj.name == baseEquipment[4]) comp.propeller++;
+        if (obj.name == baseEquipment[4] || obj.name == baseEquipment[10] || obj.name == baseEquipment[11]) comp.propeller++;
+        if (obj.name == baseEquipment[12] || obj.name == baseEquipment[13]) comp.fc++;
 
         idx++;
     }
 
     if (comp.battery >= 1 && comp.frame >= 1 && comp.camera >= 1 && comp.motor >= 4 && 
-        comp.propeller >= 4 && svbmath::InRadius(cam.getCamPos(), build.position, 5.0f)){
+        comp.propeller >= 4 && comp.fc >= 1 && svbmath::InRadius(cam.getCamPos(), build.position, 5.0f)){
         canCreateDrone = true;
     }
 }
 void FPVDrone::drawEquipModel(std::string model,Camera& cam,bool placed,OBJModel& objmodel) {    
     if (placed) {
         for (const auto& obj : placedObjects) {
-            if (obj.name != model)
-                continue;
+            if (obj.name != model) continue;
 
             glPushMatrix();
             glTranslatef(obj.pos.x, obj.pos.y, obj.pos.z);
@@ -231,15 +239,20 @@ void FPVDrone::drawEquipModel(std::string model,Camera& cam,bool placed,OBJModel
 
             svbmath::Vec3 localPos = { 0.0f, 0.0f, 0.0f };
 
-            if (model == baseEquipment[0]) frame.Draw(localPos, 0.0f, 0.0f);
-            if (model == baseEquipment[1]) camModel.Draw(localPos, 0.0f,0.0f);
-            if (model == baseEquipment[2]) batt.Draw(localPos, 0.0f,0.0f);
-            if (model == baseEquipment[3]) motorModel.Draw(localPos, 0.0f,0.0f);
-            if (model == baseEquipment[4]) propellerModel.Draw(localPos, 0.0f,0.0f);
-            if (model == baseEquipment[5]) controllerModel.Draw(localPos, 0.0f,0.0f);
-            if (model == baseEquipment[6]) gogglesModel.Draw(localPos, 0.0f,0.0f);
-            if (model == baseEquipment[7]) objmodel.Draw(localPos,0.0f,0.0f);
-            if (model == getStringFromJson("DRONE_Assemblee")) fpv.Draw(localPos, 0.0f,0.0f);
+            if (model == baseEquipment[7]) {
+                RenderTextWorld(localPos.x, localPos.y + 0.2f, localPos.z, 1, 1, 1, name.c_str());
+                objmodel.Draw(localPos, 0.0f, 0.0f);
+            }
+
+            else if (model == getStringFromJson("DRONE_Assemblee")) {
+                RenderTextWorld(localPos.x, localPos.y + 0.2f, localPos.z, 1, 1, 1,
+                    getStringFromJson("DRONE_Assemblee").c_str());
+                fpv.Draw(localPos, 0.0f, 0.0f);
+            }
+            else {
+                allCompModels[model]->Draw(localPos, 0.0f, 0.0f);
+            }
+
 
             glPopMatrix();
         }
@@ -256,15 +269,19 @@ void FPVDrone::drawEquipModel(std::string model,Camera& cam,bool placed,OBJModel
 
     svbmath::Vec3 localPos = { 0.0f, 0.0f, 0.0f };
 
-    if (model == baseEquipment[0]) frame.Draw(localPos, 0.0f, 0.0f);
-    if (model == baseEquipment[1]) camModel.Draw(localPos, 0.0f,0.0f);
-    if (model == baseEquipment[2]) batt.Draw(localPos, 0.0f,0.0f);
-    if (model == baseEquipment[3]) motorModel.Draw(localPos, 0.0f,0.0f);
-    if (model == baseEquipment[4]) propellerModel.Draw(localPos, 0.0f,0.0f);
-    if (model == baseEquipment[5]) controllerModel.Draw(localPos, 0.0f,0.0f);
-    if (model == baseEquipment[6]) gogglesModel.Draw(localPos, 0.0f,0.0f);
-    if (model == baseEquipment[7]) objmodel.Draw(localPos, 0.0f, 0.0f);
-    if (model == getStringFromJson("DRONE_Assemblee")) fpv.Draw(localPos, 0.0f,0.0f);
+    if (model == baseEquipment[7]) {
+        RenderTextWorld(localPos.x, localPos.y + 0.2f, localPos.z, 1, 1, 1, name.c_str());
+        objmodel.Draw(localPos, 0.0f, 0.0f);
+    }
+
+    else if (model == getStringFromJson("DRONE_Assemblee")) {
+        RenderTextWorld(localPos.x, localPos.y + 0.2f, localPos.z, 1, 1, 1,
+            getStringFromJson("DRONE_Assemblee").c_str());
+        fpv.Draw(localPos, 0.0f, 0.0f);
+    }
+    else {
+        allCompModels[model]->Draw(localPos, 0.0f, 0.0f);
+    }
 
     glPopMatrix();
 }

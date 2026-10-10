@@ -1,0 +1,8 @@
+newmtl prop_bi
+Ka 1.0 1.0 1.0
+Kd 1.0 1.0 1.0
+Ks 0.45 0.45 0.45
+Ns 90
+d 1.0
+illum 2
+map_Kd prop_bi_5048_texture.png

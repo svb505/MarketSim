@@ -1,0 +1,9 @@
+# FPV frame material
+newmtl fpv_frame
+Ka 1.0 1.0 1.0
+Kd 1.0 1.0 1.0
+Ks 0.40 0.40 0.40
+Ns 80
+d 1.0
+illum 2
+map_Kd fpv_frame_texture.png

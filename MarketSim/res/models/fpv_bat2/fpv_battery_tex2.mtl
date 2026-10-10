@@ -1,0 +1,75 @@
+# FPV LiPo 4S battery materials
+
+newmtl battery_body
+Ka 1.0 1.0 1.0
+Kd 1.0 1.0 1.0
+Ks 0.15 0.15 0.15
+Ns 25
+d 1.0
+illum 2
+map_Kd battery_texture_2_cybercell.png
+
+newmtl xt60_plastic
+Ka 0.2 0.2 0.2
+Kd 0.95 0.75 0.05
+Ks 0.2 0.2 0.2
+Ns 40
+d 1.0
+illum 2
+
+newmtl gold
+Ka 0.2 0.2 0.2
+Kd 0.83 0.69 0.22
+Ks 0.9 0.85 0.5
+Ns 200
+d 1.0
+illum 2
+
+newmtl wire_red
+Ka 0.2 0.2 0.2
+Kd 0.75 0.04 0.04
+Ks 0.2 0.2 0.2
+Ns 30
+d 1.0
+illum 2
+
+newmtl wire_black
+Ka 0.2 0.2 0.2
+Kd 0.03 0.03 0.03
+Ks 0.2 0.2 0.2
+Ns 30
+d 1.0
+illum 2
+
+newmtl wire_white
+Ka 0.2 0.2 0.2
+Kd 0.92 0.92 0.92
+Ks 0.2 0.2 0.2
+Ns 30
+d 1.0
+illum 2
+
+newmtl wire_yellow
+Ka 0.2 0.2 0.2
+Kd 0.92 0.8 0.08
+Ks 0.2 0.2 0.2
+Ns 30
+d 1.0
+illum 2
+
+newmtl wire_orange
+Ka 0.2 0.2 0.2
+Kd 0.95 0.45 0.05
+Ks 0.2 0.2 0.2
+Ns 30
+d 1.0
+illum 2
+
+newmtl jst_white
+Ka 0.2 0.2 0.2
+Kd 0.92 0.92 0.88
+Ks 0.25 0.25 0.25
+Ns 40
+d 1.0
+illum 2
+

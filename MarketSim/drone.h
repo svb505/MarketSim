@@ -10,6 +10,7 @@
 #include "building.h"
 #include "model.h"
 #include "jsonParcer.h"
+#include <memory>
 
 struct ShelfSetting {
     svbmath::Vec3 pos;
@@ -29,7 +30,12 @@ struct PlacedObject {
     svbmath::Vec3 pos;
 };
 struct Components {
-    int frame = 0, camera = 0, battery = 0, motor = 0, propeller = 0, controller = 0, goggles = 0;
+    int frame = 0, camera = 0, battery = 0, motor = 0, propeller = 0, controller = 0, goggles = 0, fc = 0;
+};
+
+struct ModelPaths {
+    std::string model, texture;
+    float scale;
 };
 
 class FPVDrone {
@@ -37,20 +43,102 @@ private:
     Components comp;
     std::string name = getStringFromJson("DRONE_Achetee");
 
-    OBJModel frame;
-    OBJModel batt;
-    OBJModel camModel;
-    OBJModel gogglesModel;
     OBJModel fpv;
-    OBJModel motorModel;
-    OBJModel propellerModel;
-    OBJModel controllerModel;
 
     std::vector<std::string> baseEquipment = {"Cadre","Camera","Batterie", "Moteur",
-        "Hélice","Controlleur" ,"Lunettes",name};
+        "Hélice","Controlleur" ,"Lunettes",name, "Batterie_2", "Batterie_3","Propeller2","Propeller3",
+    "FC1","FC2","Radio 1","Lunettes2","Cadre2"};
+
     std::map<std::string, float> equipmentPrice = { {"Cadre",100.0f},{"Camera",300.0f},
         {"Batterie",250.0f} ,{"Moteur",350.0f} ,{"Hélice",150.0f}, {"Controlleur",100.0f},
-        {"Lunettes",250.0f},{name,1000.0f} };
+        {"Lunettes",250.0f},{name,1000.0f} ,{"Propeller2",120.0f},{"Propeller3",120.0f},
+        {"Batterie_2",250.0f} ,{"Batterie_3",350.0f} ,{"FC1",150.0f}, {"FC2",100.0f},
+        {"Lunettes2",250.0f},{"Radio 1",1000.0f},{"Cadre2",100.0f} };
+
+    std::map<std::string, std::unique_ptr<OBJModel>> allCompModels;
+    std::map<std::string, ModelPaths> allCompPaths = {
+     {"Cadre", {
+         "res/models/fpv_frame/fpv_frame.obj",
+         "res/models/fpv_frame/fpv_frame_carbon.png",
+         5.0f
+     }},
+    {"Camera", {
+         "res/models/fpv_cam/fpv_camera.obj",
+         "res/models/fpv_cam/fpv_camera_texture.png",
+         5.0f
+     }},
+        {"Propeller2", {
+         "res/models/fpv_propeller2/prop_bi_5048.obj",
+         "res/models/fpv_propeller2/tex.jpg",
+         5.0f
+     }},
+        {"Propeller3", {
+         "res/models/fpv_propeller3/prop_tri_5143.obj",
+         "res/models/fpv_propeller3/tex.jpg",
+         5.0f
+     }},
+        {"Batterie_2", {
+         "res/models/fpv_bat2/fpv_battery.obj",
+         "res/models/fpv_bat2/tex.jpg",
+         5.0f
+     }},
+     {"Batterie_3", {
+         "res/models/fpv_bat3/fpv_battery.obj",
+         "res/models/fpv_bat3/tex.jpg",
+         5.0f
+     }},
+        {"FC1", {
+         "res/models/fpv_FC1/fc_20x20_mini.obj",
+         "res/models/fpv_FC1/tex.jpg",
+         0.004f
+     }},
+     {"FC2", {
+         "res/models/fpv_FC2/fc_30x30_f4.obj",
+         "res/models/fpv_FC2/tex.jpg",
+          0.004f
+     }},
+        {"Radio 1", {
+         "res/models/fpv_controller2/fpv_radio.obj",
+         "res/models/fpv_controller2/tex.jpg",
+        0.005f
+     }},
+     {"Lunettes2", {
+         "res/models/fpv_goggles2/fpv_goggles.obj",
+         "res/models/fpv_goggles2/tex.jpg",
+         5.0f
+     }},
+     {"Batterie", {
+         "res/models/fpv_bat/battery.obj",
+         "res/models/fpv_bat/battery_texture.png",
+         5.0f
+     }},
+     {"Cadre2", {
+         "res/models/fpv_frame2/fpv_frame.obj",
+         "res/models/fpv_frame2/tex.jpg",
+         6.0f
+     }},
+     {"Moteur", {
+         "res/models/fpv_motor/fpv_motor.obj",
+         "res/models/fpv_motor/fpv_atlas.png",
+         0.07f
+     }},
+     {"Hélice", {
+         "res/models/fpv_propeller/fpv_propeller.obj",
+         "res/models/fpv_propeller/fpv_atlas.png",
+         0.04f
+     }},
+     {"Controlleur", {
+         "res/models/fpv_controller/controller.obj",
+         "res/models/fpv_controller/controller_texture.png",
+         4.0f
+     }},
+     {"Lunettes", {
+         "res/models/fpv_goggles/fpv_goggles.obj",
+         "res/models/fpv_goggles/fpv_goggles_texture.png",
+         5.0f
+     }}
+    };
+
 
     std::vector<Package> boxesWithEquip = {};
     std::vector<PlacedObject> placedObjects;
@@ -63,6 +151,7 @@ private:
     bool inDelivery = false;
 public:
     void init();
+    void consumeComponents();
 
     Components& getComp();
     bool getShowText();

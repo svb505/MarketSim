@@ -8,18 +8,7 @@
 #include "renders.h"
 
 
-// ============================================================
-// ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
-// ============================================================
-
-static bool CircleIntersectsAABB(
-    const svbmath::Vec3& pos,
-    float radius,
-    float minX,
-    float maxX,
-    float minZ,
-    float maxZ)
-{
+static bool CircleIntersectsAABB(const svbmath::Vec3& pos,float radius,float minX,float maxX,float minZ,float maxZ){
     float closestX =
         std::max(minX, std::min(pos.x, maxX));
 
@@ -44,10 +33,6 @@ static bool InRadiusXZ(
     return dx * dx + dz * dz <= radius * radius;
 }
 
-
-// ============================================================
-// ПОИСК ТОЧКИ ПОДХОДА К ПОЛКЕ
-// ============================================================
 
 static svbmath::Vec3 GetApproachPoint(
     const svbmath::Vec3& target,
@@ -210,6 +195,13 @@ bool Bot::findDrone(FPVDrone& drone)
 
             obj.name !=
             drone.getBaseEquip()[5] &&
+
+            obj.name !=
+            drone.getBaseEquip()[15] &&
+
+            obj.name !=
+            drone.getBaseEquip()[14] &&
+                
 
             obj.name !=
             drone.getBaseEquip()[6])
