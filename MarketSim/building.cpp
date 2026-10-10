@@ -304,7 +304,7 @@ void Building::CreateBuilding() {
     cashRegister.position = { -4.0f,0.7f, 3.7f };
 
     cashRegister.width = 1.5f;
-    cashRegister.height = 1.4f;
+    cashRegister.height = 1.6f;
     cashRegister.depth = 2.2f;
 
     Bounds cashAABB = MakeAABB(cashRegister.position,cashRegister.width + 0.3f,
@@ -396,7 +396,7 @@ bool Building::checkCollision(Camera& cam) {
         if (checkAABBCollision({ shelf.min, shelf.max }, pos)) return true;
     }
 
-    if (checkAABBCollision({ cashRegister.min, cashRegister.max }, pos))return true;
+    if (checkAABBCollision({ cashRegister.min, cashRegister.max }, pos)) return true;
 
     return false;
 }
