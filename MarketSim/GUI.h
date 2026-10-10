@@ -49,7 +49,7 @@ public:
 
 		auto comp = drone.getComp();
 
-		ImGui::SetNextWindowSize(ImVec2(300.0f, 650.0f));
+		ImGui::SetNextWindowSize(ImVec2(350.0f, 750.0f));
 		ImGui::Begin("Fenêtre générale");
 
 		ImGui::Checkbox("Ouvrir le magasin",&isOpen);
@@ -70,14 +70,17 @@ public:
 				}
 				else ImGui::Text("%s - %.1f$", key.c_str(), value);
 
-
-				ImGui::SameLine(150);
-
+				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.7f, 0.0f, 1.0f));
 				if (ImGui::Button(("Ajouter à panier##" + key).c_str())) card.push_back(key);
+				ImGui::PopStyleColor(1);
+
+				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
 				if (ImGui::Button(("Supprimer de panier##" + key).c_str())) card.erase(
 					std::remove(card.begin(), card.end(), key),
 					card.end()
 				);
+				ImGui::PopStyleColor(1);
+
 			}
 			ImGui::Dummy({ 0.0f,10.0f });
 			if (ImGui::Button("Acheter tout")) {

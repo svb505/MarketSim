@@ -45,19 +45,20 @@ private:
 
     OBJModel fpv;
 
-    std::vector<std::string> baseEquipment = {"Cadre","Camera","Batterie", "Moteur",
-        "Hélice","Controlleur" ,"Lunettes",name, "Batterie_2", "Batterie_3","Propeller2","Propeller3",
-    "FC1","FC2","Radio 1","Lunettes2","Cadre2"};
+    std::vector<std::string> baseEquipment = {"Cadre t1","Camera","Batterie 450W", "Moteur",
+        "Hélice Type 1","Controlleur" ,"Lunettes",name, "Batterie 550W", "Batterie 500W","Hélice Type 2",
+        "Hélice Type 3",
+    "FC1","FC2","Controlleur  CTR1","Lunettes2","Cadre t2"};
 
-    std::map<std::string, float> equipmentPrice = { {"Cadre",100.0f},{"Camera",300.0f},
-        {"Batterie",250.0f} ,{"Moteur",350.0f} ,{"Hélice",150.0f}, {"Controlleur",100.0f},
-        {"Lunettes",250.0f},{name,1000.0f} ,{"Propeller2",120.0f},{"Propeller3",120.0f},
-        {"Batterie_2",250.0f} ,{"Batterie_3",350.0f} ,{"FC1",150.0f}, {"FC2",100.0f},
-        {"Lunettes2",250.0f},{"Radio 1",1000.0f},{"Cadre2",100.0f} };
+    std::map<std::string, float> equipmentPrice = { {"Cadre t1",100.0f},{"Camera",300.0f},
+        {"Batterie 450W",250.0f} ,{"Moteur",350.0f} ,{"Hélice Type 1",150.0f}, {"Controlleur",100.0f},
+        {"Lunettes",250.0f},{name,1000.0f} ,{"Hélice Type 2",120.0f},{"Hélice Type 3",120.0f},
+        {"Batterie 550W",250.0f} ,{"Batterie 500W",350.0f} ,{"FC1",150.0f}, {"FC2",100.0f},
+        {"Lunettes2",250.0f},{"Controlleur  CTR1",1000.0f},{"Cadre t2",100.0f} };
 
     std::map<std::string, std::unique_ptr<OBJModel>> allCompModels;
     std::map<std::string, ModelPaths> allCompPaths = {
-     {"Cadre", {
+     {"Cadre t1", {
          "res/models/fpv_frame/fpv_frame.obj",
          "res/models/fpv_frame/fpv_frame_carbon.png",
          5.0f
@@ -67,22 +68,22 @@ private:
          "res/models/fpv_cam/fpv_camera_texture.png",
          5.0f
      }},
-        {"Propeller2", {
+        {"Hélice Type 2", {
          "res/models/fpv_propeller2/prop_bi_5048.obj",
          "res/models/fpv_propeller2/tex.jpg",
          5.0f
      }},
-        {"Propeller3", {
+        {"Hélice Type 3", {
          "res/models/fpv_propeller3/prop_tri_5143.obj",
          "res/models/fpv_propeller3/tex.jpg",
          5.0f
      }},
-        {"Batterie_2", {
+        {"Batterie 550W", {
          "res/models/fpv_bat2/fpv_battery.obj",
          "res/models/fpv_bat2/tex.jpg",
          5.0f
      }},
-     {"Batterie_3", {
+     {"Batterie 500W", {
          "res/models/fpv_bat3/fpv_battery.obj",
          "res/models/fpv_bat3/tex.jpg",
          5.0f
@@ -97,7 +98,7 @@ private:
          "res/models/fpv_FC2/tex.jpg",
           0.004f
      }},
-        {"Radio 1", {
+        {"Controlleur  CTR1", {
          "res/models/fpv_controller2/fpv_radio.obj",
          "res/models/fpv_controller2/tex.jpg",
         0.005f
@@ -107,12 +108,12 @@ private:
          "res/models/fpv_goggles2/tex.jpg",
          5.0f
      }},
-     {"Batterie", {
+     {"Batterie 450W", {
          "res/models/fpv_bat/battery.obj",
          "res/models/fpv_bat/battery_texture.png",
          5.0f
      }},
-     {"Cadre2", {
+     {"Cadre t2", {
          "res/models/fpv_frame2/fpv_frame.obj",
          "res/models/fpv_frame2/tex.jpg",
          6.0f
@@ -122,7 +123,7 @@ private:
          "res/models/fpv_motor/fpv_atlas.png",
          0.07f
      }},
-     {"Hélice", {
+     {"Hélice Type 1", {
          "res/models/fpv_propeller/fpv_propeller.obj",
          "res/models/fpv_propeller/fpv_atlas.png",
          0.04f
