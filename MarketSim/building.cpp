@@ -414,7 +414,7 @@ void Building::DrawBuilding() {
     );
 
     DrawWallOpeningThickness(
-        { sx2, 0.001f, sz1 - 0.2f },
+        { sx2 - 0.2f, 0.001f, sz1},
         { sx2, 0.001f, sz2 },
         h, 1.0f, 3.0f, wallThickness, false,
         wall1Texture

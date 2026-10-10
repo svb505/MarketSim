@@ -161,7 +161,7 @@ int main() {
     build.CreateBuilding();
 
     decor.initDecoration("res/models/builds/build2.obj", DecType::BUILD2,
-        "res/models/builds/BUILD.jpg");
+        "res/models/builds/BUILD.png");
     decor.initDecoration("res/models/trees/tree.obj", DecType::TREE,
         "res/models/trees/tex.jpg");
     decor.initDecoration("res/models/streetlamp/streetlamp.obj", DecType::LAMP,
