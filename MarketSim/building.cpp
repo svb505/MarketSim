@@ -7,6 +7,74 @@
 #include "bounds.h"
 #include "building.h"
 
+void Building::DrawWallOpeningThickness( svbmath::Vec3 wallStart,svbmath::Vec3 wallEnd, float height,
+    float openingStart,float openingEnd,float thickness, bool horizontal, GLuint texture){
+    float length = horizontal
+        ? wallEnd.x - wallStart.x
+        : wallEnd.z - wallStart.z;
+
+    auto getPoint = [&](float offset, float y, float depth)
+        -> svbmath::Vec3
+        {
+            if (horizontal)
+                return { wallStart.x + offset, y, wallStart.z + depth };
+
+            return { wallStart.x + depth, y, wallStart.z + offset };
+        };
+
+    // Нижняя грань всей стены
+    DrawQuad(
+        getPoint(0, 0, 0),
+        getPoint(length, 0, 0),
+        getPoint(length, 0, thickness),
+        getPoint(0, 0, thickness),
+        texture
+    );
+
+    // Верхняя грань всей стены
+    DrawQuad(
+        getPoint(0, height, 0),
+        getPoint(length, height, 0),
+        getPoint(length, height, thickness),
+        getPoint(0, height, thickness),
+        texture
+    );
+
+    // Торец начала стены
+    DrawQuad(
+        getPoint(0, 0, 0),
+        getPoint(0, 0, thickness),
+        getPoint(0, height, thickness),
+        getPoint(0, height, 0),
+        texture
+    );
+
+    // Торец конца стены
+    DrawQuad(
+        getPoint(length, 0, thickness),
+        getPoint(length, 0, 0),
+        getPoint(length, height, 0),
+        getPoint(length, height, thickness),
+        texture
+    );
+
+    // Торцы прохода — только на его боковых границах
+    DrawQuad(
+        getPoint(openingStart, 0, 0),
+        getPoint(openingStart, 0, thickness),
+        getPoint(openingStart, 2.2f, thickness),
+        getPoint(openingStart, 2.2f, 0),
+        texture
+    );
+
+    DrawQuad(
+        getPoint(openingEnd, 0, thickness),
+        getPoint(openingEnd, 0, 0),
+        getPoint(openingEnd, 2.2f, 0),
+        getPoint(openingEnd, 2.2f, thickness),
+        texture
+    );
+}
 std::vector<Shelf>& Building::getShelves() {
     return shelves;
 }
@@ -314,6 +382,8 @@ void Building::CreateBuilding() {
     cashRegister.max = cashAABB.max;
 }
 void Building::DrawBuilding() {
+    float wallThickness = 0.2f;
+
     GLuint wall1Texture = allTextures["WALL1"];
     GLuint wall2Texture = allTextures["WALL2"];
 
@@ -335,6 +405,20 @@ void Building::DrawBuilding() {
 
     DrawWallWithOpening({ sx2, 0.0f, sz1 }, { sx2, 0.0f, sz2 }, h, 1.0f, 3.0f, false,
         wall1Texture);
+
+    DrawWallOpeningThickness(
+        { sx1, 0.001f, sz2 - 0.2f },
+        { sx2, 0.001f, sz2 },
+        h, 5.0f, 7.0f, wallThickness, true,
+        wall1Texture
+    );
+
+    DrawWallOpeningThickness(
+        { sx2, 0.001f, sz1 - 0.2f },
+        { sx2, 0.001f, sz2 },
+        h, 1.0f, 3.0f, wallThickness, false,
+        wall1Texture
+    );
 
     float wx1 = 6.0f;
     float wx2 = 10.0f;

@@ -225,6 +225,15 @@ void FPVDrone::checkIfCanCreateDrone(Camera& cam, CashRegister& build) {
 
     if (comp.battery >= 1 && comp.frame >= 1 && comp.camera >= 1 && comp.motor >= 4 && 
         comp.propeller >= 4 && comp.fc >= 1 && svbmath::InRadius(cam.getCamPos(), build.position, 5.0f)){
+        
+        float size = 64.0f;
+        float x = ECRAN_W / 2.0f;
+        float y = ECRAN_H / 2.0f;
+
+        render2DIcon("HAND", { x, y }, size);
+
+        RenderTextHUD(x - 30.0f, y - 30.0f, 1.0f, 1.0f, 1.0f, "E", ECRAN_W, ECRAN_H);
+
         canCreateDrone = true;
     }
 }

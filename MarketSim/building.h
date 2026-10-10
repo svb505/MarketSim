@@ -53,6 +53,8 @@ private:
 
     CashRegister cashRegister;
 public:
+    void DrawWallOpeningThickness(svbmath::Vec3 wallStart, svbmath::Vec3 wallEnd, float height,
+        float openingStart, float openingEnd, float thickness, bool horizontal, GLuint texture);
     CashRegister& getCashRegister();
     BuildingSettings& getBuildSettings();
     std::vector<Shelf>& getShelves();

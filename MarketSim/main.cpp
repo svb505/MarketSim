@@ -32,6 +32,7 @@
 #include "database.h"
 #include "sound.h"
 #include "bot.h"
+#include "renders.h"
 
 Camera cam;
 Building build;
@@ -210,8 +211,6 @@ int main() {
 
         drone.delivery(fpsVars.deltaTime);
         drone.drawAllBoxes();
-        drone.checkBoxesIntersection(cam);
-        drone.checkIfCanCreateDrone(cam, build.getCashRegister());
         drone.checkIfCanPlaceInShelf(cam);
 
         bot.draw();
@@ -221,20 +220,31 @@ int main() {
         drone.drawAllPlacedObjects(base);
         drone.drawAvaibleShelfPos();
 
+        build.DrawBuilding();
+        if (build.checkCollision(cam)) cam.getCamPos() = cam.getOldCamPos();
+
         placeObj = false;
 
         if (canDrawEquipModel && !objName.empty()) {
             svbmath::Vec3 lookPoint;
 
-            if (getCashRegisterLookPoint(cam.getCamPos(), cam.getCamForward(),
-                build.getCashRegister(),lookPoint)){
+            if (getCashRegisterLookPoint(cam.getCamPos(), cam.getCamForward(),build.getCashRegister(),lookPoint)){                
+                float size = 64.0f;
+                float x = ECRAN_W / 2.0f;
+                float y = ECRAN_H / 2.0f;
+
+                render2DIcon("HAND", { x, y }, size);
+
+                RenderTextHUD(x - 30.0f, y - 30.0f, 1.0f, 1.0f, 1.0f, "E", ECRAN_W, ECRAN_H);
+                
                 point = lookPoint;
-                placeObj = true;
+                placeObj = true;   
             }
         }
         
-        build.DrawBuilding();
-        if (build.checkCollision(cam)) cam.getCamPos() = cam.getOldCamPos();
+       
+        drone.checkBoxesIntersection(cam);
+        drone.checkIfCanCreateDrone(cam, build.getCashRegister());
 
         decor.drawAllDecorations(DecType::BUILD2);
         decor.drawAllDecorations(DecType::TREE);

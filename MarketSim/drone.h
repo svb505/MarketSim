@@ -53,8 +53,8 @@ private:
     std::map<std::string, float> equipmentPrice = { {"Cadre t1",100.0f},{"Camera",300.0f},
         {"Batterie 450W",250.0f} ,{"Moteur",350.0f} ,{"Hélice Type 1",150.0f}, {"Controlleur",100.0f},
         {"Lunettes",250.0f},{name,1000.0f} ,{"Hélice Type 2",120.0f},{"Hélice Type 3",120.0f},
-        {"Batterie 550W",250.0f} ,{"Batterie 500W",350.0f} ,{"FC1",150.0f}, {"FC2",100.0f},
-        {"Lunettes2",250.0f},{"Controlleur  CTR1",1000.0f},{"Cadre t2",100.0f} };
+        {"Batterie 550W",450.0f} ,{"Batterie 500W",350.0f} ,{"FC1",150.0f}, {"FC2",100.0f},
+        {"Lunettes2",270.0f},{"Controlleur  CTR1",90.0f},{"Cadre t2",130.0f} };
 
     std::map<std::string, std::unique_ptr<OBJModel>> allCompModels;
     std::map<std::string, ModelPaths> allCompPaths = {
