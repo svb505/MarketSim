@@ -214,9 +214,9 @@ void FPVDrone::checkIfCanCreateDrone(Camera& cam, CashRegister& build) {
         if (idx == 0) basePos = obj.pos;
 
         if (obj.name == baseEquipment[0] || obj.name == baseEquipment[16]) comp.frame++;
-        if (obj.name == baseEquipment[1]) comp.camera++;
+        if (obj.name == baseEquipment[1] || obj.name == baseEquipment[19] || obj.name == baseEquipment[20]) comp.camera++;
         if (obj.name == baseEquipment[2] || obj.name == baseEquipment[8] || obj.name == baseEquipment[9]) comp.battery++;
-        if (obj.name == baseEquipment[3]) comp.motor++;
+        if (obj.name == baseEquipment[3] || obj.name == baseEquipment[17] || obj.name == baseEquipment[18]) comp.motor++;
         if (obj.name == baseEquipment[4] || obj.name == baseEquipment[10] || obj.name == baseEquipment[11]) comp.propeller++;
         if (obj.name == baseEquipment[12] || obj.name == baseEquipment[13]) comp.fc++;
 

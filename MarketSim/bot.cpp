@@ -21,37 +21,21 @@ static bool CircleIntersectsAABB(const svbmath::Vec3& pos,float radius,float min
 
     return dx * dx + dz * dz <= radius * radius;
 }
-
-
-static bool InRadiusXZ(
-    const svbmath::Vec3& a,
-    const svbmath::Vec3& b,
-    float radius)
-{
+static bool InRadiusXZ(const svbmath::Vec3& a,const svbmath::Vec3& b, float radius){
     float dx = a.x - b.x;
     float dz = a.z - b.z;
 
     return dx * dx + dz * dz <= radius * radius;
 }
-
-
-static svbmath::Vec3 GetApproachPoint(
-    const svbmath::Vec3& target,
-    Building& building)
-{
+static svbmath::Vec3 GetApproachPoint(const svbmath::Vec3& target, Building& building){
     const float margin = 0.55f;
 
     const auto& shelves = building.getShelves();
 
-    for (const auto& shelf : shelves)
-    {
+    for (const auto& shelf : shelves){
         // Проверяем, находится ли дрон внутри AABB этой полки
 
-        if (target.x >= shelf.min.x &&
-            target.x <= shelf.max.x &&
-            target.z >= shelf.min.z &&
-            target.z <= shelf.max.z)
-        {
+        if (target.x >= shelf.min.x && target.x <= shelf.max.x && target.z >= shelf.min.z &&target.z <= shelf.max.z){
             float leftDistance =
                 std::abs(target.x - shelf.min.x);
 
@@ -69,56 +53,29 @@ static svbmath::Vec3 GetApproachPoint(
                 rightDistance,
                 frontDistance,
                 backDistance
-                });
+            });
 
             svbmath::Vec3 result = target;
 
             // Слева
-            if (minDistance == leftDistance)
-            {
-                result.x =
-                    shelf.min.x - margin;
-            }
+            if (minDistance == leftDistance) result.x =shelf.min.x - margin;
 
             // Справа
-            else if (minDistance == rightDistance)
-            {
-                result.x =
-                    shelf.max.x + margin;
-            }
+            else if (minDistance == rightDistance) result.x = shelf.max.x + margin;
 
             // Спереди
-            else if (minDistance == frontDistance)
-            {
-                result.z =
-                    shelf.min.z - margin;
-            }
+            else if (minDistance == frontDistance) result.z = shelf.min.z - margin;
 
             // Сзади
-            else
-            {
-                result.z =
-                    shelf.max.z + margin;
-            }
+            else result.z = shelf.max.z + margin;
 
             return result;
         }
     }
 
-    // Если дрон почему-то не находится
-    // внутри ни одной полки
     return target;
 }
-
-
-// ============================================================
-// COLLISION
-// ============================================================
-
-bool Bot::checkCollision(
-    const svbmath::Vec3& newPos,
-    Building& building)
-{
+bool Bot::checkCollision( const svbmath::Vec3& newPos, Building& building){
     const float botRadius = 0.35f;
 
 
@@ -126,17 +83,9 @@ bool Bot::checkCollision(
     // КАССА
     // ========================================================
 
-    const auto& cash =
-        building.getCashRegister();
+    const auto& cash = building.getCashRegister();
 
-    if (CircleIntersectsAABB(
-        newPos,
-        botRadius,
-        cash.min.x,
-        cash.max.x,
-        cash.min.z,
-        cash.max.z))
-    {
+    if (CircleIntersectsAABB( newPos,botRadius,cash.min.x,cash.max.x,cash.min.z,cash.max.z)){
         return true;
     }
 
@@ -145,19 +94,10 @@ bool Bot::checkCollision(
     // ПОЛКИ
     // ========================================================
 
-    const auto& shelves =
-        building.getShelves();
+    const auto& shelves = building.getShelves();
 
-    for (const auto& shelf : shelves)
-    {
-        if (CircleIntersectsAABB(
-            newPos,
-            botRadius,
-            shelf.min.x,
-            shelf.max.x,
-            shelf.min.z,
-            shelf.max.z))
-        {
+    for (const auto& shelf : shelves){
+        if (CircleIntersectsAABB( newPos, botRadius, shelf.min.x, shelf.max.x,shelf.min.z,shelf.max.z)){
             return true;
         }
     }
@@ -165,48 +105,16 @@ bool Bot::checkCollision(
 
     return false;
 }
-
-
-// ============================================================
-// ACTIVE
-// ============================================================
-
-bool Bot::isActive() const
-{
+bool Bot::isActive() const{
     return active;
 }
+bool Bot::findDrone(FPVDrone& drone){
+    auto& objects = drone.getPlacedEquip();
 
-
-// ============================================================
-// ПОИСК ДРОНА
-// ============================================================
-
-bool Bot::findDrone(FPVDrone& drone)
-{
-    auto& objects =
-        drone.getPlacedEquip();
-
-    for (const auto& obj : objects)
-    {
-        if (obj.name !=
-            getStringFromJson("DRONE_Achetee") &&
-
-            obj.name !=
-            getStringFromJson("DRONE_Assemblee") &&
-
-            obj.name !=
-            drone.getBaseEquip()[5] &&
-
-            obj.name !=
-            drone.getBaseEquip()[15] &&
-
-            obj.name !=
-            drone.getBaseEquip()[14] &&
-                
-
-            obj.name !=
-            drone.getBaseEquip()[6])
-        {
+    for (const auto& obj : objects) {
+        if (obj.name != getStringFromJson("DRONE_Achetee") && obj.name != getStringFromJson("DRONE_Assemblee") 
+            && obj.name != drone.getBaseEquip()[5] && obj.name != drone.getBaseEquip()[15] &&
+            obj.name != drone.getBaseEquip()[14] && obj.name !=drone.getBaseEquip()[6]){
             continue;
         }
 
@@ -220,55 +128,22 @@ bool Bot::findDrone(FPVDrone& drone)
 
     return false;
 }
+void Bot::spawn(FPVDrone& drone,Building& building){
+    if (active || !isOpen) return;
 
+    if (!findDrone(drone)) return;
 
-// ============================================================
-// SPAWN
-// ============================================================
+    position = { 0.0f, 0.0f, 4.5f};
 
-void Bot::spawn(
-    FPVDrone& drone,
-    Building& building)
-{
-    if (active || !isOpen)
-        return;
+    shelfApproachTarget =  GetApproachPoint( targetShelf,building);
 
-
-    // Ищем дрон
-    if (!findDrone(drone))
-        return;
-
-
-    // Начальная позиция бота
-    position = {
-        0.0f,
-        0.0f,
-        4.5f
-    };
-
-
-    // Находим точку,
-    // с которой нужно подойти к полке
-
-    shelfApproachTarget =
-        GetApproachPoint(
-            targetShelf,
-            building);
-
-
-    // Касса
-
-    const auto& cash =
-        building.getCashRegister();
+    const auto& cash = building.getCashRegister();
 
     cashTarget = cash.position;
 
-    cashTarget.z =
-        cash.min.z - 0.4f;
-
+    cashTarget.z = cash.min.z - 0.4f;
 
     state = BotState::GoingToShelf;
-
 
     carryingDrone = false;
 
@@ -280,37 +155,21 @@ void Bot::spawn(
     LOG_INFO(std::format("Drone position: x: {} z: {}", targetShelf.x,targetShelf.z));
     LOG_INFO(std::format("Approach position: x: {} z: {}", shelfApproachTarget.x, shelfApproachTarget.z));
 }
-
-
-// ============================================================
-// MOVEMENT
-// ============================================================
-
 void Bot::moveTo( const svbmath::Vec3& target,float dt,  Building& building){
-    svbmath::Vec3 direction = {
-        target.x - position.x,
-        0.0f,
-        target.z - position.z
-    };
+    svbmath::Vec3 direction = {target.x - position.x,0.0f,target.z - position.z};
 
 
-    float distance =
-        std::sqrt(
-            direction.x * direction.x +
-            direction.z * direction.z
-        );
+    float distance = std::sqrt(  direction.x * direction.x + direction.z * direction.z);
 
 
-    if (distance < 0.01f)
-        return;
+    if (distance < 0.01f) return;
 
 
     direction.x /= distance;
     direction.z /= distance;
 
 
-    float moveDistance =
-        speed * dt;
+    float moveDistance = speed * dt;
 
 
     // Максимальный размер одного шага.
@@ -318,25 +177,13 @@ void Bot::moveTo( const svbmath::Vec3& target,float dt,  Building& building){
 
     const float maxStep = 0.04f;
 
+    int steps = static_cast<int>(std::ceil(moveDistance / maxStep ) );
 
-    int steps =
-        static_cast<int>(
-            std::ceil(
-                moveDistance / maxStep
-            )
-            );
+    if (steps < 1)steps = 1;
 
+    float stepDistance =moveDistance / steps;
 
-    if (steps < 1)
-        steps = 1;
-
-
-    float stepDistance =
-        moveDistance / steps;
-
-
-    for (int i = 0; i < steps; ++i)
-    {
+    for (int i = 0; i < steps; ++i){
         bool moved = false;
 
 
@@ -344,191 +191,109 @@ void Bot::moveTo( const svbmath::Vec3& target,float dt,  Building& building){
         // 1. ПРЯМО
         // ====================================================
 
-        svbmath::Vec3 newPos =
-            position;
+        svbmath::Vec3 newPos = position;
 
-        newPos.x +=
-            direction.x * stepDistance;
+        newPos.x += direction.x * stepDistance;
 
-        newPos.z +=
-            direction.z * stepDistance;
+        newPos.z += direction.z * stepDistance;
 
 
-        if (!checkCollision(
-            newPos,
-            building))
-        {
+        if (!checkCollision( newPos, building)){
             position = newPos;
 
             moved = true;
         }
 
 
-        if (moved)
-            continue;
+        if (moved) continue;
 
-
-        // ====================================================
         // 2. ТОЛЬКО X
-        // ====================================================
 
         newPos = position;
 
-        newPos.x +=
-            direction.x * stepDistance;
+        newPos.x += direction.x * stepDistance;
 
 
-        if (!checkCollision(
-            newPos,
-            building))
-        {
-            position.x =
-                newPos.x;
+        if (!checkCollision(newPos, building)){
+            position.x = newPos.x;
 
             moved = true;
         }
 
 
-        if (moved)
-            continue;
+        if (moved) continue;
 
 
-        // ====================================================
         // 3. ТОЛЬКО Z
-        // ====================================================
 
         newPos = position;
 
-        newPos.z +=
-            direction.z * stepDistance;
+        newPos.z += direction.z * stepDistance;
 
 
-        if (!checkCollision(
-            newPos,
-            building))
-        {
-            position.z =
-                newPos.z;
+        if (!checkCollision( newPos, building)){
+            position.z = newPos.z;
 
             moved = true;
         }
 
 
-        if (moved)
-            continue;
+        if (moved) continue;
 
-
-        // ====================================================
         // 4. ВЛЕВО ОТ НАПРАВЛЕНИЯ
-        // ====================================================
 
         newPos = position;
 
-        newPos.x +=
-            -direction.z * stepDistance;
+        newPos.x += -direction.z * stepDistance;
 
-        newPos.z +=
-            direction.x * stepDistance;
+        newPos.z += direction.x * stepDistance;
 
 
-        if (!checkCollision(
-            newPos,
-            building))
-        {
+        if (!checkCollision( newPos, building)){
             position = newPos;
 
             moved = true;
         }
 
 
-        if (moved)
-            continue;
+        if (moved)  continue;
 
-
-        // ====================================================
         // 5. ВПРАВО ОТ НАПРАВЛЕНИЯ
-        // ====================================================
 
         newPos = position;
 
-        newPos.x +=
-            direction.z * stepDistance;
+        newPos.x += direction.z * stepDistance;
 
-        newPos.z +=
-            -direction.x * stepDistance;
+        newPos.z += -direction.x * stepDistance;
 
 
-        if (!checkCollision(
-            newPos,
-            building))
-        {
+        if (!checkCollision( newPos, building)) {
             position = newPos;
 
             moved = true;
         }
-
-
-        // Если все варианты заблокированы,
-        // этот маленький шаг пропускаем.
     }
 }
-
-
-// ============================================================
-// TAKE DRONE
-// ============================================================
-
-bool Bot::takeDrone(
-    FPVDrone& drone)
-{
-    auto& objects =
-        drone.getPlacedEquip();
-
-
-    // Бот должен находиться рядом с дроном,
-    // но не обязан стоять ровно в его координате.
+bool Bot::takeDrone( FPVDrone& drone){
+    auto& objects = drone.getPlacedEquip();
 
     const float takeRadius = 1.3f;
 
 
-    for (auto it = objects.begin();
-        it != objects.end();
-        ++it)
-    {
-        if (it->name != droneModel)
-            continue;
+    for (auto it = objects.begin(); it != objects.end();++it) {
+        if (it->name != droneModel) continue;
 
+        if (!InRadiusXZ( it->pos, position, takeRadius)) continue;
 
-        if (!InRadiusXZ(
-            it->pos,
-            position,
-            takeRadius))
-        {
-            continue;
-        }
-
-
-        droneModel =
-            it->name;
-
-
-        // Удаляем дрон из размещённого оборудования
+        droneModel = it->name;
 
         objects.erase(it);
 
 
-        // Освобождаем место на полке
-
-        auto& shelfPositions =
-            drone.getShelfPositions();
-
+        auto& shelfPositions = drone.getShelfPositions();
 
         for (auto& shelf : shelfPositions){
-            if (InRadiusXZ(
-                shelf.pos,
-                targetShelf,
-                0.2f)){
-                shelf.busy = false;
+            if (InRadiusXZ(shelf.pos,targetShelf,0.2f)){shelf.busy = false;
 
                 break;
             }
@@ -550,44 +315,18 @@ bool Bot::takeDrone(
 
     return false;
 }
+void Bot::update(float dt,FPVDrone& drone,Building& building){
+    if (!active || !isOpen) return;
 
 
-// ============================================================
-// UPDATE
-// ============================================================
-
-void Bot::update(
-    float dt,
-    FPVDrone& drone,
-    Building& building)
-{
-    if (!active || !isOpen)
-        return;
+    switch (state){
+    case BotState::GoingToShelf:{
+        moveTo( shelfApproachTarget,dt, building);
 
 
-    switch (state)
-    {
-        // ====================================================
-        // ИДЁМ К ПОЛКЕ
-        // ====================================================
-
-    case BotState::GoingToShelf:
-    {
-        moveTo(
-            shelfApproachTarget,
-            dt,
-            building
-        );
-
-
-        if (InRadiusXZ(
-            position,
-            shelfApproachTarget,
-            0.45f))
-        {
+        if (InRadiusXZ( position, shelfApproachTarget, 0.45f)){
             if (takeDrone(drone)){
                 state = BotState::GoingToCash;
-
 
                LOG_INFO("BOT GOING TO CASH");
             }
@@ -596,70 +335,26 @@ void Bot::update(
         break;
     }
 
-
-    // ====================================================
-    // ИДЁМ К КАССЕ
-    // ====================================================
-
-    case BotState::GoingToCash:
-    {
-        moveTo(
-            cashTarget,
-            dt,
-            building
-        );
+    case BotState::GoingToCash:{
+        moveTo(cashTarget,dt, building);
 
 
-        if (InRadiusXZ(
-            position,
-            cashTarget,
-            0.5f))
-        {
+        if (InRadiusXZ( position,cashTarget, 0.5f)){
             float price = 0.0f;
 
 
-            if (droneModel ==
-                getStringFromJson(
-                    "DRONE_Achetee"))
-            {
-                price =
-                    priceForT1;
-            }
-
-            else if (
-                droneModel ==
-                getStringFromJson(
-                    "DRONE_Assemblee"))
-            {
-                price =
-                    priceForT2;
-            }
-
-            else if (
-                droneModel ==
-                drone.getBaseEquip()[5])
-            {
-                price =
-                    priceForController;
-            }
-
-            else if (
-                droneModel ==
-                drone.getBaseEquip()[6])
-            {
-                price =
-                    priceForGoggles;
-            }
+            if (droneModel == getStringFromJson("DRONE_Achetee")) price = priceForT1;
+            else if (droneModel == getStringFromJson("DRONE_Assemblee")) price = priceForT2;
+            else if (droneModel == drone.getBaseEquip()[5]) price = priceForController1;
+            else if (droneModel == drone.getBaseEquip()[6]) price = priceForGoggles1;
+            else if (droneModel == drone.getBaseEquip()[14]) price = priceForController2;
+            else if (droneModel == drone.getBaseEquip()[15]) price = priceForGoggles2;
 
 
-            myBalance +=
-                price;
+            myBalance += price;
 
 
-            saveDataForPlayer(
-                price,
-                "+"
-            );
+            saveDataForPlayer(price,"+");
 
 
             LOG_INFO(std::format("SOLD: {} for {}", droneModel, price));
@@ -672,13 +367,7 @@ void Bot::update(
         break;
     }
 
-
-    // ====================================================
-    // УХОДИМ
-    // ====================================================
-
-    case BotState::Leaving:
-    {
+    case BotState::Leaving:{
         active = false;
 
         LOG_INFO("BOT LEFT");
@@ -688,209 +377,57 @@ void Bot::update(
     }
 }
 
-
-// ============================================================
-// DRAW
-// ============================================================
-
-void Bot::draw()
-{
-    if (!active || !isOpen)
-        return;
-
+void Bot::draw(){
+    if (!active || !isOpen) return;
 
     glPushMatrix();
 
+    glTranslatef( position.x, position.y + 0.8f,position.z);
 
-    glTranslatef(
-        position.x,
-        position.y + 0.8f,
-        position.z
-    );
-
-
-    glColor3f(
-        0.2f,
-        0.4f,
-        0.8f
-    );
-
+    glColor3f(0.2f,0.4f,0.8f);
 
     glBegin(GL_QUADS);
 
 
-    // ========================================================
     // FRONT
-    // ========================================================
+    glVertex3f( -0.3f,-0.8f,0.2f);
+    glVertex3f( 0.3f, -0.8f, 0.2f );
+    glVertex3f( 0.3f,0.8f, 0.2f);
+    glVertex3f( -0.3f, 0.8f,0.2f);
 
-    glVertex3f(
-        -0.3f,
-        -0.8f,
-        0.2f
-    );
-
-    glVertex3f(
-        0.3f,
-        -0.8f,
-        0.2f
-    );
-
-    glVertex3f(
-        0.3f,
-        0.8f,
-        0.2f
-    );
-
-    glVertex3f(
-        -0.3f,
-        0.8f,
-        0.2f
-    );
-
-
-    // ========================================================
     // BACK
-    // ========================================================
+    glVertex3f( 0.3f,  -0.8f, -0.2f);
+    glVertex3f(-0.3f,-0.8f, -0.2f);
+    glVertex3f(-0.3f, 0.8f, -0.2f);
+    glVertex3f(0.3f, 0.8f,-0.2f );
 
-    glVertex3f(
-        0.3f,
-        -0.8f,
-        -0.2f
-    );
-
-    glVertex3f(
-        -0.3f,
-        -0.8f,
-        -0.2f
-    );
-
-    glVertex3f(
-        -0.3f,
-        0.8f,
-        -0.2f
-    );
-
-    glVertex3f(
-        0.3f,
-        0.8f,
-        -0.2f
-    );
-
-
-    // ========================================================
     // LEFT
-    // ========================================================
-
-    glVertex3f(
-        -0.3f,
-        -0.8f,
-        -0.2f
-    );
-
-    glVertex3f(
-        -0.3f,
-        -0.8f,
-        0.2f
-    );
-
-    glVertex3f(
-        -0.3f,
-        0.8f,
-        0.2f
-    );
-
-    glVertex3f(
-        -0.3f,
-        0.8f,
-        -0.2f
-    );
+    glVertex3f( -0.3f,-0.8f,-0.2f);
+    glVertex3f( -0.3f, -0.8f, 0.2f);
+    glVertex3f(-0.3f,0.8f, 0.2f);
+    glVertex3f(-0.3f, 0.8f, -0.2f);
 
 
-    // ========================================================
     // RIGHT
-    // ========================================================
-
-    glVertex3f(
-        0.3f,
-        -0.8f,
-        0.2f
-    );
-
-    glVertex3f(
-        0.3f,
-        -0.8f,
-        -0.2f
-    );
-
-    glVertex3f(
-        0.3f,
-        0.8f,
-        -0.2f
-    );
-
-    glVertex3f(
-        0.3f,
-        0.8f,
-        0.2f
-    );
+    glVertex3f(0.3f,-0.8f,0.2f);
+    glVertex3f(0.3f,-0.8f, -0.2f);
+    glVertex3f( 0.3f,0.8f,-0.2f);
+    glVertex3f( 0.3f, 0.8f, 0.2f);
 
 
-    // ========================================================
     // TOP
-    // ========================================================
 
-    glVertex3f(
-        -0.3f,
-        0.8f,
-        0.2f
-    );
+    glVertex3f( -0.3f, 0.8f,0.2f);
+    glVertex3f(0.3f, 0.8f,0.2f);
+    glVertex3f(0.3f, 0.8f, -0.2f);
+    glVertex3f( -0.3f,0.8f,-0.2f);
 
-    glVertex3f(
-        0.3f,
-        0.8f,
-        0.2f
-    );
-
-    glVertex3f(
-        0.3f,
-        0.8f,
-        -0.2f
-    );
-
-    glVertex3f(
-        -0.3f,
-        0.8f,
-        -0.2f
-    );
-
-
-    // ========================================================
     // BOTTOM
-    // ========================================================
 
-    glVertex3f(
-        -0.3f,
-        -0.8f,
-        -0.2f
-    );
-
-    glVertex3f(
-        0.3f,
-        -0.8f,
-        -0.2f
-    );
-
-    glVertex3f(
-        0.3f,
-        -0.8f,
-        0.2f
-    );
-
-    glVertex3f(
-        -0.3f,
-        -0.8f,
-        0.2f
-    );
+    glVertex3f( -0.3f, -0.8f, -0.2f);
+    glVertex3f(0.3f, -0.8f,-0.2f);
+    glVertex3f( 0.3f,-0.8f, 0.2f);
+    glVertex3f( -0.3f,-0.8f, 0.2f );
 
 
     glEnd();

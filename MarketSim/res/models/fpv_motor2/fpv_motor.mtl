@@ -1,0 +1,7 @@
+newmtl motor
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6
+Ns 90
+illum 2
+map_Kd fpv_motor_tex_A.png
