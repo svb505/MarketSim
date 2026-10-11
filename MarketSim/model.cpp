@@ -12,24 +12,85 @@
 #include "logger.h"
 #include <format>
 
-bool OBJModel::LoadMTL(const std::string& filename){
+GLuint OBJModel::LoadTextureFromFile(
+    const std::string& filename)
+{
+    int width, height, channels;
+
+    unsigned char* data = stbi_load(
+        filename.c_str(),
+        &width,
+        &height,
+        &channels,
+        4
+    );
+
+    if (!data) {
+        LOG_ERROR(std::format(
+            "Cannot load texture: {}", filename
+        ));
+        return 0;
+    }
+
+    GLuint textureID = 0;
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+
+    glTexParameteri(
+        GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR
+    );
+    glTexParameteri(
+        GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR
+    );
+    glTexParameteri(
+        GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT
+    );
+    glTexParameteri(
+        GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT
+    );
+
+    glTexImage2D(
+        GL_TEXTURE_2D,
+        0,
+        GL_RGBA,
+        width,
+        height,
+        0,
+        GL_RGBA,
+        GL_UNSIGNED_BYTE,
+        data
+    );
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+    stbi_image_free(data);
+
+    return textureID;
+}
+bool OBJModel::LoadMTL(const std::string& filename) {
     std::ifstream file(filename);
 
-    if (!file.is_open()){
-        LOG_ERROR(std::format("Cannot open MTL: {}",filename));
+    if (!file.is_open()) {
+        LOG_ERROR(std::format("Cannot open MTL: {}", filename));
         return false;
     }
 
-    Material* current = nullptr;
+    std::string directory;
+    size_t slash = filename.find_last_of("/\\");
 
+    if (slash != std::string::npos)
+        directory = filename.substr(0, slash + 1);
+
+    Material* current = nullptr;
     std::string line;
 
-    while (std::getline(file, line))
-    {
+    while (std::getline(file, line)) {
         std::stringstream ss(line);
 
         std::string type;
         ss >> type;
+
+        if (type.empty() || type[0] == '#')
+            continue;
 
         if (type == "newmtl") {
             std::string name;
@@ -37,27 +98,47 @@ bool OBJModel::LoadMTL(const std::string& filename){
 
             materials.push_back({});
             materials.back().name = name;
-
             current = &materials.back();
         }
-        else if (!current)  continue;
-        else if (type == "Ka"){
+        else if (!current) {
+            continue;
+        }
+        else if (type == "Ka") {
             ss >> current->Ka[0]
                 >> current->Ka[1]
                 >> current->Ka[2];
         }
-        else if (type == "Kd"){
+        else if (type == "Kd") {
             ss >> current->Kd[0]
                 >> current->Kd[1]
                 >> current->Kd[2];
         }
-        else if (type == "Ks"){
+        else if (type == "Ks") {
             ss >> current->Ks[0]
                 >> current->Ks[1]
                 >> current->Ks[2];
         }
-        else if (type == "Ns") ss >> current->Ns;
-        else if (type == "d") ss >> current->d;
+        else if (type == "Ns") {
+            ss >> current->Ns;
+        }
+        else if (type == "d") {
+            ss >> current->d;
+        }
+        else if (type == "Tr") {
+            float transparency;
+            ss >> transparency;
+            current->d = 1.0f - transparency;
+        }
+        else if (type == "map_Kd") {
+            std::string textureFile;
+            std::getline(ss >> std::ws, textureFile);
+
+            if (!textureFile.empty()) {
+                current->texturePath = directory + textureFile;
+                current->textureID =
+                    LoadTextureFromFile(current->texturePath);
+            }
+        }
     }
 
     return true;
@@ -316,8 +397,6 @@ void OBJModel::Draw(svbmath::Vec3 pos, float yaw, float pitch){
     glRotatef(pitch, 1, 0, 0);
     glScalef(scale, scale, scale);
 
-    glBindTexture(GL_TEXTURE_2D,texture);
-
     glBindBuffer(GL_ARRAY_BUFFER,vbo);
 
 
@@ -340,23 +419,52 @@ void OBJModel::Draw(svbmath::Vec3 pos, float yaw, float pitch){
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
 
-    for (const auto& group : materialGroups){
-        GLfloat ambient[] = {group.material.Ka[0], group.material.Ka[1],
-            group.material.Ka[2], 1.0f};
+    for (const auto& group : materialGroups) {
+        GLuint textureID = group.material.textureID;
 
-        GLfloat diffuse[] = { group.material.Kd[0], group.material.Kd[1],
-            group.material.Kd[2],group.material.d};
+        // Если у материала нет собственной текстуры,
+        // используем общую текстуру модели.
+        if (textureID == 0)
+            textureID = texture;
 
-        GLfloat specular[] = { group.material.Ks[0], group.material.Ks[1],
-            group.material.Ks[2],1.0f};
+        glBindTexture(GL_TEXTURE_2D, textureID);
+
+        GLfloat ambient[] = {
+            group.material.Ka[0],
+            group.material.Ka[1],
+            group.material.Ka[2],
+            1.0f
+        };
+
+        GLfloat diffuse[] = {
+            group.material.Kd[0],
+            group.material.Kd[1],
+            group.material.Kd[2],
+            group.material.d
+        };
+
+        GLfloat specular[] = {
+            group.material.Ks[0],
+            group.material.Ks[1],
+            group.material.Ks[2],
+            1.0f
+        };
 
         glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
         glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse);
         glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular);
 
-        glMaterialf(GL_FRONT_AND_BACK,GL_SHININESS,group.material.Ns);
+        glMaterialf(
+            GL_FRONT_AND_BACK,
+            GL_SHININESS,
+            group.material.Ns
+        );
 
-        glDrawArrays(GL_TRIANGLES, group.startVertex,group.vertexCount);
+        glDrawArrays(
+            GL_TRIANGLES,
+            group.startVertex,
+            group.vertexCount
+        );
     }
 
     // DISABLE
@@ -370,9 +478,19 @@ void OBJModel::Draw(svbmath::Vec3 pos, float yaw, float pitch){
 
     glPopMatrix();
 };
-OBJModel::~OBJModel(){
-    if (vbo) glDeleteBuffers(1,&vbo);
-    if (texture)glDeleteTextures(1,&texture);
+OBJModel::~OBJModel() {
+    if (vbo)
+        glDeleteBuffers(1, &vbo);
+
+    if (texture)
+        glDeleteTextures(1, &texture);
+
+    for (auto& material : materials) {
+        if (material.textureID) {
+            glDeleteTextures(1, &material.textureID);
+            material.textureID = 0;
+        }
+    }
 }
 bool OBJModel::LoadTexture(const std::string& filename){
     int width;

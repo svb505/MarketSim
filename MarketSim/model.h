@@ -19,6 +19,9 @@ struct Material{
 
     float Ns = 0.0f;
     float d = 1.0f;
+
+    std::string texturePath;
+    GLuint textureID = 0;
 };
 
 struct MaterialGroup{
@@ -40,6 +43,7 @@ public:
     Bounds bounds;
     float scale = 0.0f;
 
+    GLuint LoadTextureFromFile(const std::string& filename);
     bool LoadMTL(const std::string& filename);
     bool LoadOBJ(const std::string& filename,float scale);
     bool LoadTexture(const std::string& filename);

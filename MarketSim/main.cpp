@@ -117,7 +117,7 @@ int main() {
     }
 
     glfwWindowHint(GLFW_SAMPLES, 16);
-    GLFWwindow* window = glfwCreateWindow(ECRAN_W, ECRAN_H, "FPV Market - V0.9.9", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(ECRAN_W, ECRAN_H, "FPV Market - V1.0.0", NULL, NULL);
     if (!window) {
         LOG_ERROR("Failed to create window");
         glfwTerminate();
@@ -160,8 +160,8 @@ int main() {
 
     build.CreateBuilding();
 
-    decor.initDecoration("res/models/builds/build2.obj", DecType::BUILD2,
-        "res/models/builds/BUILD.png");
+    decor.initDecoration("res/models/builds/rue_2_cotes_complete.obj", DecType::STREET,
+        "");
     decor.initDecoration("res/models/trees/tree.obj", DecType::TREE,
         "res/models/trees/tex.jpg");
     decor.initDecoration("res/models/streetlamp/streetlamp.obj", DecType::LAMP,
@@ -249,10 +249,10 @@ int main() {
         drone.checkBoxesIntersection(cam);
         drone.checkIfCanCreateDrone(cam, build.getCashRegister());
 
-        decor.drawAllDecorations(DecType::BUILD2);
+        decor.drawAllDecorations(DecType::STREET);
         decor.drawAllDecorations(DecType::TREE);
         decor.drawAllDecorations(DecType::LAMP);
-        if (decor.checkCollision(cam, DecType::BUILD2)) cam.getCamPos() = cam.getOldCamPos();
+        if (decor.checkCollision(cam, DecType::STREET)) cam.getCamPos() = cam.getOldCamPos();
         if (decor.checkCollision(cam, DecType::TREE)) cam.getCamPos() = cam.getOldCamPos();
         if (decor.checkCollision(cam, DecType::LAMP)) cam.getCamPos() = cam.getOldCamPos();
        

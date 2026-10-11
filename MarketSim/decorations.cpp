@@ -11,11 +11,12 @@
 #include "logger.h"
 #include <format>
 
-std::map<DecType, float> scales ={
+std::map<DecType, float> scales = {
     { DecType::BUILD1, 1.0f },
     { DecType::BUILD2, 1.0f },
     { DecType::TREE,  0.25f },
-    { DecType::LAMP,  1.25f }
+    { DecType::LAMP,  1.25f },
+    { DecType::STREET,  0.7f }
 };
 
 
@@ -38,8 +39,10 @@ void Decorations::addDecoration(DecType type,svbmath::Vec3 pos,float rotationY){
 void Decorations::initPositions(){
     decorations.clear();
 
-    addBuildings();
-    addEndBuildings();
+    //addBuildings();
+    //addEndBuildings();
+    addDecoration(DecType::STREET, { 13.0f, 0.001f, 5.0f}, 0.0f);
+    addDecoration(DecType::STREET, { -13.0f, 0.001f, 5.0f }, 0.0f);
     addTrees();
     addLamps();
 }
@@ -74,7 +77,7 @@ void Decorations::addTrees(){
         if (i < 3) x = buildBasePos.x + buildXStep * (i + 1);
         else x = buildBasePos.x - buildXStep * (i - 2);
 
-        addDecoration(DecType::TREE, { x,buildBasePos.y, 18.0f },0.0f);
+        addDecoration(DecType::TREE, { x,buildBasePos.y, 16.0f },0.0f);
     }
 }
 void Decorations::addLamps(){
