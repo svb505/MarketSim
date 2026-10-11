@@ -192,6 +192,9 @@ public:
 		componentText("Hélice: %d / %d", comp.propeller, 4);
 		componentText("Controlleur de vol: %d / %d", comp.fc, 1);
 
+		ImGui::Dummy({ 0.0f, 10.0f });
+		ImGui::Text("©Developped by SVB & Red.Fpv");
+
 		ImGui::End();
 
 		popStyle();
