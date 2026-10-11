@@ -42,7 +42,7 @@ void Decorations::initPositions(){
     //addBuildings();
     //addEndBuildings();
     addDecoration(DecType::STREET, { 13.0f, 0.001f, 5.0f}, 0.0f);
-    addDecoration(DecType::STREET, { -13.0f, 0.001f, 5.0f }, 0.0f);
+    addDecoration(DecType::STREET, { -200.0f, 0.001f, 5.0f }, 0.0f);
     addTrees();
     addLamps();
 }

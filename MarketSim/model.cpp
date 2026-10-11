@@ -11,10 +11,214 @@
 #include "svbmath.h"
 #include "logger.h"
 #include <format>
+#include <filesystem>
 
-GLuint OBJModel::LoadTextureFromFile(
-    const std::string& filename)
-{
+#include <cstdint>
+#include <chrono>
+
+namespace {
+    constexpr uint32_t CACHE_MAGIC = 0x4D424A4F; // "OBJM"
+    constexpr uint32_t CACHE_VERSION = 1;          // увеличивайте при смене формата
+
+    template<class T>
+    void WritePod(std::ofstream& f, const T& v) {
+        f.write(reinterpret_cast<const char*>(&v), sizeof(T));
+    }
+
+    template<class T>
+    bool ReadPod(std::ifstream& f, T& v) {
+        f.read(reinterpret_cast<char*>(&v), sizeof(T));
+        return static_cast<bool>(f);
+    }
+
+    void WriteString(std::ofstream& f, const std::string& s) {
+        uint32_t len = static_cast<uint32_t>(s.size());
+        WritePod(f, len);
+        f.write(s.data(), len);
+    }
+
+    bool ReadString(std::ifstream& f, std::string& s) {
+        uint32_t len = 0;
+        if (!ReadPod(f, len) || len > (1u << 20)) return false;
+        s.resize(len);
+        f.read(s.data(), len);
+        return static_cast<bool>(f);
+    }
+
+    // размер + время изменения файла (0, если файла нет)
+    void FileStamp(const std::string& path, uint64_t& size, int64_t& time) {
+        std::error_code ec;
+        size = 0;
+        time = 0;
+        if (path.empty()) return;
+
+        auto s = std::filesystem::file_size(path, ec);
+        if (ec) return;
+        size = s;
+
+        auto t = std::filesystem::last_write_time(path, ec);
+        if (!ec) time = static_cast<int64_t>(t.time_since_epoch().count());
+    }
+}
+
+bool OBJModel::SaveCache(const std::string& objPath, const std::string& cachePath, const std::string& mtlPath) const{
+    const std::string tmpPath = cachePath + ".tmp";
+    std::ofstream f(tmpPath, std::ios::binary | std::ios::trunc);
+    if (!f.is_open()) return false;
+
+    uint64_t objSize, mtlSize;
+    int64_t objTime, mtlTime;
+    FileStamp(objPath, objSize, objTime);
+    FileStamp(mtlPath, mtlSize, mtlTime);
+
+    WritePod(f, CACHE_MAGIC);
+    WritePod(f, CACHE_VERSION);
+    WritePod(f, static_cast<uint32_t>(sizeof(Vertex)));
+    WritePod(f, objSize);
+    WritePod(f, objTime);
+    WriteString(f, mtlPath);
+    WritePod(f, mtlSize);
+    WritePod(f, mtlTime);
+
+    // вершины одним блоком
+    WritePod(f, static_cast<uint64_t>(vertices.size()));
+    f.write(reinterpret_cast<const char*>(vertices.data()),
+        vertices.size() * sizeof(Vertex));
+
+    // материалы
+    WritePod(f, static_cast<uint32_t>(materials.size()));
+    for (const auto& m : materials) {
+        WriteString(f, m.name);
+        WritePod(f, m.Ka);
+        WritePod(f, m.Kd);
+        WritePod(f, m.Ks);
+        WritePod(f, m.Ns);
+        WritePod(f, m.d);
+        WriteString(f, m.texturePath);
+    }
+
+    // группы (материал хранится индексом)
+    WritePod(f, static_cast<uint32_t>(materialGroups.size()));
+    for (const auto& g : materialGroups) {
+        int32_t idx = -1;
+        for (size_t i = 0; i < materials.size(); i++) {
+            if (materials[i].name == g.material.name) { idx = static_cast<int32_t>(i); break; }
+        }
+        WritePod(f, idx);
+        WritePod(f, static_cast<uint64_t>(g.startVertex));
+        WritePod(f, static_cast<uint64_t>(g.vertexCount));
+    }
+
+    WritePod(f, bounds.min);
+    WritePod(f, bounds.max);
+
+    f.close();
+    if (!f) {
+        std::error_code ec;
+        std::filesystem::remove(tmpPath, ec);
+        return false;
+    }
+
+    std::error_code ec;
+    std::filesystem::rename(tmpPath, cachePath, ec);
+    if (ec) {
+        std::filesystem::remove(cachePath, ec);
+        std::filesystem::rename(tmpPath, cachePath, ec);
+    }
+    return !ec;
+}
+bool OBJModel::LoadFromCache(const std::string& objPath, const std::string& cachePath){
+    std::ifstream f(cachePath, std::ios::binary);
+    if (!f.is_open()) return false;
+
+    auto fail = [&]() {
+        vertices.clear();
+        materials.clear();
+        materialGroups.clear();
+        return false;
+        };
+
+    uint32_t magic = 0, version = 0, vertexSize = 0;
+    if (!ReadPod(f, magic) || magic != CACHE_MAGIC) return false;
+    if (!ReadPod(f, version) || version != CACHE_VERSION) return false;
+    if (!ReadPod(f, vertexSize) || vertexSize != sizeof(Vertex)) return false;
+
+    // проверка актуальности .obj
+    uint64_t cachedObjSize = 0, curObjSize = 0;
+    int64_t cachedObjTime = 0, curObjTime = 0;
+    if (!ReadPod(f, cachedObjSize) || !ReadPod(f, cachedObjTime)) return false;
+    FileStamp(objPath, curObjSize, curObjTime);
+    if (cachedObjSize != curObjSize || cachedObjTime != curObjTime) return false;
+
+    // проверка актуальности .mtl
+    std::string mtlPath;
+    uint64_t cachedMtlSize = 0, curMtlSize = 0;
+    int64_t cachedMtlTime = 0, curMtlTime = 0;
+    if (!ReadString(f, mtlPath) || !ReadPod(f, cachedMtlSize) || !ReadPod(f, cachedMtlTime))
+        return false;
+    FileStamp(mtlPath, curMtlSize, curMtlTime);
+    if (cachedMtlSize != curMtlSize || cachedMtlTime != curMtlTime) return false;
+
+    // вершины
+    uint64_t vertexCount = 0;
+    if (!ReadPod(f, vertexCount) || vertexCount == 0 || vertexCount > (1ull << 31))
+        return fail();
+    vertices.resize(static_cast<size_t>(vertexCount));
+    f.read(reinterpret_cast<char*>(vertices.data()), vertexCount * sizeof(Vertex));
+    if (!f) return fail();
+
+    // материалы
+    uint32_t materialCount = 0;
+    if (!ReadPod(f, materialCount) || materialCount > 100000) return fail();
+    materials.clear();
+    materials.reserve(std::max<uint32_t>(materialCount, 32));
+    for (uint32_t i = 0; i < materialCount; i++) {
+        Material m{};
+        if (!ReadString(f, m.name) ||
+            !ReadPod(f, m.Ka) || !ReadPod(f, m.Kd) || !ReadPod(f, m.Ks) ||
+            !ReadPod(f, m.Ns) || !ReadPod(f, m.d) ||
+            !ReadString(f, m.texturePath))
+            return fail();
+        m.textureID = 0;
+        materials.push_back(std::move(m));
+    }
+
+    // группы
+    uint32_t groupCount = 0;
+    if (!ReadPod(f, groupCount) || groupCount > 1000000) return fail();
+    materialGroups.clear();
+    materialGroups.reserve(groupCount);
+    for (uint32_t i = 0; i < groupCount; i++) {
+        int32_t idx = -1;
+        uint64_t start = 0, count = 0;
+        if (!ReadPod(f, idx) || !ReadPod(f, start) || !ReadPod(f, count)) return fail();
+        if (idx >= static_cast<int32_t>(materials.size())) return fail();
+        if (start + count > vertices.size()) return fail();
+
+        MaterialGroup g;
+        if (idx >= 0) g.material = materials[idx];
+        g.startVertex = static_cast<decltype(g.startVertex)>(start);
+        g.vertexCount = static_cast<decltype(g.vertexCount)>(count);
+        materialGroups.push_back(std::move(g));
+    }
+
+    if (!ReadPod(f, bounds.min) || !ReadPod(f, bounds.max)) return fail();
+
+    // текстуры (GL-объекты в кэш не положишь — грузим из картинок)
+    for (auto& m : materials) {
+        if (!m.texturePath.empty())
+            m.textureID = LoadTextureFromFile(m.texturePath);
+    }
+    for (auto& g : materialGroups) {
+        for (const auto& m : materials) {
+            if (m.name == g.material.name) { g.material.textureID = m.textureID; break; }
+        }
+    }
+
+    return true;
+}
+
+GLuint OBJModel::LoadTextureFromFile(const std::string& filename){
     int width, height, channels;
 
     unsigned char* data = stbi_load(
@@ -150,6 +354,14 @@ bool OBJModel::LoadOBJ(const std::string& filename,float scale){
 
     this->scale = scale;
 
+    const std::string cachePath = filename + ".cache";
+    std::string mtlPath;
+
+    if (LoadFromCache(filename, cachePath)) {
+        LOG_INFO(std::format("Model loaded from cache: {} | Vertices: {}",filename, vertices.size()));
+        return true;
+    }
+
     std::string directory;
 
     size_t slash = filename.find_last_of("/\\");
@@ -168,6 +380,18 @@ bool OBJModel::LoadOBJ(const std::string& filename,float scale){
     std::vector<float> positions;
     std::vector<float> normals;
     std::vector<float> texcoords;
+
+    const auto fileSize = std::filesystem::file_size(filename);
+
+    const size_t estimatedFloats = static_cast<size_t>(fileSize / 4);
+
+    positions.reserve(estimatedFloats / 2);
+    normals.reserve(estimatedFloats / 4);
+    texcoords.reserve(estimatedFloats / 4);
+
+    vertices.reserve(fileSize / 4);
+    materialGroups.reserve(32);
+    materials.reserve(32);
 
     std::string line;
 
@@ -212,7 +436,8 @@ bool OBJModel::LoadOBJ(const std::string& filename,float scale){
             std::string mtlFile;
             ss >> mtlFile;
 
-            LoadMTL(directory + mtlFile);
+            mtlPath = directory + mtlFile;
+            LoadMTL(mtlPath);
         }
         else if (type == "usemtl") {
             std::string materialName;
@@ -370,6 +595,8 @@ bool OBJModel::LoadOBJ(const std::string& filename,float scale){
                        std::max(bounds.max.z, v.z)
         };
     }
+
+    if (!SaveCache(filename, cachePath, mtlPath)) LOG_WARN(std::format("Cannot write cache: {}", cachePath));
 
     LOG_INFO(std::format("Model loaded: {} | Vertices: {}", filename, vertices.size()));
 

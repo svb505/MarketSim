@@ -38,6 +38,9 @@ private:
 
     GLuint vbo = 0;
     GLuint texture = 0;
+    bool LoadFromCache(const std::string& objPath, const std::string& cachePath);
+    bool SaveCache(const std::string& objPath, const std::string& cachePath,
+        const std::string& mtlPath) const;
 
 public:
     Bounds bounds;
