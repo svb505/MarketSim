@@ -8,7 +8,7 @@
 #include <algorithm>
 #include "database.h"
 #include "jsonParcer.h"
-
+#include <algorithm>
 
 
 class GUI {
@@ -21,6 +21,9 @@ private:
 	bool showPerformance = false;
 	bool showPrices = false;
 	bool showNames = false;
+
+	float minValue = 0.0f;
+	float maxValue = 2000.0f;
 
 	const ImVec4 colGreen = ImVec4(0.30f, 0.85f, 0.45f, 1.0f);
 	const ImVec4 colRed = ImVec4(0.95f, 0.35f, 0.35f, 1.0f);
@@ -248,6 +251,13 @@ public:
 			ImGui::InputFloat("5##", &priceForController1);
 			ImGui::TextColored(colDim, "Saisir le prix pour le controlleur  CTR1");
 			ImGui::InputFloat("6##", &priceForController2);
+
+			priceForT1 = std::clamp(priceForT1, minValue, maxValue);
+			priceForT2 = std::clamp(priceForT2, minValue, maxValue);
+			priceForGoggles1 = std::clamp(priceForGoggles1, minValue, maxValue);
+			priceForGoggles2 = std::clamp(priceForGoggles2, minValue, maxValue);
+			priceForController1 = std::clamp(priceForController1, minValue, maxValue);
+			priceForController2 = std::clamp(priceForController2, minValue, maxValue);
 
 			ImGui::PopItemWidth();
 		}

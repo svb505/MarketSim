@@ -108,25 +108,39 @@ bool Bot::checkCollision( const svbmath::Vec3& newPos, Building& building){
 bool Bot::isActive() const{
     return active;
 }
-bool Bot::findDrone(FPVDrone& drone){
+bool Bot::findDrone(FPVDrone& drone) {
     auto& objects = drone.getPlacedEquip();
 
+    bool found = false;
+    float bestPrice = 0.0f;
+
     for (const auto& obj : objects) {
-        if (obj.name != getStringFromJson("DRONE_Achetee") && obj.name != getStringFromJson("DRONE_Assemblee") 
-            && obj.name != drone.getBaseEquip()[5] && obj.name != drone.getBaseEquip()[15] &&
-            obj.name != drone.getBaseEquip()[14] && obj.name !=drone.getBaseEquip()[6]){
+        if (obj.name != getStringFromJson("DRONE_Achetee") && obj.name != getStringFromJson("DRONE_Assemblee") &&
+            obj.name != drone.getBaseEquip()[5] && obj.name != drone.getBaseEquip()[15] &&
+            obj.name != drone.getBaseEquip()[14] && obj.name != drone.getBaseEquip()[6]) {
             continue;
         }
 
 
-        targetShelf = obj.pos;
+        float price = 0.0f;
 
-        droneModel = obj.name;
+        if (obj.name == getStringFromJson("DRONE_Achetee")) price = priceForT1;
+        else if (obj.name == getStringFromJson("DRONE_Assemblee")) price = priceForT2;
+        else if (obj.name == drone.getBaseEquip()[5]) price = priceForController1;
+        else if (obj.name == drone.getBaseEquip()[6]) price = priceForGoggles1;
+        else if (obj.name == drone.getBaseEquip()[14]) price = priceForController2;
+        else if (obj.name == drone.getBaseEquip()[15]) price = priceForGoggles2;
 
-        return true;
+        if (!found || price < bestPrice) {
+            found = true;
+            bestPrice = price;
+
+            targetShelf = obj.pos;
+            droneModel = obj.name;
+        }
     }
 
-    return false;
+    return found;
 }
 void Bot::spawn(FPVDrone& drone,Building& building){
     if (active || !isOpen) return;
