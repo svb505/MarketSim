@@ -4,9 +4,6 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include "variables.h"
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
 #include "drone.h"
 #include <algorithm>
 #include "database.h"
@@ -20,6 +17,66 @@ private:
 	char bufNameAs[256]{};
 
 	std::vector<std::string> card = {};
+
+	bool showPerformance = false;
+	bool showPrices = false;
+	bool showNames = false;
+
+	const ImVec4 colGreen = ImVec4(0.30f, 0.85f, 0.45f, 1.0f);
+	const ImVec4 colRed = ImVec4(0.95f, 0.35f, 0.35f, 1.0f);
+	const ImVec4 colYellow = ImVec4(1.00f, 0.80f, 0.30f, 1.0f);
+	const ImVec4 colAccent = ImVec4(0.40f, 0.70f, 1.00f, 1.0f);
+	const ImVec4 colDim = ImVec4(0.60f, 0.60f, 0.65f, 1.0f);
+
+	static bool colorButton(const char* label, const ImVec4& base, const ImVec2& size) {
+		ImGui::PushStyleColor(ImGuiCol_Button, base);
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(base.x + 0.12f, base.y + 0.12f, base.z + 0.12f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(base.x * 0.7f, base.y * 0.7f, base.z * 0.7f, 1.0f));
+		bool pressed = ImGui::Button(label, size);
+		ImGui::PopStyleColor(3);
+		return pressed;
+	}
+
+	void sectionTitle(const char* title) {
+		ImGui::Spacing();
+		ImGui::TextColored(colAccent, "%s", title);
+		ImGui::Separator();
+		ImGui::Spacing();
+	}
+
+	void componentText(const char* text, int current, int required) {
+		bool done = current >= required;
+
+		if (done) ImGui::PushStyleColor(ImGuiCol_Text, colGreen);
+		ImGui::Text(text, current, required);
+		if (done) ImGui::PopStyleColor();
+
+		float frac = required > 0 ? (float)current / (float)required : 1.0f;
+		frac = std::clamp(frac, 0.0f, 1.0f);
+
+		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, done ? colGreen : colAccent);
+		ImGui::ProgressBar(frac, ImVec2(-FLT_MIN, 6.0f), "");
+		ImGui::PopStyleColor();
+		ImGui::Spacing();
+	}
+
+	static void pushStyle() {
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 10.0f);
+		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 6.0f);
+		ImGui::PushStyleVar(ImGuiStyleVar_GrabRounding, 6.0f);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(14.0f, 12.0f));
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(8.0f, 5.0f));
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(8.0f, 7.0f));
+	}
+	static void popStyle() { ImGui::PopStyleVar(6); }
+
+	bool windowToggle(const char* label, bool& state) {
+		const ImVec4 base = state ? ImVec4(0.20f, 0.55f, 0.35f, 1.0f) : ImVec4(0.25f, 0.28f, 0.35f, 1.0f);
+		bool pressed = colorButton(label, base, ImVec2(-FLT_MIN, 0.0f));
+		if (pressed) state = !state;
+		return pressed;
+	}
+
 public:
 	void destroyGui() {
 		ImGui_ImplOpenGL3_Shutdown();
@@ -36,67 +93,34 @@ public:
 
 		ImGui::StyleColorsDark();
 	}
+
 	void renderMainWindow(FPS& fps, FPVDrone& drone, BuildingSettings& build) {
-		const ImVec4 colGreen = ImVec4(0.30f, 0.85f, 0.45f, 1.0f);
-		const ImVec4 colRed = ImVec4(0.95f, 0.35f, 0.35f, 1.0f);
-		const ImVec4 colYellow = ImVec4(1.00f, 0.80f, 0.30f, 1.0f);
-		const ImVec4 colAccent = ImVec4(0.40f, 0.70f, 1.00f, 1.0f);
-		const ImVec4 colDim = ImVec4(0.60f, 0.60f, 0.65f, 1.0f);
-
-		// ---------- Helpers ----------
-		// Same behaviour as before: text turns green when the requirement is met,
-		// plus a progress bar for a quick visual check.
-		auto componentText = [&](const char* text, int current, int required) {
-			bool done = current >= required;
-
-			if (done) ImGui::PushStyleColor(ImGuiCol_Text, colGreen);
-			ImGui::Text(text, current, required);
-			if (done) ImGui::PopStyleColor();
-
-			char overlay[64];
-			std::snprintf(overlay, sizeof(overlay), text, current, required);
-			float frac = required > 0 ? (float)current / (float)required : 1.0f;
-			frac = std::clamp(frac, 0.0f, 1.0f);
-
-			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, done ? colGreen : colAccent);
-			ImGui::ProgressBar(frac, ImVec2(-FLT_MIN, 6.0f), "");
-			ImGui::PopStyleColor();
-			ImGui::Spacing();
-			};
-
-		auto colorButton = [](const char* label, const ImVec4& base, const ImVec2& size) {
-			ImGui::PushStyleColor(ImGuiCol_Button, base);
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(base.x + 0.12f, base.y + 0.12f, base.z + 0.12f, 1.0f));
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(base.x * 0.7f, base.y * 0.7f, base.z * 0.7f, 1.0f));
-			bool pressed = ImGui::Button(label, size);
-			ImGui::PopStyleColor(3);
-			return pressed;
-			};
-
-		auto sectionTitle = [&](const char* title) {
-			ImGui::Spacing();
-			ImGui::TextColored(colAccent, "%s", title);
-			ImGui::Separator();
-			ImGui::Spacing();
-			};
-
 		auto comp = drone.getComp();
 
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 10.0f);
-		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 6.0f);
-		ImGui::PushStyleVar(ImGuiStyleVar_GrabRounding, 6.0f);
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(14.0f, 12.0f));
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(8.0f, 5.0f));
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(8.0f, 7.0f));
+		pushStyle();
 
-		ImGui::SetNextWindowSize(ImVec2(350.0f, 750.0f), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowPos(ImVec2(10.0f, 10.0f), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(ImVec2(350.0f, 650.0f), ImGuiCond_FirstUseEver);
 		ImGui::Begin("Fenêtre générale");
 
 		ImGui::Checkbox("Ouvrir le magasin", &isOpen);
 
-		ImGui::Spacing();
+		sectionTitle("Fenêtres");
+		const float spacing = ImGui::GetStyle().ItemSpacing.x;
+		const float third = (ImGui::GetContentRegionAvail().x - spacing * 2.0f) / 3.0f;
 
-		if (ImGui::CollapsingHeader("Fenêtre de commande", ImGuiTreeNodeFlags_DefaultOpen)) {
+		{
+			auto toggleSmall = [&](const char* label, bool& state, bool sameLine) {
+				if (sameLine) ImGui::SameLine();
+				const ImVec4 base = state ? ImVec4(0.20f, 0.55f, 0.35f, 1.0f) : ImVec4(0.25f, 0.28f, 0.35f, 1.0f);
+				if (colorButton(label, base, ImVec2(third, 0.0f))) state = !state;
+				};
+			toggleSmall("Performance", showPerformance, false);
+			toggleSmall("Prix", showPrices, true);
+			toggleSmall("Noms", showNames, true);
+		}
+
+		if (ImGui::CollapsingHeader("Fenêtre de commande")) {
 			auto equip = drone.getEquipPrice();
 
 			ImGui::Spacing();
@@ -112,7 +136,6 @@ public:
 			ImGui::Separator();
 			ImGui::Spacing();
 
-			const float spacing = ImGui::GetStyle().ItemSpacing.x;
 			const float btnWidth = (ImGui::GetContentRegionAvail().x - spacing) * 0.5f;
 
 			for (const auto& [key, value] : equip) {
@@ -160,54 +183,6 @@ public:
 			ImGui::Spacing();
 		}
 
-		sectionTitle("Performance");
-
-		ImVec4 fpsColor = fps.fps >= 60.0f ? colGreen : (fps.fps >= 30.0f ? colYellow : colRed);
-
-		ImGui::Text("MIN FPS: %.0f", fps.minFps);
-		ImGui::Text("MAX FPS : % .0f", fps.maxFps);
-		ImGui::PushStyleColor(ImGuiCol_Text, fpsColor);
-		ImGui::Text("FPS ACTUELLE: % .0f", fps.fps);
-		ImGui::PopStyleColor();
-
-		sectionTitle("Prix des drones");
-
-		ImGui::Text("%s prix: %.0f", getStringFromJson("DRONE_Achetee"), priceForT1);
-		ImGui::Text("%s prix: % .0f", getStringFromJson("DRONE_Assemblee"), priceForT2);
-
-		sectionTitle("Réglage des prix");
-
-		ImGui::PushItemWidth(-FLT_MIN);
-
-		ImGui::TextColored(colDim, "Saisir le prix pour le drone achetée");
-		ImGui::InputFloat("1##", &priceForT1);
-		ImGui::TextColored(colDim, "Saisir le prix pour le drone assemblée");
-		ImGui::InputFloat("2##", &priceForT2);
-		ImGui::TextColored(colDim, "Saisir le prix pour des lunettes");
-		ImGui::InputFloat("3##", &priceForGoggles1);
-		ImGui::TextColored(colDim, "Saisir le prix pour des lunettes2");
-		ImGui::InputFloat("4##", &priceForGoggles2);
-		ImGui::TextColored(colDim, "Saisir le prix pour le controlleur");
-		ImGui::InputFloat("5##", &priceForController1);
-		ImGui::TextColored(colDim, "Saisir le prix pour le controlleur  CTR1");
-		ImGui::InputFloat("6##", &priceForController2);
-
-		sectionTitle("Noms des drones");
-
-		ImGui::TextColored(colDim, "Saisir le nom pour le drone assemblée");
-		ImGui::InputText("7##", bufNameAs, sizeof(bufNameAs));
-		if (colorButton("Appliquer##", ImVec4(0.20f, 0.50f, 0.80f, 1.0f), ImVec2(-FLT_MIN, 0.0f)))
-			changePlayerConfig("DRONE_Assemblee", bufNameAs);
-
-		ImGui::Spacing();
-
-		ImGui::TextColored(colDim, "Saisir le nom pour le drone achetée");
-		ImGui::InputText("8##", bufNameAch, sizeof(bufNameAch));
-		if (colorButton("Appliquer", ImVec4(0.20f, 0.50f, 0.80f, 1.0f), ImVec2(-FLT_MIN, 0.0f)))
-			changePlayerConfig("DRONE_Achetee", bufNameAch);
-
-		ImGui::PopItemWidth();
-
 		sectionTitle("ASSEMBLER");
 
 		componentText("Cadre: %d / %d", comp.frame, 1);
@@ -219,10 +194,95 @@ public:
 
 		ImGui::End();
 
-		ImGui::PopStyleVar(6);
+		popStyle();
+	}
+
+	void renderPerformanceWindow(FPS& fps) {
+		if (!showPerformance) return;
+
+		pushStyle();
+		ImGui::SetNextWindowPos(ImVec2(380.0f, 10.0f), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(ImVec2(260.0f, 140.0f), ImGuiCond_FirstUseEver);
+
+		if (ImGui::Begin("Performance", &showPerformance)) {
+			ImVec4 fpsColor = fps.fps >= 60.0f ? colGreen : (fps.fps >= 30.0f ? colYellow : colRed);
+
+			ImGui::Text("MIN FPS: %.0f", fps.minFps);
+			ImGui::Text("MAX FPS : % .0f", fps.maxFps);
+			ImGui::PushStyleColor(ImGuiCol_Text, fpsColor);
+			ImGui::Text("FPS ACTUELLE: % .0f", fps.fps);
+			ImGui::PopStyleColor();
+		}
+		ImGui::End();
+		popStyle();
+	}
+	void renderPricesWindow() {
+		if (!showPrices) return;
+
+		pushStyle();
+		ImGui::SetNextWindowPos(ImVec2(380.0f, 170.0f), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(ImVec2(340.0f, 460.0f), ImGuiCond_FirstUseEver);
+
+		if (ImGui::Begin("Prix", &showPrices)) {
+			sectionTitle("Prix des drones");
+
+			ImGui::Text("%s prix: %.0f", getStringFromJson("DRONE_Achetee"), priceForT1);
+			ImGui::Text("%s prix: % .0f", getStringFromJson("DRONE_Assemblee"), priceForT2);
+
+			sectionTitle("Réglage des prix");
+
+			ImGui::PushItemWidth(-FLT_MIN);
+
+			ImGui::TextColored(colDim, "Saisir le prix pour le drone achetée");
+			ImGui::InputFloat("1##", &priceForT1);
+			ImGui::TextColored(colDim, "Saisir le prix pour le drone assemblée");
+			ImGui::InputFloat("2##", &priceForT2);
+			ImGui::TextColored(colDim, "Saisir le prix pour des lunettes");
+			ImGui::InputFloat("3##", &priceForGoggles1);
+			ImGui::TextColored(colDim, "Saisir le prix pour des lunettes2");
+			ImGui::InputFloat("4##", &priceForGoggles2);
+			ImGui::TextColored(colDim, "Saisir le prix pour le controlleur");
+			ImGui::InputFloat("5##", &priceForController1);
+			ImGui::TextColored(colDim, "Saisir le prix pour le controlleur  CTR1");
+			ImGui::InputFloat("6##", &priceForController2);
+
+			ImGui::PopItemWidth();
+		}
+		ImGui::End();
+		popStyle();
+	}
+	void renderNamesWindow() {
+		if (!showNames) return;
+
+		pushStyle();
+		ImGui::SetNextWindowPos(ImVec2(740.0f, 10.0f), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(ImVec2(320.0f, 250.0f), ImGuiCond_FirstUseEver);
+
+		if (ImGui::Begin("Noms des drones", &showNames)) {
+			ImGui::PushItemWidth(-FLT_MIN);
+
+			ImGui::TextColored(colDim, "Saisir le nom pour le drone assemblée");
+			ImGui::InputText("7##", bufNameAs, sizeof(bufNameAs));
+			if (colorButton("Appliquer##", ImVec4(0.20f, 0.50f, 0.80f, 1.0f), ImVec2(-FLT_MIN, 0.0f)))
+				changePlayerConfig("DRONE_Assemblee", bufNameAs);
+
+			ImGui::Spacing();
+
+			ImGui::TextColored(colDim, "Saisir le nom pour le drone achetée");
+			ImGui::InputText("8##", bufNameAch, sizeof(bufNameAch));
+			if (colorButton("Appliquer", ImVec4(0.20f, 0.50f, 0.80f, 1.0f), ImVec2(-FLT_MIN, 0.0f)))
+				changePlayerConfig("DRONE_Achetee", bufNameAch);
+
+			ImGui::PopItemWidth();
+		}
+		ImGui::End();
+		popStyle();
 	}
 
 	void renderAll(FPS& fps, FPVDrone& drone, BuildingSettings& build) {
 		renderMainWindow(fps, drone, build);
+		renderPerformanceWindow(fps);
+		renderPricesWindow();
+		renderNamesWindow();
 	}
 };
