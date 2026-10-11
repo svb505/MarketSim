@@ -160,8 +160,7 @@ int main() {
 
     build.CreateBuilding();
 
-    decor.initDecoration("res/models/builds/rue_2_cotes_complete.obj", DecType::STREET,
-        "");
+    decor.initDecoration("res/models/builds/rue_2_cotes_complete.obj", DecType::STREET,"");
     decor.initDecoration("res/models/trees/tree.obj", DecType::TREE,
         "res/models/trees/tex.jpg");
     decor.initDecoration("res/models/streetlamp/streetlamp.obj", DecType::LAMP,
@@ -207,7 +206,7 @@ int main() {
 
         drawSky();
         drawGround();
-        drawRoad(0.01,-30.0f,10.0f,10);
+        drawRoad(0.01,-130.0f,12.0f,22);
 
         glEnable(GL_POLYGON_OFFSET_FILL);
         glPolygonOffset(-2.0f, -2.0f);

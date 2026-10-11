@@ -14,12 +14,12 @@ enum class DecType {
 	STREET
 };
 
-struct DecorationInstance
-{
+struct DecorationInstance{
 	DecType type;
 	svbmath::Vec3 position;
 	float rotationY;
 };
+
 extern std::map<DecType, float> scales;
 
 class Decorations {
@@ -30,7 +30,7 @@ private:
 	float buildXStep = 25.0f;
 
 	std::vector<svbmath::Vec3> allPositions;
-
+	
 	svbmath::Vec3 buildBasePos = {0.0f,0.0f,0.0f};
 	std::vector<DecorationInstance> decorations;
 

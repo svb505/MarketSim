@@ -18,7 +18,7 @@
 
 namespace {
     constexpr uint32_t CACHE_MAGIC = 0x4D424A4F; // "OBJM"
-    constexpr uint32_t CACHE_VERSION = 1;          // увеличивайте при смене формата
+    constexpr uint32_t CACHE_VERSION = 2;          // увеличивайте при смене формата
 
     template<class T>
     void WritePod(std::ofstream& f, const T& v) {
@@ -61,7 +61,7 @@ namespace {
     }
 }
 
-bool OBJModel::SaveCache(const std::string& objPath, const std::string& cachePath, const std::string& mtlPath) const{
+bool OBJModel::SaveCache(const std::string& objPath, const std::string& cachePath, const std::string& mtlPath) const {
     const std::string tmpPath = cachePath + ".tmp";
     std::ofstream f(tmpPath, std::ios::binary | std::ios::trunc);
     if (!f.is_open()) return false;
@@ -112,6 +112,14 @@ bool OBJModel::SaveCache(const std::string& objPath, const std::string& cachePat
     WritePod(f, bounds.min);
     WritePod(f, bounds.max);
 
+    // части модели (по строкам "o" в .obj) - для точной коллизии
+    WritePod(f, static_cast<uint32_t>(parts.size()));
+    for (const auto& p : parts) {
+        WriteString(f, p.name);
+        WritePod(f, p.bounds.min);
+        WritePod(f, p.bounds.max);
+    }
+
     f.close();
     if (!f) {
         std::error_code ec;
@@ -127,7 +135,7 @@ bool OBJModel::SaveCache(const std::string& objPath, const std::string& cachePat
     }
     return !ec;
 }
-bool OBJModel::LoadFromCache(const std::string& objPath, const std::string& cachePath){
+bool OBJModel::LoadFromCache(const std::string& objPath, const std::string& cachePath) {
     std::ifstream f(cachePath, std::ios::binary);
     if (!f.is_open()) return false;
 
@@ -135,6 +143,7 @@ bool OBJModel::LoadFromCache(const std::string& objPath, const std::string& cach
         vertices.clear();
         materials.clear();
         materialGroups.clear();
+        parts.clear();
         return false;
         };
 
@@ -204,6 +213,19 @@ bool OBJModel::LoadFromCache(const std::string& objPath, const std::string& cach
 
     if (!ReadPod(f, bounds.min) || !ReadPod(f, bounds.max)) return fail();
 
+    uint32_t partCount = 0;
+    if (!ReadPod(f, partCount) || partCount > 100000) return fail();
+    parts.clear();
+    parts.reserve(partCount);
+    for (uint32_t i = 0; i < partCount; i++) {
+        ObjPart part;
+        if (!ReadString(f, part.name) ||
+            !ReadPod(f, part.bounds.min) ||
+            !ReadPod(f, part.bounds.max))
+            return fail();
+        parts.push_back(std::move(part));
+    }
+
     // текстуры (GL-объекты в кэш не положишь — грузим из картинок)
     for (auto& m : materials) {
         if (!m.texturePath.empty())
@@ -218,23 +240,19 @@ bool OBJModel::LoadFromCache(const std::string& objPath, const std::string& cach
     return true;
 }
 
-GLuint OBJModel::LoadTextureFromFile(const std::string& filename){
+GLuint OBJModel::LoadTextureFromFile(const std::string& filename) {
     int width, height, channels;
 
-    unsigned char* data = stbi_load(
-        filename.c_str(),
-        &width,
-        &height,
-        &channels,
-        4
-    );
+    stbi_set_flip_vertically_on_load(1);
+
+    unsigned char* data = stbi_load(filename.c_str(), &width, &height, &channels, 4);
 
     if (!data) {
-        LOG_ERROR(std::format(
-            "Cannot load texture: {}", filename
-        ));
+        LOG_ERROR(std::format("Cannot load texture: {}", filename));
         return 0;
     }
+
+    stbi_set_flip_vertically_on_load(0);
 
     GLuint textureID = 0;
     glGenTextures(1, &textureID);
@@ -347,10 +365,11 @@ bool OBJModel::LoadMTL(const std::string& filename) {
 
     return true;
 }
-bool OBJModel::LoadOBJ(const std::string& filename,float scale){
+bool OBJModel::LoadOBJ(const std::string& filename, float scale) {
     vertices.clear();
     materials.clear();
     materialGroups.clear();
+    parts.clear();
 
     this->scale = scale;
 
@@ -358,7 +377,7 @@ bool OBJModel::LoadOBJ(const std::string& filename,float scale){
     std::string mtlPath;
 
     if (LoadFromCache(filename, cachePath)) {
-        LOG_INFO(std::format("Model loaded from cache: {} | Vertices: {}",filename, vertices.size()));
+        LOG_INFO(std::format("Model loaded from cache: {} | Vertices: {}", filename, vertices.size()));
         return true;
     }
 
@@ -371,8 +390,8 @@ bool OBJModel::LoadOBJ(const std::string& filename,float scale){
 
     std::ifstream file(filename);
 
-    if (!file.is_open()){ 
-        LOG_ERROR(std::format("Cannot open: {}",filename));
+    if (!file.is_open()) {
+        LOG_ERROR(std::format("Cannot open: {}", filename));
 
         return false;
     }
@@ -393,9 +412,12 @@ bool OBJModel::LoadOBJ(const std::string& filename,float scale){
     materialGroups.reserve(32);
     materials.reserve(32);
 
+    // (имя объекта, индекс первой вершины) для каждой строки "o"
+    std::vector<std::pair<std::string, size_t>> partStarts;
+
     std::string line;
 
-    while (std::getline(file, line)){
+    while (std::getline(file, line)) {
         std::stringstream ss(line);
 
         std::string type;
@@ -403,7 +425,7 @@ bool OBJModel::LoadOBJ(const std::string& filename,float scale){
 
 
         // POSITION
-        if (type == "v"){
+        if (type == "v") {
             float x, y, z;
 
             ss >> x >> y >> z;
@@ -413,7 +435,7 @@ bool OBJModel::LoadOBJ(const std::string& filename,float scale){
             positions.push_back(z);
         }
         // UV
-        else if (type == "vt"){
+        else if (type == "vt") {
             float u, v;
 
             ss >> u >> v;
@@ -422,7 +444,7 @@ bool OBJModel::LoadOBJ(const std::string& filename,float scale){
             texcoords.push_back(v);
         }
         // NORMAL
-        else if (type == "vn"){
+        else if (type == "vn") {
             float x, y, z;
 
             ss >> x >> y >> z;
@@ -430,6 +452,13 @@ bool OBJModel::LoadOBJ(const std::string& filename,float scale){
             normals.push_back(x);
             normals.push_back(y);
             normals.push_back(z);
+        }
+        // OBJECT
+        else if (type == "o") {
+            std::string objName;
+            std::getline(ss >> std::ws, objName);
+
+            partStarts.emplace_back(objName, vertices.size());
         }
         //MTL
         else if (type == "mtllib") {
@@ -451,7 +480,7 @@ bool OBJModel::LoadOBJ(const std::string& filename,float scale){
             materialGroups.push_back(group);
         }
         // FACE
-        else if (type == "f"){
+        else if (type == "f") {
             std::vector<std::string> face;
             std::string value;
 
@@ -543,7 +572,7 @@ bool OBJModel::LoadOBJ(const std::string& filename,float scale){
             vertices.push_back(ParseVertex(face[1]));
             vertices.push_back(ParseVertex(face[2]));
 
-            for (size_t i = 3; i < face.size(); i++){
+            for (size_t i = 3; i < face.size(); i++) {
                 vertices.push_back(ParseVertex(face[0]));
                 vertices.push_back(ParseVertex(face[i - 1]));
                 vertices.push_back(ParseVertex(face[i]));
@@ -551,15 +580,15 @@ bool OBJModel::LoadOBJ(const std::string& filename,float scale){
         }
     }
 
-    for (auto& group : materialGroups){
-        for (const auto& material : materials){
-            if (material.name == group.material.name){
+    for (auto& group : materialGroups) {
+        for (const auto& material : materials) {
+            if (material.name == group.material.name) {
                 group.material = material;
                 break;
             }
         }
     }
-    if (materialGroups.empty() && !vertices.empty()){
+    if (materialGroups.empty() && !vertices.empty()) {
         MaterialGroup group;
 
         group.startVertex = 0;
@@ -568,17 +597,46 @@ bool OBJModel::LoadOBJ(const std::string& filename,float scale){
         materialGroups.push_back(group);
     }
 
-    for (size_t i = 0; i < materialGroups.size(); i++){
-        if (i + 1 < materialGroups.size()){
+    for (size_t i = 0; i < materialGroups.size(); i++) {
+        if (i + 1 < materialGroups.size()) {
             materialGroups[i].vertexCount =
                 materialGroups[i + 1].startVertex -
                 materialGroups[i].startVertex;
         }
-        else{
+        else {
             materialGroups[i].vertexCount =
                 vertices.size() -
                 materialGroups[i].startVertex;
         }
+    }
+
+    // границы каждого объекта отдельно
+    for (size_t i = 0; i < partStarts.size(); i++) {
+        const size_t begin = partStarts[i].second;
+        const size_t end = (i + 1 < partStarts.size())
+            ? partStarts[i + 1].second
+            : vertices.size();
+
+        if (begin >= end) continue;
+
+        ObjPart part;
+        part.name = partStarts[i].first;
+        part.bounds.min = { vertices[begin].x, vertices[begin].y, vertices[begin].z };
+        part.bounds.max = part.bounds.min;
+
+        for (size_t k = begin; k < end; k++) {
+            const Vertex& v = vertices[k];
+
+            part.bounds.min = { std::min(part.bounds.min.x, v.x),
+                                std::min(part.bounds.min.y, v.y),
+                                std::min(part.bounds.min.z, v.z) };
+
+            part.bounds.max = { std::max(part.bounds.max.x, v.x),
+                                std::max(part.bounds.max.y, v.y),
+                                std::max(part.bounds.max.z, v.z) };
+        }
+
+        parts.push_back(std::move(part));
     }
 
     bounds.min = { vertices[0].x, vertices[0].y, vertices[0].z };
@@ -589,7 +647,7 @@ bool OBJModel::LoadOBJ(const std::string& filename,float scale){
                        std::min(bounds.min.y, v.y),
                        std::min(bounds.min.z, v.z) };
 
-      
+
         bounds.max = { std::max(bounds.max.x, v.x),
                        std::max(bounds.max.y, v.y),
                        std::max(bounds.max.z, v.z)
@@ -602,44 +660,44 @@ bool OBJModel::LoadOBJ(const std::string& filename,float scale){
 
     return true;
 }
-void OBJModel::CreateVBO(){
+void OBJModel::CreateVBO() {
     if (vertices.empty()) return;
 
-    glGenBuffers(1,&vbo);
+    glGenBuffers(1, &vbo);
 
-    glBindBuffer(GL_ARRAY_BUFFER,vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-    glBufferData(GL_ARRAY_BUFFER,vertices.size() * sizeof(Vertex),vertices.data(),GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
 
-    glBindBuffer(GL_ARRAY_BUFFER,0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
-void OBJModel::Draw(svbmath::Vec3 pos, float yaw, float pitch){
+void OBJModel::Draw(svbmath::Vec3 pos, float yaw, float pitch) {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_2D);
 
     glPushMatrix();
 
-    glTranslatef(pos.x, pos.y, pos.z);   
+    glTranslatef(pos.x, pos.y, pos.z);
     glRotatef(yaw, 0, 1, 0);
     glRotatef(pitch, 1, 0, 0);
     glScalef(scale, scale, scale);
 
-    glBindBuffer(GL_ARRAY_BUFFER,vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
 
     // POSITION
     glEnableClientState(GL_VERTEX_ARRAY);
 
-    glVertexPointer(3,GL_FLOAT,sizeof(Vertex),(void*)0);
+    glVertexPointer(3, GL_FLOAT, sizeof(Vertex), (void*)0);
 
     // NORMAL
     glEnableClientState(GL_NORMAL_ARRAY);
-    glNormalPointer(GL_FLOAT,sizeof(Vertex),(void*)(3 * sizeof(float)));
+    glNormalPointer(GL_FLOAT, sizeof(Vertex), (void*)(3 * sizeof(float)));
 
     // UV
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-    glTexCoordPointer(2,GL_FLOAT,sizeof(Vertex),(void*)(6 * sizeof(float)));
+    glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), (void*)(6 * sizeof(float)));
 
 
     // DRAW
@@ -701,7 +759,7 @@ void OBJModel::Draw(svbmath::Vec3 pos, float yaw, float pitch){
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindTexture(GL_TEXTURE_2D,0);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
     glPopMatrix();
 };
@@ -719,32 +777,36 @@ OBJModel::~OBJModel() {
         }
     }
 }
-bool OBJModel::LoadTexture(const std::string& filename){
+bool OBJModel::LoadTexture(const std::string& filename) {
     int width;
     int height;
     int channels;
 
-    unsigned char* data = stbi_load( filename.c_str(), &width,&height, &channels,4);
+    stbi_set_flip_vertically_on_load(1);
 
-    if (!data){
+    unsigned char* data = stbi_load(filename.c_str(), &width, &height, &channels, 4);
+
+    if (!data) {
         LOG_ERROR(std::format("Cannot load texture: {}", filename));
 
         return false;
     }
 
+    stbi_set_flip_vertically_on_load(0);
+
     glGenTextures(1, &texture);
 
-    glBindTexture(GL_TEXTURE_2D,texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
 
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-    glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
     glBindTexture(GL_TEXTURE_2D, 0);
 

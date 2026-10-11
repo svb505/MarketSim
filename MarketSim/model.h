@@ -24,6 +24,11 @@ struct Material{
     GLuint textureID = 0;
 };
 
+struct ObjPart {
+    std::string name;
+    Bounds bounds;
+};
+
 struct MaterialGroup{
     Material material;
     size_t startVertex = 0;
@@ -43,6 +48,7 @@ private:
         const std::string& mtlPath) const;
 
 public:
+    std::vector<ObjPart> parts;
     Bounds bounds;
     float scale = 0.0f;
 
