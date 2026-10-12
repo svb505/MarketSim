@@ -34,6 +34,8 @@
 #include "bot.h"
 #include "renders.h"
 #include "logger.h"
+#include "stb_image.h"
+#include "localization.h"
 
 Camera cam;
 Building build;
@@ -101,6 +103,10 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     params.cameraPitch -= (float)yoffset;
 }
 int main() {
+    currLang = getStringFromJson("CURR_LANG", "config.json");
+
+    getLangJson();
+
     Logger::initLogger();
 
     CameraParams& params = cam.getCamParams();
@@ -111,6 +117,10 @@ int main() {
         myBalance = p.balance;
     }
 
+    int width, height, channels;
+    unsigned char* pixels = stbi_load("icon.jpg", &width, &height, &channels, 4);
+
+
     if (!glfwInit()) {
         LOG_ERROR("Failed to initialize GLFW");
         return -1;
@@ -118,11 +128,19 @@ int main() {
 
     glfwWindowHint(GLFW_SAMPLES, 16);
     GLFWwindow* window = glfwCreateWindow(ECRAN_W, ECRAN_H, "FPV Market - V1.1.2", NULL, NULL);
+    
     if (!window) {
         LOG_ERROR("Failed to create window");
         glfwTerminate();
         return -1;
     }
+
+    if (pixels) {
+        GLFWimage icon{ width, height, pixels };
+        glfwSetWindowIcon(window, 1, &icon);
+        stbi_image_free(pixels);
+    }
+
 
     glfwSetWindowUserPointer(window, &cam);
     glfwMakeContextCurrent(window);

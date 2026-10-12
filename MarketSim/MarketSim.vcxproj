@@ -153,6 +153,7 @@
     <ClCompile Include="jsonParcer.cpp" />
     <ClCompile Include="lighting.h" />
     <ClCompile Include="lighting.cpp" />
+    <ClCompile Include="localization.cpp" />
     <ClCompile Include="logger.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="model.cpp" />
@@ -175,6 +176,7 @@
     <ClInclude Include="environnement.h" />
     <ClInclude Include="input.h" />
     <ClInclude Include="jsonParcer.h" />
+    <ClInclude Include="localization.h" />
     <ClInclude Include="logger.h" />
     <ClInclude Include="model.h" />
     <ClInclude Include="renders.h" />
@@ -184,6 +186,9 @@
     <ClInclude Include="text.h" />
     <ClInclude Include="texture.h" />
     <ClInclude Include="variables.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resource.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,5 +1,8 @@
 #pragma once
 #include <string>
+#include <nlohmann//json.hpp>
+
+using json = nlohmann::json;
 
 struct FPS {
     double deltaTime = 0.0;
@@ -24,3 +27,5 @@ extern float priceForGoggles1;
 extern float priceForController2;
 extern float priceForGoggles2;
 extern bool isOpen;
+extern std::string currLang;
+extern json lang;

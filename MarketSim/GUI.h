@@ -9,7 +9,7 @@
 #include "database.h"
 #include "jsonParcer.h"
 #include <algorithm>
-
+#include <iostream>
 
 class GUI {
 private:
@@ -89,14 +89,26 @@ public:
 	void setupGui(GLFWwindow* window) {
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
-		ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+		ImGuiIO& io = ImGui::GetIO();
+
+		ImFont* font = io.Fonts->AddFontFromFileTTF(
+			"res/ARIAL.ttf",
+			18.0f,
+			nullptr,
+			io.Fonts->GetGlyphRangesCyrillic()
+		);
+
+		if (!font) {
+			std::cout << "ERROR: Failed to load res/ARIAL.ttf\n";
+			io.Fonts->AddFontDefault();
+		}
+
+		ImGui::StyleColorsDark();
 
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init("#version 330");
-
-		ImGui::StyleColorsDark();
 	}
-
 	void renderMainWindow(FPS& fps, FPVDrone& drone, BuildingSettings& build) {
 		auto comp = drone.getComp();
 
@@ -104,11 +116,11 @@ public:
 
 		ImGui::SetNextWindowPos(ImVec2(10.0f, 10.0f), ImGuiCond_FirstUseEver);
 		ImGui::SetNextWindowSize(ImVec2(350.0f, 650.0f), ImGuiCond_FirstUseEver);
-		ImGui::Begin("Fenêtre générale");
+		ImGui::Begin(lang[currLang]["MAIN_WIN"].get<std::string>().c_str());
 
-		ImGui::Checkbox("Ouvrir le magasin", &isOpen);
+		ImGui::Checkbox(lang[currLang]["OPEN_STORE"].get<std::string>().c_str(), &isOpen);
 
-		sectionTitle("Fenêtres");
+		sectionTitle(lang[currLang]["WINDOWS"].get<std::string>().c_str());
 		const float spacing = ImGui::GetStyle().ItemSpacing.x;
 		const float third = (ImGui::GetContentRegionAvail().x - spacing * 2.0f) / 3.0f;
 
@@ -118,20 +130,20 @@ public:
 				const ImVec4 base = state ? ImVec4(0.20f, 0.55f, 0.35f, 1.0f) : ImVec4(0.25f, 0.28f, 0.35f, 1.0f);
 				if (colorButton(label, base, ImVec2(third, 0.0f))) state = !state;
 				};
-			toggleSmall("Performance", showPerformance, false);
-			toggleSmall("Prix", showPrices, true);
-			toggleSmall("Noms", showNames, true);
+			toggleSmall(lang[currLang]["PERF"].get<std::string>().c_str(), showPerformance, false);
+			toggleSmall(lang[currLang]["PRICE"].get<std::string>().c_str(), showPrices, true);
+			toggleSmall(lang[currLang]["NAMES"].get<std::string>().c_str(), showNames, true);
 		}
 
-		if (ImGui::CollapsingHeader("Fenêtre de commande")) {
+		if (ImGui::CollapsingHeader(lang[currLang]["WIN_COMM"].get<std::string>().c_str())) {
 			auto equip = drone.getEquipPrice();
 
 			ImGui::Spacing();
-			ImGui::Text("Solde:");
+			ImGui::Text(lang[currLang]["CHECK"].get<std::string>().c_str());
 			ImGui::SameLine();
 			ImGui::TextColored(colYellow, "%.1f", myBalance);
 
-			ImGui::Text("Articles dans le panier:");
+			ImGui::Text(lang[currLang]["PROD_IN_CARD"].get<std::string>().c_str());
 			ImGui::SameLine();
 			ImGui::TextColored(card.empty() ? colDim : colGreen, "%d", (int)card.size());
 
@@ -150,12 +162,12 @@ public:
 				}
 				else ImGui::Text("%s - %.1f$", key.c_str(), value);
 
-				if (colorButton(("Ajouter à panier##" + key).c_str(), ImVec4(0.10f, 0.60f, 0.25f, 1.0f), ImVec2(btnWidth, 0.0f)))
+				if (colorButton(std::format("{}## {}",lang[currLang]["ADD_TO_CARD"],key).c_str(), ImVec4(0.10f, 0.60f, 0.25f, 1.0f), ImVec2(btnWidth, 0.0f)))
 					card.push_back(key);
 
 				ImGui::SameLine();
 
-				if (colorButton(("Supprimer de panier##" + key).c_str(), ImVec4(0.75f, 0.15f, 0.15f, 1.0f), ImVec2(btnWidth, 0.0f)))
+				if (colorButton(std::format("{}## {}", lang[currLang]["DELETE_FROM_CARD"], key).c_str(), ImVec4(0.75f, 0.15f, 0.15f, 1.0f), ImVec2(btnWidth, 0.0f)))
 					card.erase(
 						std::remove(card.begin(), card.end(), key),
 						card.end()

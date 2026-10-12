@@ -1,4 +1,7 @@
 #include <string>
+#include <nlohmann//json.hpp>
+
+using json = nlohmann::json;
 
 std::string objName = "";
 int ECRAN_W = 1400;
@@ -17,3 +20,5 @@ float priceForGoggles1 = 0.0f;
 float priceForController2 = 0.0f;
 float priceForGoggles2 = 0.0f;
 bool isOpen = false;
+extern std::string currLang = "FR";
+json lang;
