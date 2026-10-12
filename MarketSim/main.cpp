@@ -41,7 +41,6 @@ Camera cam;
 Building build;
 OBJModel base;
 Decorations decor;
-GUI gui;
 FPVDrone drone;
 Sound sound;
 Bot bot;
@@ -108,6 +107,8 @@ int main() {
     getLangJson();
 
     Logger::initLogger();
+
+    GUI gui;
 
     CameraParams& params = cam.getCamParams();
 
@@ -275,9 +276,9 @@ int main() {
        
         if (drone.getShowText()) {
             RenderTextHUD(ECRAN_W / 2, ECRAN_H / 2, 1.0f, 0.0f, 0.0f,
-                "Your package has arrived", ECRAN_W, ECRAN_H );
+                "Your package has arrived", ECRAN_W, ECRAN_H);
         }
-
+        
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
         glfwPollEvents();

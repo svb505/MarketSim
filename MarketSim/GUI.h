@@ -25,6 +25,9 @@ private:
 	float minValue = 0.0f;
 	float maxValue = 2000.0f;
 
+	int idxLang = 0;
+	std::vector<const char*> langs = { "FR","EN","RU" };
+
 	const ImVec4 colGreen = ImVec4(0.30f, 0.85f, 0.45f, 1.0f);
 	const ImVec4 colRed = ImVec4(0.95f, 0.35f, 0.35f, 1.0f);
 	const ImVec4 colYellow = ImVec4(1.00f, 0.80f, 0.30f, 1.0f);
@@ -46,18 +49,28 @@ private:
 		ImGui::Separator();
 		ImGui::Spacing();
 	}
-
 	void componentText(const char* text, int current, int required) {
 		bool done = current >= required;
 
-		if (done) ImGui::PushStyleColor(ImGuiCol_Text, colGreen);
-		ImGui::Text(text, current, required);
-		if (done) ImGui::PopStyleColor();
+		if (done)
+			ImGui::PushStyleColor(ImGuiCol_Text, colGreen);
 
-		float frac = required > 0 ? (float)current / (float)required : 1.0f;
+		ImGui::Text("%s %d / %d", text, current, required);
+
+		if (done)
+			ImGui::PopStyleColor();
+
+		float frac = required > 0
+			? static_cast<float>(current) / required
+			: 1.0f;
+
 		frac = std::clamp(frac, 0.0f, 1.0f);
 
-		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, done ? colGreen : colAccent);
+		ImGui::PushStyleColor(
+			ImGuiCol_PlotHistogram,
+			done ? colGreen : colAccent
+		);
+
 		ImGui::ProgressBar(frac, ImVec2(-FLT_MIN, 6.0f), "");
 		ImGui::PopStyleColor();
 		ImGui::Spacing();
@@ -81,6 +94,14 @@ private:
 	}
 
 public:
+	GUI() {
+		for (int i = 0; i < langs.size(); i++) {
+			if (std::strcmp(langs[i], currLang.c_str()) == 0) {
+				idxLang = i;
+				break;
+			}
+		}
+	}
 	void destroyGui() {
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
@@ -135,6 +156,11 @@ public:
 			toggleSmall(lang[currLang]["NAMES"].get<std::string>().c_str(), showNames, true);
 		}
 
+		if (ImGui::Combo(lang[currLang]["SLCT_LANG"].get<std::string>().c_str(), &idxLang, langs.data(), langs.size())) {
+			currLang = langs[idxLang];
+			changePlayerConfig("CURR_LANG", currLang, "config.json");
+		}
+
 		if (ImGui::CollapsingHeader(lang[currLang]["WIN_COMM"].get<std::string>().c_str())) {
 			auto equip = drone.getEquipPrice();
 
@@ -151,6 +177,10 @@ public:
 			ImGui::Separator();
 			ImGui::Spacing();
 
+			ImGui::Spacing();
+			ImGui::Separator();
+			ImGui::Spacing();
+
 			const float btnWidth = (ImGui::GetContentRegionAvail().x - spacing) * 0.5f;
 
 			for (const auto& [key, value] : equip) {
@@ -162,12 +192,12 @@ public:
 				}
 				else ImGui::Text("%s - %.1f$", key.c_str(), value);
 
-				if (colorButton(std::format("{}## {}",lang[currLang]["ADD_TO_CARD"],key).c_str(), ImVec4(0.10f, 0.60f, 0.25f, 1.0f), ImVec2(btnWidth, 0.0f)))
+				if (colorButton(std::format("{}## {}",lang[currLang]["ADD_TO_CARD"].get<std::string>(),key).c_str(), ImVec4(0.10f, 0.60f, 0.25f, 1.0f), ImVec2(btnWidth, 0.0f)))
 					card.push_back(key);
 
 				ImGui::SameLine();
 
-				if (colorButton(std::format("{}## {}", lang[currLang]["DELETE_FROM_CARD"], key).c_str(), ImVec4(0.75f, 0.15f, 0.15f, 1.0f), ImVec2(btnWidth, 0.0f)))
+				if (colorButton(std::format("{}## {}", lang[currLang]["DELETE_FROM_CARD"].get<std::string>(), key).c_str(), ImVec4(0.75f, 0.15f, 0.15f, 1.0f), ImVec2(btnWidth, 0.0f)))
 					card.erase(
 						std::remove(card.begin(), card.end(), key),
 						card.end()
@@ -180,7 +210,7 @@ public:
 			ImGui::Separator();
 			ImGui::Spacing();
 
-			if (colorButton("Acheter tout", ImVec4(0.15f, 0.45f, 0.85f, 1.0f), ImVec2(-FLT_MIN, 32.0f))) {
+			if (colorButton(lang[currLang]["BUY_ALL"].get<std::string>().c_str(), ImVec4(0.15f, 0.45f, 0.85f, 1.0f), ImVec2(-FLT_MIN, 32.0f))) {
 				float totalPrice = 0.0f;
 
 				for (auto& element : card) totalPrice += equip[element];
@@ -193,19 +223,20 @@ public:
 					drone.sendPackage(card, build);
 					card.clear();
 				}
-				else ImGui::TextColored(colRed, "Fonds insuffisants sur le solde");
+				else ImGui::TextColored(colRed, lang[currLang]["NOT_ENOUGH_MONEY"].get<std::string>().c_str());
 			}
 			ImGui::Spacing();
 		}
 
-		sectionTitle("ASSEMBLER");
+		sectionTitle(lang[currLang]["ASSEMBLE"].get<std::string>().c_str());
 
-		componentText("Cadre: %d / %d", comp.frame, 1);
-		componentText("Camera: %d / %d", comp.camera, 1);
-		componentText("Batterie: %d / %d", comp.battery, 1);
-		componentText("Moteur: %d / %d", comp.motor, 4);
-		componentText("Hélice: %d / %d", comp.propeller, 4);
-		componentText("Controlleur de vol: %d / %d", comp.fc, 1);
+		componentText((lang[currLang]["FRAME"].get<std::string>()).c_str(),
+			comp.frame,1);
+		componentText((lang[currLang]["CAM"].get<std::string>()).c_str(), comp.camera, 1);
+		componentText((lang[currLang]["BAT"].get<std::string>()).c_str(), comp.battery, 1);
+		componentText((lang[currLang]["MOTOR"].get<std::string>()).c_str(), comp.motor, 4);
+		componentText((lang[currLang]["PROPELLER"].get<std::string>()).c_str(), comp.propeller, 4);
+		componentText((lang[currLang]["FC"].get<std::string>()).c_str(),comp.fc, 1);
 
 		ImGui::Dummy({ 0.0f, 10.0f });
 		ImGui::Text("©Developped by SVB & Red.Fpv");
@@ -222,13 +253,13 @@ public:
 		ImGui::SetNextWindowPos(ImVec2(380.0f, 10.0f), ImGuiCond_FirstUseEver);
 		ImGui::SetNextWindowSize(ImVec2(260.0f, 140.0f), ImGuiCond_FirstUseEver);
 
-		if (ImGui::Begin("Performance", &showPerformance)) {
+		if (ImGui::Begin(lang[currLang]["PERF"].get<std::string>().c_str(), &showPerformance)) {
 			ImVec4 fpsColor = fps.fps >= 60.0f ? colGreen : (fps.fps >= 30.0f ? colYellow : colRed);
 
-			ImGui::Text("MIN FPS: %.0f", fps.minFps);
-			ImGui::Text("MAX FPS : % .0f", fps.maxFps);
+			ImGui::Text(std::format("{}: % .0f", lang[currLang]["MIN_FPS"].get<std::string>()).c_str(), fps.minFps);
+			ImGui::Text(std::format("{}: % .0f", lang[currLang]["MAX_FPS"].get<std::string>()).c_str(), fps.maxFps);
 			ImGui::PushStyleColor(ImGuiCol_Text, fpsColor);
-			ImGui::Text("FPS ACTUELLE: % .0f", fps.fps);
+			ImGui::Text(std::format("{}: % .0f", lang[currLang]["CURR_FPS"].get<std::string>()).c_str(), fps.fps);
 			ImGui::PopStyleColor();
 		}
 		ImGui::End();
@@ -241,27 +272,30 @@ public:
 		ImGui::SetNextWindowPos(ImVec2(380.0f, 170.0f), ImGuiCond_FirstUseEver);
 		ImGui::SetNextWindowSize(ImVec2(340.0f, 460.0f), ImGuiCond_FirstUseEver);
 
-		if (ImGui::Begin("Prix", &showPrices)) {
-			sectionTitle("Prix des drones");
+		if (ImGui::Begin(lang[currLang]["PRICE"].get<std::string>().c_str())) {
+			sectionTitle(lang[currLang]["PRICE_OF_DRONE"].get<std::string>().c_str());
 
-			ImGui::Text("%s prix: %.0f", getStringFromJson("DRONE_Achetee"), priceForT1);
-			ImGui::Text("%s prix: % .0f", getStringFromJson("DRONE_Assemblee"), priceForT2);
+			ImGui::Text(std::format("{} {} {:.0f}",getStringFromJson("DRONE_Achetee"),
+				lang[currLang]["PRICE"].get<std::string>().c_str(), priceForT1).c_str());
 
-			sectionTitle("Réglage des prix");
+			ImGui::Text(std::format("{} {} {:.0f}", getStringFromJson("DRONE_Assemblee"),
+				lang[currLang]["PRICE"].get<std::string>().c_str(), priceForT1).c_str());
+
+			sectionTitle(lang[currLang]["SETTING_OF_PRICE"].get<std::string>().c_str());
 
 			ImGui::PushItemWidth(-FLT_MIN);
 
-			ImGui::TextColored(colDim, "Saisir le prix pour le drone achetée");
+			ImGui::TextColored(colDim, lang[currLang]["ENTER_PRICE_FOR_DRN_BUY"].get<std::string>().c_str());
 			ImGui::InputFloat("1##", &priceForT1);
-			ImGui::TextColored(colDim, "Saisir le prix pour le drone assemblée");
+			ImGui::TextColored(colDim, lang[currLang]["ENTER_PRICE_FOR_DRN_ASSEMBLE"].get<std::string>().c_str());
 			ImGui::InputFloat("2##", &priceForT2);
-			ImGui::TextColored(colDim, "Saisir le prix pour des lunettes");
+			ImGui::TextColored(colDim, lang[currLang]["ENTER_PRICE_FOR_GOGGLES"].get<std::string>().c_str());
 			ImGui::InputFloat("3##", &priceForGoggles1);
-			ImGui::TextColored(colDim, "Saisir le prix pour des lunettes2");
+			ImGui::TextColored(colDim, lang[currLang]["ENTER_PRICE_FOR_GOGGLES2"].get<std::string>().c_str());
 			ImGui::InputFloat("4##", &priceForGoggles2);
-			ImGui::TextColored(colDim, "Saisir le prix pour le controlleur");
+			ImGui::TextColored(colDim, lang[currLang]["ENTER_PRICE_FOR_CONTROLLER"].get<std::string>().c_str());
 			ImGui::InputFloat("5##", &priceForController1);
-			ImGui::TextColored(colDim, "Saisir le prix pour le controlleur  CTR1");
+			ImGui::TextColored(colDim, lang[currLang]["ENTER_PRICE_FOR_CONTROLLER2"].get<std::string>().c_str());
 			ImGui::InputFloat("6##", &priceForController2);
 
 			priceForT1 = std::clamp(priceForT1, minValue, maxValue);
@@ -283,17 +317,17 @@ public:
 		ImGui::SetNextWindowPos(ImVec2(740.0f, 10.0f), ImGuiCond_FirstUseEver);
 		ImGui::SetNextWindowSize(ImVec2(320.0f, 250.0f), ImGuiCond_FirstUseEver);
 
-		if (ImGui::Begin("Noms des drones", &showNames)) {
+		if (ImGui::Begin(lang[currLang]["DRONE_NAMES"].get<std::string>().c_str(), &showNames)) {
 			ImGui::PushItemWidth(-FLT_MIN);
 
-			ImGui::TextColored(colDim, "Saisir le nom pour le drone assemblée");
+			ImGui::TextColored(colDim, lang[currLang]["ENTER_NAME_FOR_DRN_ASSEMBLE"].get<std::string>().c_str());
 			ImGui::InputText("7##", bufNameAs, sizeof(bufNameAs));
 			if (colorButton("Appliquer##", ImVec4(0.20f, 0.50f, 0.80f, 1.0f), ImVec2(-FLT_MIN, 0.0f)))
 				changePlayerConfig("DRONE_Assemblee", bufNameAs);
 
 			ImGui::Spacing();
 
-			ImGui::TextColored(colDim, "Saisir le nom pour le drone achetée");
+			ImGui::TextColored(colDim, lang[currLang]["ENTER_NAME_FOR_DRN_BUY"].get<std::string>().c_str());
 			ImGui::InputText("8##", bufNameAch, sizeof(bufNameAch));
 			if (colorButton("Appliquer", ImVec4(0.20f, 0.50f, 0.80f, 1.0f), ImVec2(-FLT_MIN, 0.0f)))
 				changePlayerConfig("DRONE_Achetee", bufNameAch);
