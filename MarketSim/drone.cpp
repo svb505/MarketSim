@@ -13,13 +13,155 @@
 #include <memory>
 #include <utility>
 
+void FPVDrone::reloadCompModels() {
+    allCompModels.clear();
+
+    for (const auto& [objName, paths] : allCompPaths) {
+        auto model = std::make_unique<OBJModel>();
+
+        model->LoadOBJ(paths.model, paths.scale);
+        model->LoadTexture(paths.texture);
+        model->CreateVBO();
+
+        allCompModels.emplace(objName, std::move(model));
+    }
+}
+
+void FPVDrone::reInitListes() {
+    baseEquipment = { lang[currLang]["FRAME1"].get<std::string>(),
+        lang[currLang]["CAM1"].get<std::string>(),
+        lang[currLang]["BAT450"].get<std::string>(), lang[currLang]["MTR1"].get<std::string>(),
+        lang[currLang]["PROP1"].get<std::string>(),lang[currLang]["CNTRL1"].get<std::string>(), lang[currLang]["GGLS1"].get<std::string>(),
+        name,
+        lang[currLang]["BAT550"].get<std::string>(),
+        lang[currLang]["BAT500"].get<std::string>(),
+        lang[currLang]["PROP2"].get<std::string>(), lang[currLang]["PROP3"].get<std::string>(),lang[currLang]["FC1"].get<std::string>(),
+        lang[currLang]["FC2"].get<std::string>(),
+        lang[currLang]["CNTRL2"].get<std::string>(),lang[currLang]["GGLS2"].get<std::string>(),
+        lang[currLang]["FRAME2"].get<std::string>(),
+        lang[currLang]["MTR2"].get<std::string>(), lang[currLang]["MTR3"].get<std::string>(),
+        lang[currLang]["CAM2"].get<std::string>(), lang[currLang]["CAM3"].get<std::string>() };
+
+    equipmentPrice = { {baseEquipment[0],100.0f},{baseEquipment[1],300.0f},
+        {baseEquipment[2],250.0f} ,{baseEquipment[3],350.0f} ,{baseEquipment[4],150.0f},
+        {baseEquipment[5],100.0f},
+        {baseEquipment[6],250.0f},{name,1000.0f} ,{baseEquipment[10],120.0f},{baseEquipment[11],120.0f},
+        {baseEquipment[8],450.0f} ,{baseEquipment[9],350.0f} ,{baseEquipment[12],150.0f}, {baseEquipment[13],100.0f},
+        {baseEquipment[15],270.0f},{baseEquipment[14],90.0f},{baseEquipment[16],130.0f},{baseEquipment[17],400.0f},
+        {baseEquipment[18],320.0f},{baseEquipment[19],270.0f},{baseEquipment[20],330.0f} };
+
+    allCompPaths = {
+     {baseEquipment[0], {
+         "res/models/fpv_frame/fpv_frame.obj",
+         "res/models/fpv_frame/fpv_frame_carbon.png",
+         5.0f
+     }},
+    {baseEquipment[1], {
+         "res/models/fpv_cam/fpv_camera.obj",
+         "res/models/fpv_cam/fpv_camera_texture.png",
+         5.0f
+     }},
+        {baseEquipment[19], {
+         "res/models/fpv_cam2/fpv_camera.obj",
+         "res/models/fpv_cam2/tex.jpg",
+         0.004f
+     }},
+        {baseEquipment[20], {
+         "res/models/fpv_cam3/fpv_camera.obj",
+         "res/models/fpv_cam3/tex.jpg",
+         0.004f
+     }},
+        {baseEquipment[10], {
+         "res/models/fpv_propeller2/prop_bi_5048.obj",
+         "res/models/fpv_propeller2/tex.jpg",
+         5.0f
+     }},
+        {baseEquipment[11], {
+         "res/models/fpv_propeller3/prop_tri_5143.obj",
+         "res/models/fpv_propeller3/tex.jpg",
+         5.0f
+     }},
+        {baseEquipment[8], {
+         "res/models/fpv_bat2/fpv_battery.obj",
+         "res/models/fpv_bat2/tex.jpg",
+         5.0f
+     }},
+     {baseEquipment[9], {
+         "res/models/fpv_bat3/fpv_battery.obj",
+         "res/models/fpv_bat3/tex.jpg",
+         5.0f
+     }},
+        {baseEquipment[12], {
+         "res/models/fpv_FC1/fc_20x20_mini.obj",
+         "res/models/fpv_FC1/tex.jpg",
+         0.004f
+     }},
+     {baseEquipment[13], {
+         "res/models/fpv_FC2/fc_30x30_f4.obj",
+         "res/models/fpv_FC2/tex.jpg",
+          0.004f
+     }},
+        {baseEquipment[14], {
+         "res/models/fpv_controller2/fpv_radio.obj",
+         "res/models/fpv_controller2/tex.jpg",
+        0.005f
+     }},
+     {baseEquipment[15], {
+         "res/models/fpv_goggles2/fpv_goggles.obj",
+         "res/models/fpv_goggles2/tex.jpg",
+         5.0f
+     }},
+     {baseEquipment[2], {
+         "res/models/fpv_bat/battery.obj",
+         "res/models/fpv_bat/battery_texture.png",
+         5.0f
+     }},
+     {baseEquipment[16], {
+         "res/models/fpv_frame2/fpv_frame.obj",
+         "res/models/fpv_frame2/tex.jpg",
+         6.0f
+     }},
+     {baseEquipment[3], {
+         "res/models/fpv_motor/fpv_motor.obj",
+         "res/models/fpv_motor/fpv_atlas.png",
+         0.07f
+     }},
+        {baseEquipment[17], {
+         "res/models/fpv_motor2/fpv_motor.obj",
+         "res/models/fpv_motor2/tex.jpg",
+         0.007f
+     }},
+        {baseEquipment[18], {
+         "res/models/fpv_motor3/fpv_motor.obj",
+         "res/models/fpv_motor3/tex.jpg",
+         0.007f
+     }},
+     {baseEquipment[4], {
+         "res/models/fpv_propeller/fpv_propeller.obj",
+         "res/models/fpv_propeller/fpv_atlas.png",
+         0.04f
+     }},
+     {baseEquipment[5], {
+         "res/models/fpv_controller/controller.obj",
+         "res/models/fpv_controller/controller_texture.png",
+         4.0f
+     }},
+     {baseEquipment[6], {
+         "res/models/fpv_goggles/fpv_goggles.obj",
+         "res/models/fpv_goggles/fpv_goggles_texture.png",
+         5.0f
+     }}
+    };
+
+    reloadCompModels();
+}
 void FPVDrone::consumeComponents() {
     struct Need { std::vector<int> idx; int count; };
     const std::vector<Need> needs = {
         {{0, 16}, 1},      // frame
-        {{1}, 1},          // camera
+        {{1,19,20}, 1},          // camera
         {{2, 8, 9}, 1},    // battery
-        {{3}, 4},          // motors
+        {{3,17,18}, 4},          // motors
         {{4, 10, 11}, 4},  // propellers
         {{12, 13}, 1}      // fc
     };

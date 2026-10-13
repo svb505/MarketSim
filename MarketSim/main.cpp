@@ -41,7 +41,6 @@ Camera cam;
 Building build;
 OBJModel base;
 Decorations decor;
-FPVDrone drone;
 Sound sound;
 Bot bot;
 
@@ -109,6 +108,7 @@ int main() {
     Logger::initLogger();
 
     GUI gui;
+    FPVDrone drone;
 
     CameraParams& params = cam.getCamParams();
 

@@ -156,10 +156,15 @@ public:
 			toggleSmall(lang[currLang]["NAMES"].get<std::string>().c_str(), showNames, true);
 		}
 
+		ImGui::BeginDisabled(!drone.getPlacedEquip().empty());
+
 		if (ImGui::Combo(lang[currLang]["SLCT_LANG"].get<std::string>().c_str(), &idxLang, langs.data(), langs.size())) {
 			currLang = langs[idxLang];
 			changePlayerConfig("CURR_LANG", currLang, "config.json");
+			drone.reInitListes();
 		}
+
+		ImGui::EndDisabled();
 
 		if (ImGui::CollapsingHeader(lang[currLang]["WIN_COMM"].get<std::string>().c_str())) {
 			auto equip = drone.getEquipPrice();
@@ -337,7 +342,6 @@ public:
 		ImGui::End();
 		popStyle();
 	}
-
 	void renderAll(FPS& fps, FPVDrone& drone, BuildingSettings& build) {
 		renderMainWindow(fps, drone, build);
 		renderPerformanceWindow(fps);
