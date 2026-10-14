@@ -11,6 +11,11 @@
 #include <algorithm>
 #include <iostream>
 
+/*
+if (ImGui::ImageButton("artillery", (ImTextureID)(intptr_t)allTextures["ARTILLERY"],
+			ImVec2(60, 60))) artWindow = true;
+			*/
+
 class GUI {
 private:
 	char bufNameAch[256]{};
@@ -93,6 +98,9 @@ private:
 		return pressed;
 	}
 
+	CompType type;
+	bool buyingWin = false;
+
 public:
 	GUI() {
 		for (int i = 0; i < langs.size(); i++) {
@@ -156,7 +164,7 @@ public:
 			toggleSmall(lang[currLang]["NAMES"].get<std::string>().c_str(), showNames, true);
 		}
 
-		ImGui::BeginDisabled(!drone.getPlacedEquip().empty());
+		ImGui::BeginDisabled(!drone.getPlacedEquip().empty() || canTakeObj);
 
 		if (ImGui::Combo(lang[currLang]["SLCT_LANG"].get<std::string>().c_str(), &idxLang, langs.data(), langs.size())) {
 			currLang = langs[idxLang];
@@ -167,6 +175,47 @@ public:
 		ImGui::EndDisabled();
 
 		if (ImGui::CollapsingHeader(lang[currLang]["WIN_COMM"].get<std::string>().c_str())) {
+			if (ImGui::Button("TYPE1")) {
+				buyingWin = true;
+				type = CompType::TYPE1;
+			}
+			if (ImGui::Button("TYPE2")) {
+				buyingWin = true;
+				type = CompType::TYPE2;
+			}
+			if (ImGui::Button("TYPE3")) {
+				buyingWin = true;
+				type = CompType::TYPE3;
+			}
+		}
+
+		sectionTitle(lang[currLang]["ASSEMBLE"].get<std::string>().c_str());
+
+		componentText((lang[currLang]["FRAME"].get<std::string>()).c_str(),
+			comp.frame,1);
+		componentText((lang[currLang]["CAM"].get<std::string>()).c_str(), comp.camera, 1);
+		componentText((lang[currLang]["BAT"].get<std::string>()).c_str(), comp.battery, 1);
+		componentText((lang[currLang]["MOTOR"].get<std::string>()).c_str(), comp.motor, 4);
+		componentText((lang[currLang]["PROPELLER"].get<std::string>()).c_str(), comp.propeller, 4);
+		componentText((lang[currLang]["FC"].get<std::string>()).c_str(),comp.fc, 1);
+
+		ImGui::Dummy({ 0.0f, 10.0f });
+		ImGui::Text("©Developped by SVB & Red.Fpv");
+
+		ImGui::End();
+
+		popStyle();
+	}
+
+	void renderBuyingWindow(FPVDrone& drone, BuildingSettings& build, const float& spacing) {
+		if (!buyingWin) return;
+		
+		pushStyle();
+		
+		ImGui::SetNextWindowPos(ImVec2(100.0f, 10.0f), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(ImVec2(350.0f, 650.0f), ImGuiCond_FirstUseEver);
+
+		if (ImGui::Begin(lang[currLang]["WIN_COMM"].get<std::string>().c_str(), &buyingWin)) {
 			auto equip = drone.getEquipPrice();
 
 			ImGui::Spacing();
@@ -189,31 +238,31 @@ public:
 			const float btnWidth = (ImGui::GetContentRegionAvail().x - spacing) * 0.5f;
 
 			for (const auto& [key, value] : equip) {
+				const auto& typeComponents = drone.getEquipTypes()[type];
+
+				if (std::ranges::find(typeComponents, key) == typeComponents.end()) continue;
+
 				ImGui::PushID(key.c_str());
 
-				//Name - Price
-				if (std::ranges::find(card, key) != card.end()) {
-					ImGui::TextColored(colGreen, "%s - %.1f$", key.c_str(), value);
-				}
+				if (std::ranges::find(card, key) != card.end()) ImGui::TextColored(colGreen, "%s - %.1f$", key.c_str(), value);
 				else ImGui::Text("%s - %.1f$", key.c_str(), value);
 
-				if (colorButton(std::format("{}## {}",lang[currLang]["ADD_TO_CARD"].get<std::string>(),key).c_str(), ImVec4(0.10f, 0.60f, 0.25f, 1.0f), ImVec2(btnWidth, 0.0f)))
+				if (colorButton(
+					std::format("{}##{}", lang[currLang]["ADD_TO_CARD"].get<std::string>(), key).c_str(),
+					ImVec4(0.10f, 0.60f, 0.25f, 1.0f), ImVec2(btnWidth, 0.0f))) {
 					card.push_back(key);
+				}
 
 				ImGui::SameLine();
 
-				if (colorButton(std::format("{}## {}", lang[currLang]["DELETE_FROM_CARD"].get<std::string>(), key).c_str(), ImVec4(0.75f, 0.15f, 0.15f, 1.0f), ImVec2(btnWidth, 0.0f)))
-					card.erase(
-						std::remove(card.begin(), card.end(), key),
-						card.end()
-					);
+				if (colorButton(std::format("{}##{}", lang[currLang]["DELETE_FROM_CARD"].get<std::string>(),
+					key).c_str(), ImVec4(0.75f, 0.15f, 0.15f, 1.0f), ImVec2(btnWidth, 0.0f))) {
+					card.erase(std::remove(card.begin(), card.end(), key), card.end());
+				}
 
 				ImGui::PopID();
 				ImGui::Spacing();
 			}
-
-			ImGui::Separator();
-			ImGui::Spacing();
 
 			if (colorButton(lang[currLang]["BUY_ALL"].get<std::string>().c_str(), ImVec4(0.15f, 0.45f, 0.85f, 1.0f), ImVec2(-FLT_MIN, 32.0f))) {
 				float totalPrice = 0.0f;
@@ -232,25 +281,9 @@ public:
 			}
 			ImGui::Spacing();
 		}
-
-		sectionTitle(lang[currLang]["ASSEMBLE"].get<std::string>().c_str());
-
-		componentText((lang[currLang]["FRAME"].get<std::string>()).c_str(),
-			comp.frame,1);
-		componentText((lang[currLang]["CAM"].get<std::string>()).c_str(), comp.camera, 1);
-		componentText((lang[currLang]["BAT"].get<std::string>()).c_str(), comp.battery, 1);
-		componentText((lang[currLang]["MOTOR"].get<std::string>()).c_str(), comp.motor, 4);
-		componentText((lang[currLang]["PROPELLER"].get<std::string>()).c_str(), comp.propeller, 4);
-		componentText((lang[currLang]["FC"].get<std::string>()).c_str(),comp.fc, 1);
-
-		ImGui::Dummy({ 0.0f, 10.0f });
-		ImGui::Text("©Developped by SVB & Red.Fpv");
-
 		ImGui::End();
-
 		popStyle();
 	}
-
 	void renderPerformanceWindow(FPS& fps) {
 		if (!showPerformance) return;
 
@@ -347,5 +380,9 @@ public:
 		renderPerformanceWindow(fps);
 		renderPricesWindow();
 		renderNamesWindow();
+
+		const float spacing = ImGui::GetStyle().ItemSpacing.x;
+
+		renderBuyingWindow(drone, build, spacing);
 	}
 };

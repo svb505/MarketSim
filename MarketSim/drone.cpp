@@ -13,6 +13,9 @@
 #include <memory>
 #include <utility>
 
+std::map<CompType, std::vector<std::string>>& FPVDrone::getEquipTypes() {
+    return equipTypes;
+}
 void FPVDrone::reloadCompModels() {
     allCompModels.clear();
 
@@ -152,6 +155,21 @@ void FPVDrone::reInitListes() {
          5.0f
      }}
     };
+
+    equipTypes = { {CompType::TYPE1,
+        {lang[currLang]["FRAME1"].get<std::string>(),
+        lang[currLang]["CAM1"].get<std::string>(),
+        lang[currLang]["BAT450"].get<std::string>(), lang[currLang]["MTR1"].get<std::string>(),
+        lang[currLang]["PROP1"].get<std::string>(),lang[currLang]["CNTRL1"].get<std::string>(),
+        lang[currLang]["GGLS1"].get<std::string>(),lang[currLang]["FC1"].get<std::string>()}},
+        { CompType::TYPE2,{lang[currLang]["BAT550"].get<std::string>(),lang[currLang]["PROP2"].get<std::string>(),
+        lang[currLang]["FC2"].get<std::string>(),lang[currLang]["CNTRL2"].get<std::string>(),
+        lang[currLang]["GGLS2"].get<std::string>(),lang[currLang]["FRAME2"].get<std::string>(),
+        lang[currLang]["MTR2"].get<std::string>(),lang[currLang]["CAM2"].get<std::string>()}},
+        { CompType::TYPE3,{lang[currLang]["BAT500"].get<std::string>(),
+         lang[currLang]["PROP3"].get<std::string>(),lang[currLang]["MTR3"].get<std::string>(),
+        lang[currLang]["CAM3"].get<std::string>()}
+    } };
 
     reloadCompModels();
 }

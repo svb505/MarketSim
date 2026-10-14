@@ -39,6 +39,12 @@ struct ModelPaths {
     float scale;
 };
 
+enum class CompType{
+    TYPE1,
+    TYPE2,
+    TYPE3
+};
+
 class FPVDrone {
 private:
     Components comp;
@@ -171,7 +177,21 @@ private:
          5.0f
      }}
     };
-
+    std::map<CompType, std::vector<std::string>> equipTypes = { {CompType::TYPE1,
+        {lang[currLang]["FRAME1"].get<std::string>(),
+        lang[currLang]["CAM1"].get<std::string>(),
+        lang[currLang]["BAT450"].get<std::string>(), lang[currLang]["MTR1"].get<std::string>(),
+        lang[currLang]["PROP1"].get<std::string>(),lang[currLang]["CNTRL1"].get<std::string>(),
+        lang[currLang]["GGLS1"].get<std::string>(),lang[currLang]["FC1"].get<std::string>()}},
+        { CompType::TYPE2,{lang[currLang]["BAT550"].get<std::string>(),lang[currLang]["PROP2"].get<std::string>(),
+        lang[currLang]["FC2"].get<std::string>(),lang[currLang]["CNTRL2"].get<std::string>(),
+        lang[currLang]["GGLS2"].get<std::string>(),lang[currLang]["FRAME2"].get<std::string>(),
+        lang[currLang]["MTR2"].get<std::string>(),lang[currLang]["CAM2"].get<std::string>()}},
+        { CompType::TYPE3,{lang[currLang]["BAT500"].get<std::string>(),
+         lang[currLang]["PROP3"].get<std::string>(),lang[currLang]["MTR3"].get<std::string>(),
+        lang[currLang]["CAM3"].get<std::string>()}
+    } };
+    
 
     std::vector<Package> boxesWithEquip = {};
     std::vector<PlacedObject> placedObjects;
@@ -196,6 +216,7 @@ public:
     bool isPlaced(const std::string& name) const;
     std::vector<svbmath::Vec3> generateShelfPoints(const Shelf& shelf);
     std::vector<ShelfSetting>& getShelfPositions();
+    std::map<CompType, std::vector<std::string>>& getEquipTypes();
 
     void reInitListes();
     void drawAvaibleShelfPos();
