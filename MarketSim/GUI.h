@@ -244,6 +244,9 @@ public:
 
 				ImGui::PushID(key.c_str());
 
+				ImGui::ImageButton(key.c_str(), (ImTextureID)(intptr_t)drone.returnCompPreview(key),
+					ImVec2(60, 60));
+
 				if (std::ranges::find(card, key) != card.end()) ImGui::TextColored(colGreen, "%s - %.1f$", key.c_str(), value);
 				else ImGui::Text("%s - %.1f$", key.c_str(), value);
 

@@ -207,6 +207,7 @@ public:
     void consumeComponents();
     void reloadCompModels();
 
+    GLuint returnCompPreview(const std::string& key);
     Components& getComp();
     bool getShowText();
     std::vector<Package>& getOrderEquip();

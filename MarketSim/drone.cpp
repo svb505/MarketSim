@@ -12,7 +12,58 @@
 #include "text.h"
 #include <memory>
 #include <utility>
+#include "logger.h"
 
+GLuint FPVDrone::returnCompPreview(const std::string& key) {
+    static const std::unordered_map<std::string, std::string> compTextures = {
+        {"FRAME1", "FRM1"},
+        {"FRAME2", "FRM2"},
+        {"CAM1", "CAM1"},
+        {"CAM2", "CAM2"},
+        {"CAM3", "CAM3"},
+        {"BAT450", "BAT1"},
+        {"BAT550", "BAT2"},
+        {"BAT500", "BAT3"},
+        {"MTR1", "MOT1"},
+        {"MTR2", "MOT2"},
+        {"MTR3", "MOT3"},
+        {"PROP1", "PRP1"},
+        {"PROP2", "PRP2"},
+        {"PROP3", "PRP3"},
+        {"CNTRL1", "CTRL1"},
+        {"CNTRL2", "CTRL2"},
+        {"GGLS1", "GGLS1"},
+        {"GGLS2", "GGLS2"},
+        {"FC1", "FC1"},
+        {"FC2", "FC2"}
+    };
+
+    std::string componentKey;
+
+    for (auto it = lang[currLang].begin(); it != lang[currLang].end(); ++it) {
+        if (it.value().is_string() &&
+            it.value().get<std::string>() == key) {
+            componentKey = it.key();
+            break;
+        }
+    }
+
+    if (componentKey.empty()) componentKey = key;
+
+    auto it = compTextures.find(componentKey);
+    if (it == compTextures.end()) {
+        LOG_ERROR(std::format("Preview not found for component: {}", key));
+        return 0;
+    }
+
+    auto textureIt = texturesNamesAndPaths.find(it->second);
+    if (textureIt == texturesNamesAndPaths.end()) {
+        LOG_ERROR(std::format("Texture path not found: {}", it->second));
+        return 0;
+    }
+
+    return LoadTexture(textureIt->second.c_str());
+}
 std::map<CompType, std::vector<std::string>>& FPVDrone::getEquipTypes() {
     return equipTypes;
 }
