@@ -10,6 +10,10 @@
 #include "logger.h"
 #include "sound.h"
 
+void Bot::init() {
+    model.LoadOBJ("res/models/human/man.obj", 1.0f);
+    model.CreateVBO();
+}
 float Bot::calculateRating(const std::vector<PurchasedItem>& items) {
     if (items.empty()) return 5.0f;
 
@@ -205,6 +209,7 @@ void Bot::moveTo( const svbmath::Vec3& target,float dt,  Building& building){
     direction.x /= distance;
     direction.z /= distance;
 
+    yaw = atan2(direction.x, direction.z) * (180.0f / 3.14159265f);
 
     float moveDistance = speed * dt;
 
@@ -431,58 +436,5 @@ void Bot::update(float dt,FPVDrone& drone,Building& building,Sound& sound){
 void Bot::draw(){
     if (!active || !isOpen) return;
 
-    glPushMatrix();
-
-    glTranslatef( position.x, position.y + 0.8f,position.z);
-
-    glColor3f(0.2f,0.4f,0.8f);
-
-    glBegin(GL_QUADS);
-
-
-    // FRONT
-    glVertex3f( -0.3f,-0.8f,0.2f);
-    glVertex3f( 0.3f, -0.8f, 0.2f );
-    glVertex3f( 0.3f,0.8f, 0.2f);
-    glVertex3f( -0.3f, 0.8f,0.2f);
-
-    // BACK
-    glVertex3f( 0.3f,  -0.8f, -0.2f);
-    glVertex3f(-0.3f,-0.8f, -0.2f);
-    glVertex3f(-0.3f, 0.8f, -0.2f);
-    glVertex3f(0.3f, 0.8f,-0.2f );
-
-    // LEFT
-    glVertex3f( -0.3f,-0.8f,-0.2f);
-    glVertex3f( -0.3f, -0.8f, 0.2f);
-    glVertex3f(-0.3f,0.8f, 0.2f);
-    glVertex3f(-0.3f, 0.8f, -0.2f);
-
-
-    // RIGHT
-    glVertex3f(0.3f,-0.8f,0.2f);
-    glVertex3f(0.3f,-0.8f, -0.2f);
-    glVertex3f( 0.3f,0.8f,-0.2f);
-    glVertex3f( 0.3f, 0.8f, 0.2f);
-
-
-    // TOP
-
-    glVertex3f( -0.3f, 0.8f,0.2f);
-    glVertex3f(0.3f, 0.8f,0.2f);
-    glVertex3f(0.3f, 0.8f, -0.2f);
-    glVertex3f( -0.3f,0.8f,-0.2f);
-
-    // BOTTOM
-
-    glVertex3f( -0.3f, -0.8f, -0.2f);
-    glVertex3f(0.3f, -0.8f,-0.2f);
-    glVertex3f( 0.3f,-0.8f, 0.2f);
-    glVertex3f( -0.3f,-0.8f, 0.2f );
-
-
-    glEnd();
-
-
-    glPopMatrix();
+    model.Draw(position,yaw,0.0f);
 }

@@ -196,6 +196,8 @@ int main() {
     drone.init();
     drone.initCoordinatesForShelves(build);
 
+    bot.init();
+
     for (auto& p : getDataForPlayer().players) ratings.push_back(p.rating);
 
     while (!glfwWindowShouldClose(window)) {

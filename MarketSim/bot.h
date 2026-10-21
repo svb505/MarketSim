@@ -4,6 +4,7 @@
 #include "drone.h"
 #include "building.h"
 #include "sound.h"
+#include "model.h"
 
 enum class BotState {
     GoingToShelf,
@@ -27,13 +28,15 @@ private:
 
     BotState state = BotState::GoingToShelf;
 
+    OBJModel model;
+    
+    float yaw = 0.0f;
     float speed = 3.5f;
 
     bool carryingDrone = false;
 
     bool active = false;
 
-private:
     bool findDrone(FPVDrone& drone);
     bool takeDrone(FPVDrone& drone);
 
@@ -42,6 +45,7 @@ private:
         Building& building);
 
 public:
+    void init();
 
     bool checkCollision(const svbmath::Vec3& newPos, Building& building);
     void update(float dt, FPVDrone& drone, Building& building, Sound& sound);

@@ -141,7 +141,7 @@ public:
 	void renderBalanceRatingWindow() {
 		pushStyle();
 
-		ImGui::SetNextWindowPos(ImVec2(-850.0f, 5.0f), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowPos(ImVec2(800.0f, 5.0f), ImGuiCond_FirstUseEver);
 		ImGui::SetNextWindowSize(ImVec2(150.0f, 100.0f), ImGuiCond_FirstUseEver);
 		if (ImGui::Begin("INFO")) {
 			ImVec4 color;
