@@ -364,11 +364,12 @@ void Bot::update(float dt,FPVDrone& drone,Building& building){
             else if (droneModel == drone.getBaseEquip()[14]) price = priceForController2;
             else if (droneModel == drone.getBaseEquip()[15]) price = priceForGoggles2;
 
+            float probability = svbmath::randFloat(0.0f, 1.0f);
 
-            myBalance += price;
+            if (probability >= 0.05) myBalance += price;
 
 
-            saveDataForPlayer(price,"+");
+            saveDataForPlayer(price,rating,"+");
 
 
             LOG_INFO(std::format("SOLD: {} for {}", droneModel, price));

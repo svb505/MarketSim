@@ -196,6 +196,8 @@ int main() {
     drone.init();
     drone.initCoordinatesForShelves(build);
 
+    for (auto& p : getDataForPlayer().players) rating = p.rating;
+
     while (!glfwWindowShouldClose(window)) {
         updateCursorMode(window);
 

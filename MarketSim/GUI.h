@@ -273,7 +273,7 @@ public:
 				for (auto& element : card) totalPrice += equip[element];
 
 				if (myBalance >= totalPrice) {
-					saveDataForPlayer(totalPrice, "-");
+					saveDataForPlayer(totalPrice,rating, "-");
 
 					for (auto& p : getDataForPlayer().players) myBalance = p.balance;
 

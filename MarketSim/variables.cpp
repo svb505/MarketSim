@@ -22,3 +22,4 @@ float priceForGoggles2 = 0.0f;
 bool isOpen = false;
 std::string currLang = "FR";
 json lang;
+float rating = 0.0f;

@@ -29,3 +29,4 @@ extern float priceForGoggles2;
 extern bool isOpen;
 extern std::string currLang;
 extern json lang;
+extern float rating;
