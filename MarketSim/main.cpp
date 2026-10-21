@@ -128,7 +128,7 @@ int main() {
     }
 
     glfwWindowHint(GLFW_SAMPLES, 16);
-    GLFWwindow* window = glfwCreateWindow(ECRAN_W, ECRAN_H, "FPV Market - V1.1.2", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(ECRAN_W, ECRAN_H, "FPV Market - V1.1.6", NULL, NULL);
     
     if (!window) {
         LOG_ERROR("Failed to create window");
@@ -196,7 +196,7 @@ int main() {
     drone.init();
     drone.initCoordinatesForShelves(build);
 
-    for (auto& p : getDataForPlayer().players) rating = p.rating;
+    for (auto& p : getDataForPlayer().players) ratings.push_back(p.rating);
 
     while (!glfwWindowShouldClose(window)) {
         updateCursorMode(window);

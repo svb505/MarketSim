@@ -9,6 +9,28 @@
 #include <format>
 #include "logger.h"
 
+float Bot::calculateRating(const std::vector<PurchasedItem>& items) {
+    if (items.empty()) return 5.0f;
+
+    float totalMarkup = 0.0f;
+
+    for (const auto& item : items) {
+        if (item.basePrice <= 0.0f) continue;
+
+        float markup =  (item.sellPrice - item.basePrice) / item.basePrice;
+
+        // Учитываем только наценку
+        totalMarkup += std::max(0.0f, markup);
+    }
+
+    float averageMarkup = totalMarkup / items.size();
+
+    constexpr float K = 2.0f;
+
+    float rating = 5.0f - averageMarkup * K;
+
+    return std::clamp(rating, 0.0f, 5.0f);
+}
 static bool CircleIntersectsAABB(const svbmath::Vec3& pos,float radius,float minX,float maxX,float minZ,float maxZ){
     float closestX =
         std::max(minX, std::min(pos.x, maxX));
@@ -368,13 +390,23 @@ void Bot::update(float dt,FPVDrone& drone,Building& building){
 
             if (probability >= 0.05) myBalance += price;
 
+            float basePrice = drone.getEquipPrice().at(droneModel);
+
+            std::vector<PurchasedItem> basket = {{basePrice, price}};
+
+            ratings.push_back(calculateRating(basket));
+
+            float rating = 0.0f;
+
+            for (float r : ratings) rating += r;
+
+            rating /= ratings.size();
 
             saveDataForPlayer(price,rating,"+");
 
-
             LOG_INFO(std::format("SOLD: {} for {}", droneModel, price));
             LOG_INFO(std::format("Balance: {}", myBalance));
-
+            LOG_INFO(std::format("Rating: {}", rating));
 
             state = BotState::Leaving;
         }

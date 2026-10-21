@@ -55,7 +55,8 @@
         "PROP2":"Hélice Type 2",
         "PROP3":"Hélice Type 3",
          "FC1":"FC1",
-        "FC2":"FC2"
+        "FC2":"FC2",
+        "RATING":"Notation"
 
     },
     "EN":{
@@ -114,7 +115,8 @@
         "PROP2":"Propeller Type 2",
         "PROP3":"Propeller Type 3",
          "FC1":"FC1",
-        "FC2":"FC2"
+        "FC2":"FC2",
+        "RATING":"Rating"
     },
     "RU":{
         "MAIN_WIN":"Главное окно",
@@ -172,6 +174,7 @@
         "PROP2":"Пропеллер тип 2",
         "PROP3":"Пропеллер тип 3",
          "FC1":"Контроллер Полета",
-        "FC2":"Контроллер Полета2"
+        "FC2":"Контроллер Полета2",
+        "RATING":"Рейтинг"
     }
 }

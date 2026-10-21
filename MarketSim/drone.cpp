@@ -208,7 +208,7 @@ void FPVDrone::reInitListes() {
     };
 
     equipTypes = { {CompType::TYPE1,
-        {lang[currLang]["FRAME1"].get<std::string>(),
+        {name,lang[currLang]["FRAME1"].get<std::string>(),
         lang[currLang]["CAM1"].get<std::string>(),
         lang[currLang]["BAT450"].get<std::string>(), lang[currLang]["MTR1"].get<std::string>(),
         lang[currLang]["PROP1"].get<std::string>(),lang[currLang]["CNTRL1"].get<std::string>(),

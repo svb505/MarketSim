@@ -10,6 +10,11 @@ enum class BotState {
     Leaving
 };
 
+struct PurchasedItem {
+    float basePrice;
+    float sellPrice;
+};
+
 class Bot {
 private:
     svbmath::Vec3 position;
@@ -44,5 +49,6 @@ public:
 
     bool isActive() const;
 
+    float calculateRating(const std::vector<PurchasedItem>& items);
     void spawn(FPVDrone& drone, Building& building);
 };

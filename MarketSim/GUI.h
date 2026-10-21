@@ -138,6 +138,38 @@ public:
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init("#version 330");
 	}
+	void renderBalanceRatingWindow() {
+		pushStyle();
+
+		ImGui::SetNextWindowPos(ImVec2(-850.0f, 5.0f), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(ImVec2(150.0f, 100.0f), ImGuiCond_FirstUseEver);
+		if (ImGui::Begin("INFO")) {
+			ImVec4 color;
+			float rating = 0.0f;
+
+			if (!ratings.empty()) {
+				for (float r : ratings) rating += r;
+
+				rating /= static_cast<float>(ratings.size());
+			}
+
+			if (rating > 4.0) color = colGreen;
+			else if (rating > 3.0f && rating < 4.0f) color = colYellow;
+			else color = colRed;
+
+			ImGui::Spacing();
+			ImGui::Text(lang[currLang]["CHECK"].get<std::string>().c_str());
+			ImGui::SameLine();
+			ImGui::TextColored(colYellow, "%.1f $", myBalance);
+			ImGui::Spacing();
+			ImGui::Text(lang[currLang]["RATING"].get<std::string>().c_str());
+			ImGui::SameLine();
+			ImGui::TextColored(color, "%.1f", rating);
+		}
+
+		ImGui::End();
+		popStyle();
+	}
 	void renderMainWindow(FPS& fps, FPVDrone& drone, BuildingSettings& build) {
 		auto comp = drone.getComp();
 
@@ -206,7 +238,6 @@ public:
 
 		popStyle();
 	}
-
 	void renderBuyingWindow(FPVDrone& drone, BuildingSettings& build, const float& spacing) {
 		if (!buyingWin) return;
 		
@@ -217,11 +248,6 @@ public:
 
 		if (ImGui::Begin(lang[currLang]["WIN_COMM"].get<std::string>().c_str(), &buyingWin)) {
 			auto equip = drone.getEquipPrice();
-
-			ImGui::Spacing();
-			ImGui::Text(lang[currLang]["CHECK"].get<std::string>().c_str());
-			ImGui::SameLine();
-			ImGui::TextColored(colYellow, "%.1f", myBalance);
 
 			ImGui::Text(lang[currLang]["PROD_IN_CARD"].get<std::string>().c_str());
 			ImGui::SameLine();
@@ -273,6 +299,16 @@ public:
 				for (auto& element : card) totalPrice += equip[element];
 
 				if (myBalance >= totalPrice) {
+					float rating = 0.0f;
+
+					for (float r : ratings) rating += r;
+
+					if (!ratings.empty()) {
+						for (float r : ratings) rating += r;
+
+						rating /= static_cast<float>(ratings.size());
+					}
+
 					saveDataForPlayer(totalPrice,rating, "-");
 
 					for (auto& p : getDataForPlayer().players) myBalance = p.balance;
@@ -383,6 +419,7 @@ public:
 		renderPerformanceWindow(fps);
 		renderPricesWindow();
 		renderNamesWindow();
+		renderBalanceRatingWindow();
 
 		const float spacing = ImGui::GetStyle().ItemSpacing.x;
 
