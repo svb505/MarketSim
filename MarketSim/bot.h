@@ -3,6 +3,7 @@
 #include "camera.h"
 #include "drone.h"
 #include "building.h"
+#include "sound.h"
 
 enum class BotState {
     GoingToShelf,
@@ -43,7 +44,7 @@ private:
 public:
 
     bool checkCollision(const svbmath::Vec3& newPos, Building& building);
-    void update(float dt, FPVDrone& drone, Building& building);
+    void update(float dt, FPVDrone& drone, Building& building, Sound& sound);
 
     void draw();
 

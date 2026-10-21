@@ -8,6 +8,7 @@
 #include "renders.h"
 #include <format>
 #include "logger.h"
+#include "sound.h"
 
 float Bot::calculateRating(const std::vector<PurchasedItem>& items) {
     if (items.empty()) return 5.0f;
@@ -351,7 +352,7 @@ bool Bot::takeDrone( FPVDrone& drone){
 
     return false;
 }
-void Bot::update(float dt,FPVDrone& drone,Building& building){
+void Bot::update(float dt,FPVDrone& drone,Building& building,Sound& sound){
     if (!active || !isOpen) return;
 
 
@@ -403,6 +404,9 @@ void Bot::update(float dt,FPVDrone& drone,Building& building){
             rating /= ratings.size();
 
             saveDataForPlayer(price,rating,"+");
+
+            auto& src = sound.sources["Purchase"];
+            sound.playSound(src,building.getCashRegister().position);
 
             LOG_INFO(std::format("SOLD: {} for {}", droneModel, price));
             LOG_INFO(std::format("Balance: {}", myBalance));

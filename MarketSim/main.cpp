@@ -129,7 +129,7 @@ int main() {
 
     glfwWindowHint(GLFW_SAMPLES, 16);
     GLFWwindow* window = glfwCreateWindow(ECRAN_W, ECRAN_H, "FPV Market - V1.1.6", NULL, NULL);
-    
+
     if (!window) {
         LOG_ERROR("Failed to create window");
         glfwTerminate();
@@ -146,7 +146,7 @@ int main() {
     glfwSetWindowUserPointer(window, &cam);
     glfwMakeContextCurrent(window);
 
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)){
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         LOG_ERROR("Failed to initialize GLAD");
 
         glfwDestroyWindow(window);
@@ -179,12 +179,12 @@ int main() {
 
     build.CreateBuilding();
 
-    decor.initDecoration("res/models/builds/rue_2_cotes_complete.obj", DecType::STREET,"");
+    decor.initDecoration("res/models/builds/rue_2_cotes_complete.obj", DecType::STREET, "");
     decor.initDecoration("res/models/trees/tree.obj", DecType::TREE,
         "res/models/trees/tex.jpg");
     decor.initDecoration("res/models/streetlamp/streetlamp.obj", DecType::LAMP,
         "res/models/streetlamp/texture.png");
-    
+
     decor.initPositions();
 
     glfwSetCursorPosCallback(window, mouse_callback);
@@ -205,13 +205,11 @@ int main() {
 
         countFps(fpsVars, lastTime, currentTime);
 
-        if (!bot.isActive()) {
-            bot.spawn(drone, build);
-        }
+        if (!bot.isActive()) bot.spawn(drone, build);
 
-        bot.update(fpsVars.deltaTime, drone, build);
+        bot.update(fpsVars.deltaTime, drone, build, sound);
 
-        processInput(window, cam, drone,fpsVars.deltaTime, point, sound);
+        processInput(window, cam, drone, fpsVars.deltaTime, point, sound);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -227,7 +225,7 @@ int main() {
 
         drawSky();
         drawGround();
-        drawRoad(0.01,-130.0f,12.0f,22);
+        drawRoad(0.01, -130.0f, 12.0f, 22);
 
         glEnable(GL_POLYGON_OFFSET_FILL);
         glPolygonOffset(-2.0f, -2.0f);
@@ -251,7 +249,7 @@ int main() {
         if (canDrawEquipModel && !objName.empty()) {
             svbmath::Vec3 lookPoint;
 
-            if (getCashRegisterLookPoint(cam.getCamPos(), cam.getCamForward(),build.getCashRegister(),lookPoint)){                
+            if (getCashRegisterLookPoint(cam.getCamPos(), cam.getCamForward(), build.getCashRegister(), lookPoint)) {
                 float size = 64.0f;
                 float x = ECRAN_W / 2.0f;
                 float y = ECRAN_H / 2.0f;
@@ -259,13 +257,13 @@ int main() {
                 render2DIcon("HAND", { x, y }, size);
 
                 RenderTextHUD(x - 30.0f, y - 30.0f, 1.0f, 1.0f, 1.0f, "E", ECRAN_W, ECRAN_H);
-                
+
                 point = lookPoint;
-                placeObj = true;   
+                placeObj = true;
             }
         }
-        
-       
+
+
         drone.checkBoxesIntersection(cam);
         drone.checkIfCanCreateDrone(cam, build.getCashRegister());
 
@@ -275,12 +273,12 @@ int main() {
         if (decor.checkCollision(cam, DecType::STREET)) cam.getCamPos() = cam.getOldCamPos();
         if (decor.checkCollision(cam, DecType::TREE)) cam.getCamPos() = cam.getOldCamPos();
         if (decor.checkCollision(cam, DecType::LAMP)) cam.getCamPos() = cam.getOldCamPos();
-       
+
         if (drone.getShowText()) {
             RenderTextHUD(ECRAN_W / 2, ECRAN_H / 2, 1.0f, 0.0f, 0.0f,
                 "Your package has arrived", ECRAN_W, ECRAN_H);
         }
-        
+
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
         glfwPollEvents();
