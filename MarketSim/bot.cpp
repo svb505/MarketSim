@@ -394,7 +394,16 @@ void Bot::update(float dt,FPVDrone& drone,Building& building,Sound& sound){
 
             float probability = svbmath::randFloat(0.0f, 1.0f);
 
-            if (probability >= 0.05) myBalance += price;
+            float rating = 0.0f;
+
+            for (float r : ratings) rating += r;
+
+            rating /= ratings.size();
+
+            if (probability >= 0.05) { 
+                myBalance += price; 
+                saveDataForPlayer(price, rating, "+");
+            }
 
             float basePrice = (droneModel != getStringFromJson("DRONE_Assemblee")) ? 
                 drone.getEquipPrice().at(droneModel) : 0.0f;
@@ -402,14 +411,6 @@ void Bot::update(float dt,FPVDrone& drone,Building& building,Sound& sound){
             std::vector<PurchasedItem> basket = {{basePrice, price}};
 
             ratings.push_back(calculateRating(basket));
-
-            float rating = 0.0f;
-
-            for (float r : ratings) rating += r;
-
-            rating /= ratings.size();
-
-            saveDataForPlayer(price,rating,"+");
 
             auto& src = sound.sources["Purchase"];
             sound.playSound(src,building.getCashRegister().position);
