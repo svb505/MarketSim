@@ -396,7 +396,8 @@ void Bot::update(float dt,FPVDrone& drone,Building& building,Sound& sound){
 
             if (probability >= 0.05) myBalance += price;
 
-            float basePrice = drone.getEquipPrice().at(droneModel);
+            float basePrice = (droneModel != getStringFromJson("DRONE_Assemblee")) ? 
+                drone.getEquipPrice().at(droneModel) : 0.0f;
 
             std::vector<PurchasedItem> basket = {{basePrice, price}};
 
