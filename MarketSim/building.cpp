@@ -354,7 +354,7 @@ void Building::CreateBuilding() {
 
     Shelf shelf2;
 
-    shelf2.position = { 4.8f,1.0f,-0.8f };
+    shelf2.position = { 4.8f,1.0f, 1.0f };
 
     shelf2.width = 0.7f;
     shelf2.height = 1.2f;
