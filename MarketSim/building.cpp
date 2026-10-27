@@ -7,6 +7,11 @@
 #include "bounds.h"
 #include "building.h"
 
+bool Building::isInsideBuilding(svbmath::Vec3 pos){
+    return pos.x >= build.min.x && pos.x <= build.max.x &&
+        pos.y >= build.min.y && pos.y <= build.max.y &&
+        pos.z >= build.min.z && pos.z <= build.max.z;
+}
 void Building::DrawWallOpeningThickness( svbmath::Vec3 wallStart,svbmath::Vec3 wallEnd, float height,
     float openingStart,float openingEnd,float thickness, bool horizontal, GLuint texture){
     float length = horizontal

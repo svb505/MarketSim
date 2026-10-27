@@ -247,6 +247,12 @@ int main() {
         build.DrawBuilding();
         if (build.checkCollision(cam)) cam.getCamPos() = cam.getOldCamPos();
 
+        if (build.isInsideBuilding(cam.getCamPos())) setLighting(indoorLight);
+        else {
+            if (heure > 4 && heure < 20) setLighting(outdoorDayLight);
+            else setLighting(outdoorNightLight);
+        }
+
         placeObj = false;
 
         if (canDrawEquipModel && !objName.empty()) {

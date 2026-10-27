@@ -139,7 +139,8 @@ public:
 
 		ImGui::SetNextWindowPos(ImVec2(800.0f, 5.0f), ImGuiCond_FirstUseEver);
 		ImGui::SetNextWindowSize(ImVec2(150.0f, 100.0f), ImGuiCond_FirstUseEver);
-		if (ImGui::Begin("INFO")) {
+		if (ImGui::Begin("INFO",nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
+			ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse)) {
 			ImVec4 color;
 			float rating = 0.0f;
 
