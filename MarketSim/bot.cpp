@@ -412,6 +412,8 @@ void Bot::update(float dt,FPVDrone& drone,Building& building,Sound& sound){
 
             ratings.push_back(calculateRating(basket));
 
+            sallesForDay++;
+
             auto& src = sound.sources["Purchase"];
             sound.playSound(src,building.getCashRegister().position);
 

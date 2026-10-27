@@ -57,7 +57,12 @@
          "FC1":"FC1",
         "FC2":"FC2",
         "RATING":"Notation",
-         "DAY":"Jour"
+         "DAY":"Jour",
+         "SALES_FOR_DAY":"Ventes par jour",
+         "COST_PRICE":"Prix de revient",
+         "SELL_PRICE":"Prix de vente",
+          "MARKUP":"Marge",
+           "BEST_PRICE":"Meilleur prix"
 
     },
     "EN":{
@@ -118,7 +123,12 @@
          "FC1":"FC1",
         "FC2":"FC2",
         "RATING":"Rating",
-        "DAY":"Day"
+        "DAY":"Day",
+        "SALES_FOR_DAY":"Sales for day",
+        "COST_PRICE":"Cost price",
+         "SELL_PRICE":"Sell price",
+          "MARKUP":"Markup",
+           "BEST_PRICE":"Best price"
     },
     "RU":{
         "MAIN_WIN":"Главное окно",
@@ -178,6 +188,11 @@
          "FC1":"Контроллер Полета",
         "FC2":"Контроллер Полета2",
         "RATING":"Рейтинг",
-        "DAY":"День"
+        "DAY":"День",
+        "SALES_FOR_DAY":"Продаж за день",
+        "COST_PRICE":"Цена покупки",
+         "SELL_PRICE":"Цена продажи",
+          "MARKUP":"Наценка",
+           "BEST_PRICE":"Лучшая цена"
     }
 }

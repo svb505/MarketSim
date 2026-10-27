@@ -14,6 +14,8 @@
 
 class GUI {
 private:
+	static constexpr float kBestMarkup = 0.30f;
+
 	char bufNameAch[256]{};
 	char bufNameAs[256]{};
 
@@ -35,6 +37,11 @@ private:
 	const ImVec4 colAccent = ImVec4(0.40f, 0.70f, 1.00f, 1.0f);
 	const ImVec4 colDim = ImVec4(0.60f, 0.60f, 0.65f, 1.0f);
 
+	static float getCost(const std::string& key,FPVDrone& drone) {
+		const auto& prices = drone.getEquipPrice();
+		auto it = prices.find(key);
+		return it != prices.end() ? it->second : 0.0f;
+	}
 	static bool colorButton(const char* label, const ImVec4& base, const ImVec2& size) {
 		ImGui::PushStyleColor(ImGuiCol_Button, base);
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(base.x + 0.12f, base.y + 0.12f, base.z + 0.12f, 1.0f));
@@ -42,6 +49,37 @@ private:
 		bool pressed = ImGui::Button(label, size);
 		ImGui::PopStyleColor(3);
 		return pressed;
+	}
+	void priceSlider(const char* title, const char* id, float& price, float cost, float minV, float maxV){
+		const float best = std::clamp(cost * (1.0f + kBestMarkup), minV, maxV);
+		const float markup = cost > 0.0f ? (price - cost) / cost * 100.0f : 0.0f;
+
+		ImGui::TextColored(colDim, "%s", title);
+
+		// Себестоимость / цена / наценка
+		ImGui::Text("%s: %.0f  |  %s: %.0f  |  %s: %+.1f%%",
+			lang[currLang]["COST_PRICE"].get<std::string>().c_str(), cost,
+			lang[currLang]["SELL_PRICE"].get<std::string>().c_str(), price,
+			lang[currLang]["MARKUP"].get<std::string>().c_str(), markup);
+
+		// Слайдер; в тексте на самом слайдере — лучшая цена
+		const std::string fmt = std::format("%.0f   ({}: {:.0f})", lang[currLang]["BEST_PRICE"].get<std::string>().c_str(), best);
+		ImGui::SliderFloat(id, &price, minV, maxV, fmt.c_str());
+
+		// Маркер лучшей цены на шкале слайдера
+		const ImVec2 rmin = ImGui::GetItemRectMin();
+		const ImVec2 rmax = ImGui::GetItemRectMax();
+		const float grab = ImGui::GetStyle().GrabMinSize;
+		const float t = (maxV > minV) ? (best - minV) / (maxV - minV) : 0.0f;
+		const float x = rmin.x + grab * 0.5f + t * ((rmax.x - rmin.x) - grab);
+
+		ImDrawList* dl = ImGui::GetWindowDrawList();
+		const ImU32 col = IM_COL32(80, 220, 120, 255);
+		dl->AddLine(ImVec2(x, rmin.y), ImVec2(x, rmax.y), col, 2.0f);
+		dl->AddTriangleFilled(ImVec2(x - 4, rmin.y - 5), ImVec2(x + 4, rmin.y - 5),
+			ImVec2(x, rmin.y), col);
+
+		ImGui::Spacing();
 	}
 
 	void sectionTitle(const char* title) {
@@ -138,11 +176,12 @@ public:
 		pushStyle();
 
 		ImGui::SetNextWindowPos(ImVec2(800.0f, 5.0f), ImGuiCond_FirstUseEver);
-		ImGui::SetNextWindowSize(ImVec2(150.0f, 100.0f), ImGuiCond_FirstUseEver);
-		if (ImGui::Begin("INFO",nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
-			ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse)) {
+		ImGui::SetNextWindowSize(ImVec2(150.0f, 160.0f), ImGuiCond_FirstUseEver);
+		if (ImGui::Begin("INFO",nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse)) {
 			ImVec4 color;
 			float rating = 0.0f;
+			std::string dayString = lang[currLang]["DAY"].get<std::string>();
+			std::string sallesForDayString = lang[currLang]["SALES_FOR_DAY"].get<std::string>();
 
 			if (!ratings.empty()) {
 				for (float r : ratings) rating += r;
@@ -155,10 +194,20 @@ public:
 			else color = colRed;
 
 			ImGui::Spacing();
+			
+
+			ImGui::Text(std::format("{}: {} - {}:{:.0f}", dayString, day, heure, seconds).c_str());
+			ImGui::Dummy({ 0.0f, 10.0f });
+
+			ImGui::Text(std::format("{}: {}", sallesForDayString, sallesForDay).c_str());
+			ImGui::Dummy({ 0.0f, 10.0f });
+
 			ImGui::Text(lang[currLang]["CHECK"].get<std::string>().c_str());
 			ImGui::SameLine();
+
 			ImGui::TextColored(colYellow, "%.1f $", myBalance);
 			ImGui::Spacing();
+
 			ImGui::Text(lang[currLang]["RATING"].get<std::string>().c_str());
 			ImGui::SameLine();
 			ImGui::TextColored(color, "%.1f", rating);
@@ -173,13 +222,8 @@ public:
 		pushStyle();
 
 		ImGui::SetNextWindowPos(ImVec2(10.0f, 10.0f), ImGuiCond_FirstUseEver);
-		ImGui::SetNextWindowSize(ImVec2(350.0f, 650.0f), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(ImVec2(350.0f, 720.0f), ImGuiCond_FirstUseEver);
 		ImGui::Begin(lang[currLang]["MAIN_WIN"].get<std::string>().c_str());
-
-		std::string dayString = lang[currLang]["DAY"].get<std::string>();
-
-		ImGui::Text(std::format("{}: {} - {}:{:.0f}",dayString,day,heure,seconds).c_str());
-		ImGui::Dummy({ 0.0f, 10.0f });
 
 		ImGui::Checkbox(lang[currLang]["OPEN_STORE"].get<std::string>().c_str(), &isOpen);
 
@@ -344,7 +388,7 @@ public:
 		ImGui::End();
 		popStyle();
 	}
-	void renderPricesWindow() {
+	void renderPricesWindow(FPVDrone& drone) {
 		if (!showPrices) return;
 
 		pushStyle();
@@ -354,35 +398,35 @@ public:
 		if (ImGui::Begin(lang[currLang]["PRICE"].get<std::string>().c_str())) {
 			sectionTitle(lang[currLang]["PRICE_OF_DRONE"].get<std::string>().c_str());
 
-			ImGui::Text(std::format("{} {} {:.0f}",getStringFromJson("DRONE_Achetee"),
-				lang[currLang]["PRICE"].get<std::string>().c_str(), priceForT1).c_str());
+			ImGui::Text("%s", std::format("{} {} {:.0f}", getStringFromJson("DRONE_Achetee"),
+				lang[currLang]["PRICE"].get<std::string>(), priceForT1).c_str());
 
-			ImGui::Text(std::format("{} {} {:.0f}", getStringFromJson("DRONE_Assemblee"),
-				lang[currLang]["PRICE"].get<std::string>().c_str(), priceForT1).c_str());
+			ImGui::Text("%s", std::format("{} {} {:.0f}", getStringFromJson("DRONE_Assemblee"),
+				lang[currLang]["PRICE"].get<std::string>(), priceForT2).c_str());
 
 			sectionTitle(lang[currLang]["SETTING_OF_PRICE"].get<std::string>().c_str());
 
 			ImGui::PushItemWidth(-FLT_MIN);
 
-			ImGui::TextColored(colDim, lang[currLang]["ENTER_PRICE_FOR_DRN_BUY"].get<std::string>().c_str());
-			ImGui::InputFloat("1##", &priceForT1);
-			ImGui::TextColored(colDim, lang[currLang]["ENTER_PRICE_FOR_DRN_ASSEMBLE"].get<std::string>().c_str());
-			ImGui::InputFloat("2##", &priceForT2);
-			ImGui::TextColored(colDim, lang[currLang]["ENTER_PRICE_FOR_GOGGLES"].get<std::string>().c_str());
-			ImGui::InputFloat("3##", &priceForGoggles1);
-			ImGui::TextColored(colDim, lang[currLang]["ENTER_PRICE_FOR_GOGGLES2"].get<std::string>().c_str());
-			ImGui::InputFloat("4##", &priceForGoggles2);
-			ImGui::TextColored(colDim, lang[currLang]["ENTER_PRICE_FOR_CONTROLLER"].get<std::string>().c_str());
-			ImGui::InputFloat("5##", &priceForController1);
-			ImGui::TextColored(colDim, lang[currLang]["ENTER_PRICE_FOR_CONTROLLER2"].get<std::string>().c_str());
-			ImGui::InputFloat("6##", &priceForController2);
+			priceSlider(lang[currLang]["ENTER_PRICE_FOR_DRN_BUY"].get<std::string>().c_str(),
+				"##p1", priceForT1, getCost(drone.getBaseEquip()[7], drone), minValue, maxValue);
 
-			priceForT1 = std::clamp(priceForT1, minValue, maxValue);
+			ImGui::TextColored(colDim, "%s", lang[currLang]["ENTER_PRICE_FOR_DRN_ASSEMBLE"].get<std::string>().c_str());
+			ImGui::InputFloat("2##", &priceForT2);
+
+			priceSlider(lang[currLang]["ENTER_PRICE_FOR_GOGGLES"].get<std::string>().c_str(),
+				"##p3", priceForGoggles1, getCost(drone.getBaseEquip()[6], drone), minValue, maxValue);
+
+			priceSlider(lang[currLang]["ENTER_PRICE_FOR_GOGGLES2"].get<std::string>().c_str(),
+				"##p4", priceForGoggles2, getCost(drone.getBaseEquip()[15], drone), minValue, maxValue);
+
+			priceSlider(lang[currLang]["ENTER_PRICE_FOR_CONTROLLER"].get<std::string>().c_str(),
+				"##p5", priceForController1, getCost(drone.getBaseEquip()[5], drone), minValue, maxValue);
+
+			priceSlider(lang[currLang]["ENTER_PRICE_FOR_CONTROLLER2"].get<std::string>().c_str(),
+				"##p6", priceForController2, getCost(drone.getBaseEquip()[14], drone), minValue, maxValue);
+
 			priceForT2 = std::clamp(priceForT2, minValue, maxValue);
-			priceForGoggles1 = std::clamp(priceForGoggles1, minValue, maxValue);
-			priceForGoggles2 = std::clamp(priceForGoggles2, minValue, maxValue);
-			priceForController1 = std::clamp(priceForController1, minValue, maxValue);
-			priceForController2 = std::clamp(priceForController2, minValue, maxValue);
 
 			ImGui::PopItemWidth();
 		}
@@ -419,7 +463,7 @@ public:
 	void renderAll(FPS& fps, FPVDrone& drone, BuildingSettings& build) {
 		renderMainWindow(fps, drone, build);
 		renderPerformanceWindow(fps);
-		renderPricesWindow();
+		renderPricesWindow(drone);
 		renderNamesWindow();
 		renderBalanceRatingWindow();
 

@@ -19,6 +19,7 @@ float priceForController1 = 0.0f;
 float priceForGoggles1 = 0.0f;
 float priceForController2 = 0.0f;
 float priceForGoggles2 = 0.0f;
+int sallesForDay = 0;
 bool isOpen = false;
 std::string currLang = "FR";
 json lang;

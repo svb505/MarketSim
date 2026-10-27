@@ -27,6 +27,7 @@ extern float priceForGoggles1;
 extern float priceForController2;
 extern float priceForGoggles2;
 extern bool isOpen;
+extern int sallesForDay;
 extern std::string currLang;
 extern json lang;
 extern std::vector<float> ratings;
