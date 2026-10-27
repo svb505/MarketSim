@@ -87,6 +87,9 @@
     <ClCompile Include="localization.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="days.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h">
@@ -150,6 +153,9 @@
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="localization.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="days.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
   </ItemGroup>

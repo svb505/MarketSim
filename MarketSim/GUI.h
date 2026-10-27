@@ -10,11 +10,7 @@
 #include "jsonParcer.h"
 #include <algorithm>
 #include <iostream>
-
-/*
-if (ImGui::ImageButton("artillery", (ImTextureID)(intptr_t)allTextures["ARTILLERY"],
-			ImVec2(60, 60))) artWindow = true;
-			*/
+#include "days.h"
 
 class GUI {
 private:
@@ -178,6 +174,11 @@ public:
 		ImGui::SetNextWindowPos(ImVec2(10.0f, 10.0f), ImGuiCond_FirstUseEver);
 		ImGui::SetNextWindowSize(ImVec2(350.0f, 650.0f), ImGuiCond_FirstUseEver);
 		ImGui::Begin(lang[currLang]["MAIN_WIN"].get<std::string>().c_str());
+
+		std::string dayString = lang[currLang]["DAY"].get<std::string>();
+
+		ImGui::Text(std::format("{}: {} - {}:{:.0f}",dayString,day,heure,seconds).c_str());
+		ImGui::Dummy({ 0.0f, 10.0f });
 
 		ImGui::Checkbox(lang[currLang]["OPEN_STORE"].get<std::string>().c_str(), &isOpen);
 

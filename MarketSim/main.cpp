@@ -36,6 +36,7 @@
 #include "logger.h"
 #include "stb_image.h"
 #include "localization.h"
+#include "days.h"
 
 Camera cam;
 Building build;
@@ -280,6 +281,8 @@ int main() {
             RenderTextHUD(ECRAN_W / 2, ECRAN_H / 2, 1.0f, 0.0f, 0.0f,
                 "Your package has arrived", ECRAN_W, ECRAN_H);
         }
+
+        countDays(fpsVars.deltaTime);
 
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);

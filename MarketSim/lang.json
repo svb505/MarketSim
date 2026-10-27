@@ -56,7 +56,8 @@
         "PROP3":"Hélice Type 3",
          "FC1":"FC1",
         "FC2":"FC2",
-        "RATING":"Notation"
+        "RATING":"Notation",
+         "DAY":"Jour"
 
     },
     "EN":{
@@ -116,7 +117,8 @@
         "PROP3":"Propeller Type 3",
          "FC1":"FC1",
         "FC2":"FC2",
-        "RATING":"Rating"
+        "RATING":"Rating",
+        "DAY":"Day"
     },
     "RU":{
         "MAIN_WIN":"Главное окно",
@@ -175,6 +177,7 @@
         "PROP3":"Пропеллер тип 3",
          "FC1":"Контроллер Полета",
         "FC2":"Контроллер Полета2",
-        "RATING":"Рейтинг"
+        "RATING":"Рейтинг",
+        "DAY":"День"
     }
 }
