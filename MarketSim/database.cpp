@@ -14,13 +14,10 @@ sqlite3* db = nullptr;
 int callbackPlayer(void* data, int argc, char** argv, char** colName) {
     auto* ctx = static_cast<PlayerContext*>(data);
 
-    std::cout << "[DB] callbackPlayer: argc=" << argc << '\n';
-
     if (ctx == nullptr) {
         LOG_ERROR("callbackPlayer: PlayerContext is nullptr");
         return 1;
     }
-
     if (argc < 3) {
         LOG_ERROR(std::format("callbackPlayer: expected at least 3 columns, got {}",
             argc));
@@ -30,14 +27,9 @@ int callbackPlayer(void* data, int argc, char** argv, char** colName) {
     PlayerInfo p{};
 
     try {
-        std::cout << "[DB] balance raw: " << (argv[1] ? argv[1] : "NULL") << '\n';
-
-        std::cout << "[DB] rating raw: " << (argv[2] ? argv[2] : "NULL") << '\n';
-
         p.balance = argv[1] ? std::stof(argv[1]) : 0.0f;
         p.rating = argv[2] ? std::stof(argv[2]) : 0.0f;
-
-        std::cout << "[DB] Parsed balance=" << p.balance  << ", rating=" << p.rating << '\n';
+        p.day = argv[3] ? std::stoi(argv[3]) : 0;
     }
     catch (const std::exception& e) {
         LOG_ERROR(std::format( "callbackPlayer: failed to parse player data: {}", e.what()));
@@ -46,7 +38,6 @@ int callbackPlayer(void* data, int argc, char** argv, char** colName) {
 
     ctx->players.push_back(p);
 
-    std::cout << "[DB] Player added. Total players: " << ctx->players.size() << '\n';
 
     return 0;
 }
@@ -84,11 +75,12 @@ void createDb(const std::string name) {
         "CREATE TABLE IF NOT EXISTS player("
         "id INTEGER PRIMARY KEY,"
         "balance REAL,"
-        "rating REAL)";
+        "rating REAL,"
+        "day INTEGER)";
 
     const char* insertQuery =
         "INSERT OR IGNORE INTO player "
-        "VALUES(0, 4000.0, 0.0)";
+        "VALUES(0, 4000.0, 0.0, 0)";
 
     char* err = nullptr;
 
@@ -180,7 +172,58 @@ void saveDataForPlayer( float balance, float rating, std::string scoreOperation)
     rc = sqlite3_close(localDb);
 
     if (rc != SQLITE_OK) {
-        LOG_ERROR(std::format( "saveDataForPlayer: close failed: {}",sqlite3_errstr(rc)));
+        LOG_ERROR(std::format("saveDataForPlayer: close failed: {}",sqlite3_errstr(rc)));
+    }
+}
+void saveDayToDb(int day) {
+    sqlite3* localDb = nullptr;
+
+    int rc = sqlite3_open("playerInfo.db", &localDb);
+
+    if (rc != SQLITE_OK) {
+        LOG_ERROR(std::format("saveDataForPlayer: open failed: {}", localDb ? sqlite3_errmsg(localDb) : "unknown error"));
+
+        if (localDb) sqlite3_close(localDb);
+
+        return;
+    }
+
+    char* sql = nullptr;
+
+    sql = sqlite3_mprintf("UPDATE player SET day = %d WHERE id = 0;", day);
+
+
+    if (sql == nullptr) {
+        LOG_ERROR("saveDataForPlayer: sqlite3_mprintf failed");
+        sqlite3_close(localDb);
+        return;
+    }
+
+    std::cout << "[DB] SQL: " << sql << '\n';
+
+    char* err = nullptr;
+
+    rc = sqlite3_exec(localDb, sql, nullptr, nullptr, &err);
+
+    if (rc != SQLITE_OK) {
+        LOG_ERROR(std::format("saveDataForPlayer: UPDATE failed: {}", err ? err : sqlite3_errmsg(localDb)));
+    }
+    else {
+        std::cout << "[DB] UPDATE successful. Rows changed: " << sqlite3_changes(localDb) << '\n';
+
+        if (sqlite3_changes(localDb) == 0) {
+            LOG_ERROR("saveDataForPlayer: no player row updated (id=0)"
+            );
+        }
+    }
+
+    sqlite3_free(err);
+    sqlite3_free(sql);
+
+    rc = sqlite3_close(localDb);
+
+    if (rc != SQLITE_OK) {
+        LOG_ERROR(std::format("saveDataForPlayer: close failed: {}", sqlite3_errstr(rc)));
     }
 }
 
@@ -205,19 +248,13 @@ PlayerContext getDataForPlayer() {
 
     rc = sqlite3_exec(localDb,"SELECT * FROM player",callbackPlayer,&ctx, &err);
 
-    if (rc != SQLITE_OK) {
-        LOG_ERROR(std::format( "getDataForPlayer: SELECT failed: {}",err ? err : sqlite3_errmsg(localDb)));
-    }
+    if (rc != SQLITE_OK)  LOG_ERROR(std::format( "getDataForPlayer: SELECT failed: {}",err ? err : sqlite3_errmsg(localDb)));
 
     sqlite3_free(err);
 
-    std::cout << "[DB] Query finished. Players loaded: " << ctx.players.size() << '\n';
-
     rc = sqlite3_close(localDb);
 
-    if (rc != SQLITE_OK) {
-        LOG_ERROR(std::format( "getDataForPlayer: close failed: {}", sqlite3_errstr(rc)));
-    }
+    if (rc != SQLITE_OK)  LOG_ERROR(std::format( "getDataForPlayer: close failed: {}", sqlite3_errstr(rc)));
 
     return ctx;
 }

@@ -117,6 +117,7 @@ int main() {
 
     for (auto& p : getDataForPlayer().players) {
         myBalance = p.balance;
+        day = p.day;
     }
 
     int width, height, channels;
@@ -290,10 +291,14 @@ int main() {
 
         countDays(fpsVars.deltaTime);
 
+        drawPointInCenter();
+
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
+    saveDayToDb(day);
 
     Logger::shutDown();
 
