@@ -233,16 +233,4 @@ public:
     void drawEquipModel(std::string model, Camera& cam, bool placed, OBJModel& objmodel);
     void checkIfCanCreateDrone(Camera& cam, CashRegister& build);
     void initCoordinatesForShelves(Building& build);
-
-    void drawCube(float sx, float sy, float sz);
-    void drawCylinder(float radius, float height, int segments = 16);
-    void drawDroneFrame(const svbmath::Vec3& pos);
-    void drawDroneCamera(const svbmath::Vec3& pos);
-    void drawDroneBattery(const svbmath::Vec3& pos);
-    void drawMotor(const svbmath::Vec3& pos);
-    void drawPropeller(const svbmath::Vec3& pos,bool reversed);
-    void drawFPVDrone(const svbmath::Vec3& pos);
-    void drawRemoteController(const svbmath::Vec3& pos);
-    void drawFPVGoggles(const svbmath::Vec3& pos);
-    void drawFPVEquipment();
 };
