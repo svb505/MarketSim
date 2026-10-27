@@ -9,6 +9,7 @@
 #include <format>
 #include "logger.h"
 #include "sound.h"
+#include "avgRating.h"
 
 void Bot::init() {
     model.LoadOBJ("res/models/human/man.obj", 1.0f);
@@ -394,15 +395,9 @@ void Bot::update(float dt,FPVDrone& drone,Building& building,Sound& sound){
 
             float probability = svbmath::randFloat(0.0f, 1.0f);
 
-            float rating = 0.0f;
-
-            for (float r : ratings) rating += r;
-
-            rating /= ratings.size();
-
             if (probability >= 0.05) { 
                 myBalance += price; 
-                saveDataForPlayer(price, rating, "+");
+                saveDataForPlayer(price, averageRating(), "+");
             }
 
             float basePrice = (droneModel != getStringFromJson("DRONE_Assemblee")) ? 
@@ -419,7 +414,7 @@ void Bot::update(float dt,FPVDrone& drone,Building& building,Sound& sound){
 
             LOG_INFO(std::format("SOLD: {} for {}", droneModel, price));
             LOG_INFO(std::format("Balance: {}", myBalance));
-            LOG_INFO(std::format("Rating: {}", rating));
+            LOG_INFO(std::format("Rating: {}", averageRating()));
 
             state = BotState::Leaving;
         }

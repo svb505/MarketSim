@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <iostream>
 #include "days.h"
+#include "avgRating.h"
 
 class GUI {
 private:
@@ -345,17 +346,8 @@ public:
 				for (auto& element : card) totalPrice += equip[element];
 
 				if (myBalance >= totalPrice) {
-					float rating = 0.0f;
 
-					for (float r : ratings) rating += r;
-
-					if (!ratings.empty()) {
-						for (float r : ratings) rating += r;
-
-						rating /= static_cast<float>(ratings.size());
-					}
-
-					saveDataForPlayer(totalPrice,rating, "-");
+					saveDataForPlayer(totalPrice, averageRating(), "-");
 
 					for (auto& p : getDataForPlayer().players) myBalance = p.balance;
 

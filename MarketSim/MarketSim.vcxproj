@@ -140,6 +140,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="actions.cpp" />
+    <ClCompile Include="avgRating.cpp" />
     <ClCompile Include="bot.cpp" />
     <ClCompile Include="bounds.cpp" />
     <ClCompile Include="building.cpp" />
@@ -167,6 +168,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="actions.h" />
+    <ClInclude Include="avgRating.h" />
     <ClInclude Include="bot.h" />
     <ClInclude Include="bounds.h" />
     <ClInclude Include="building.h" />
