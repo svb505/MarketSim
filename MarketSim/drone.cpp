@@ -67,6 +67,7 @@ GLuint FPVDrone::returnCompPreview(const std::string& key) {
 std::map<CompType, std::vector<std::string>>& FPVDrone::getEquipTypes() {
     return equipTypes;
 }
+
 void FPVDrone::reloadCompModels() {
     allCompModels.clear();
 
@@ -257,6 +258,9 @@ void FPVDrone::consumeComponents() {
     }
 }
 void FPVDrone::init() {
+    markerModel.LoadOBJ("res/models/marker/free_slot_marker.obj", 0.08f);
+    markerModel.CreateVBO();
+
     fpv.LoadOBJ("res/models/fpv_assemblee/fpv_drone.obj", 6.0f);
     fpv.LoadTexture("res/models/fpv_assemblee/fpv_drone_texture.png");
     fpv.CreateVBO();
@@ -332,8 +336,10 @@ void FPVDrone::drawAvaibleShelfPos() {
             }
         }
 
-        if (!shelf.busy && !occupied)
-            drawQuad(0.4f, 0.4f, 0.4f, shelf.pos);
+
+        float shelfYaw = (shelf.pos.x == 4.8f) ? 90.0f : 0.0f;
+
+        if (!shelf.busy && !occupied) markerModel.Draw(shelf.pos, shelfYaw, 0.0f);
     }
 }
 void FPVDrone::initCoordinatesForShelves(Building& build) {

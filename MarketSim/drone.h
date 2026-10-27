@@ -197,6 +197,8 @@ private:
     std::vector<PlacedObject> placedObjects;
     std::vector<ShelfSetting> positionsOnShelves;
 
+    OBJModel markerModel;
+
     float deliveryTime = 10.0; //sec
     float textTime = 3.0f;
 
