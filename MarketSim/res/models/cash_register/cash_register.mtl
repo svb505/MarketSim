@@ -1,0 +1,82 @@
+# cash_register materials
+newmtl body
+Ka 1.0 1.0 1.0
+Kd 1.0 1.0 1.0
+Ks 0.15 0.15 0.15
+Ns 24
+d 1.0
+illum 2
+map_Kd textures/body.png
+
+newmtl metal
+Ka 1.0 1.0 1.0
+Kd 1.0 1.0 1.0
+Ks 0.15 0.15 0.15
+Ns 24
+d 1.0
+illum 2
+map_Kd textures/metal.png
+
+newmtl drawer
+Ka 1.0 1.0 1.0
+Kd 1.0 1.0 1.0
+Ks 0.15 0.15 0.15
+Ns 24
+d 1.0
+illum 2
+map_Kd textures/drawer.png
+
+newmtl keys
+Ka 1.0 1.0 1.0
+Kd 1.0 1.0 1.0
+Ks 0.15 0.15 0.15
+Ns 24
+d 1.0
+illum 2
+map_Kd textures/keys.png
+
+newmtl printer
+Ka 1.0 1.0 1.0
+Kd 1.0 1.0 1.0
+Ks 0.15 0.15 0.15
+Ns 24
+d 1.0
+illum 2
+map_Kd textures/printer.png
+
+newmtl receipt
+Ka 1.0 1.0 1.0
+Kd 1.0 1.0 1.0
+Ks 0.15 0.15 0.15
+Ns 24
+d 1.0
+illum 2
+map_Kd textures/receipt.png
+
+newmtl dark
+Ka 1.0 1.0 1.0
+Kd 1.0 1.0 1.0
+Ks 0.15 0.15 0.15
+Ns 24
+d 1.0
+illum 2
+map_Kd textures/dark.png
+
+newmtl screen_main
+Ka 1.0 1.0 1.0
+Kd 1.0 1.0 1.0
+Ks 0.15 0.15 0.15
+Ns 24
+d 1.0
+illum 2
+map_Kd textures/screen_main.png
+
+newmtl screen_cust
+Ka 1.0 1.0 1.0
+Kd 1.0 1.0 1.0
+Ks 0.15 0.15 0.15
+Ns 24
+d 1.0
+illum 2
+map_Kd textures/screen_cust.png
+

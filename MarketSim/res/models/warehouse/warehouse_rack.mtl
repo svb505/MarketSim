@@ -1,0 +1,55 @@
+# warehouse_rack materials
+newmtl upright
+Ka 1.0 1.0 1.0
+Kd 1.0 1.0 1.0
+Ks 0.15 0.15 0.15
+Ns 24
+d 1.0
+illum 2
+map_Kd textures/upright.png
+
+newmtl steel
+Ka 1.0 1.0 1.0
+Kd 1.0 1.0 1.0
+Ks 0.15 0.15 0.15
+Ns 24
+d 1.0
+illum 2
+map_Kd textures/steel.png
+
+newmtl beam
+Ka 1.0 1.0 1.0
+Kd 1.0 1.0 1.0
+Ks 0.15 0.15 0.15
+Ns 24
+d 1.0
+illum 2
+map_Kd textures/beam.png
+
+newmtl deck
+Ka 1.0 1.0 1.0
+Kd 1.0 1.0 1.0
+Ks 0.15 0.15 0.15
+Ns 24
+d 1.0
+illum 2
+map_Kd textures/deck.png
+
+newmtl brace
+Ka 1.0 1.0 1.0
+Kd 1.0 1.0 1.0
+Ks 0.15 0.15 0.15
+Ns 24
+d 1.0
+illum 2
+map_Kd textures/brace.png
+
+newmtl plate
+Ka 1.0 1.0 1.0
+Kd 1.0 1.0 1.0
+Ks 0.15 0.15 0.15
+Ns 24
+d 1.0
+illum 2
+map_Kd textures/plate.png
+

@@ -6,6 +6,44 @@
 #include <vector>
 #include "bounds.h"
 #include "building.h"
+#include "model.h"
+
+static Bounds transformBounds(const Bounds& local, float scale,
+    const svbmath::Vec3& pos, float yaw) {
+
+    Bounds worldBounds = local;
+
+    const svbmath::Vec3& position = pos;
+    float rotation = yaw;
+
+    while (rotation < 0.0f) rotation += 360.0f;
+    while (rotation >= 360.0f) rotation -= 360.0f;
+
+
+    if (rotation == 90.0f) {
+        worldBounds.min.x = -local.max.z * scale + position.x;
+        worldBounds.max.x = -local.min.z * scale + position.x;
+
+        worldBounds.min.z = local.min.x * scale + position.z;
+        worldBounds.max.z = local.max.x * scale + position.z;
+    }
+    else {
+        worldBounds.min.x = local.min.x * scale + position.x;
+        worldBounds.max.x = local.max.x * scale + position.x;
+
+        worldBounds.min.z = local.min.z * scale + position.z;
+        worldBounds.max.z = local.max.z * scale + position.z;
+    }
+
+    worldBounds.min.y = local.min.y * scale + position.y;
+    worldBounds.max.y = local.max.y * scale + position.y;
+
+    return worldBounds;
+}
+
+Bounds Building::getWorldBounds(const OBJModel& model,svbmath::Vec3 pos, float yaw) {
+    return transformBounds(model.bounds, model.scale, pos, yaw);
+}
 
 bool Building::isInsideBuilding(svbmath::Vec3 pos){
     return pos.x >= build.min.x && pos.x <= build.max.x &&
@@ -322,6 +360,12 @@ void Building::DrawCashRegister(const CashRegister& cash) {
     DrawBox(cash.position, cash.width, cash.height, cash.depth, allTextures["METAL"]);
 }
 void Building::CreateBuilding() {
+    warehouseModel.LoadOBJ("res/models/warehouse/warehouse_rack.obj",1.0f);
+    warehouseModel.CreateVBO();
+
+    cashRegModel.LoadOBJ("res/models/cash_register/cash_register.obj", 1.0f);
+    cashRegModel.CreateVBO();
+
     build.storeWidth = 12.0f;
     build.storeLength = 10.0f;
     build.storeHeight = 4.0f;
@@ -334,9 +378,17 @@ void Building::CreateBuilding() {
 
     build.warehouseCenter = { 8.0f,2.0f,-2.5f };
 
-    build.min = { -6.0f,-1.0f,-5.0f };
+    Bounds storeAABB = MakeAABB( build.storeCenter, build.storeWidth + 0.3f, build.storeHeight + 0.2f, build.storeLength + 0.3f);
 
-    build.max = { 10.0f,4.0f,5.0f };
+    Bounds warehouseAABB = MakeAABB( build.warehouseCenter, build.warehouseWidth + 0.3f, build.warehouseHeight + 0.2f, build.warehouseLength + 0.3f);
+
+    build.min = { std::min(storeAABB.min.x, warehouseAABB.min.x), std::min(storeAABB.min.y, warehouseAABB.min.y),
+        std::min(storeAABB.min.z, warehouseAABB.min.z)
+    };
+
+    build.max = { std::max(storeAABB.max.x, warehouseAABB.max.x), std::max(storeAABB.max.y, warehouseAABB.max.y),
+        std::max(storeAABB.max.z, warehouseAABB.max.z)
+    };
 
     shelves.clear();
 
@@ -400,16 +452,12 @@ void Building::DrawBuilding() {
 
     float h = 4.0f;
 
-    DrawQuad({ sx1, 0.0f, sz1 }, { sx2, 0.0f, sz1 }, { sx2, h, sz1 },{ sx1, h, sz1 },
-        wall1Texture);
-    DrawQuad({ sx1, 0.0f, sz2 }, { sx1, 0.0f, sz1 }, { sx1, h, sz1 }, { sx1, h, sz2 },
-        wall1Texture);
+    DrawQuad({ sx1, 0.0f, sz1 }, { sx2, 0.0f, sz1 }, { sx2, h, sz1 },{ sx1, h, sz1 }, wall1Texture);
+    DrawQuad({ sx1, 0.0f, sz2 }, { sx1, 0.0f, sz1 }, { sx1, h, sz1 }, { sx1, h, sz2 }, wall1Texture);
 
-    DrawWallWithOpening({ sx1, 0.0f, sz2 }, { sx2, 0.0f, sz2 }, h, 5.0f, 7.0f, true,
-        wall1Texture);
+    DrawWallWithOpening({ sx1, 0.0f, sz2 }, { sx2, 0.0f, sz2 }, h, 5.0f, 7.0f, true, wall1Texture);
 
-    DrawWallWithOpening({ sx2, 0.0f, sz1 }, { sx2, 0.0f, sz2 }, h, 1.0f, 3.0f, false,
-        wall1Texture);
+    DrawWallWithOpening({ sx2, 0.0f, sz1 }, { sx2, 0.0f, sz2 }, h, 1.0f, 3.0f, false, wall1Texture);
 
     DrawWallOpeningThickness(
         { sx1, 0.001f, sz2 - 0.2f },
@@ -425,18 +473,17 @@ void Building::DrawBuilding() {
         wall1Texture
     );
 
-    float wx1 = 6.0f;
-    float wx2 = 10.0f;
+    float wx1 = build.warehouseCenter.x - build.warehouseWidth / 2.0f;
+    float wx2 = build.warehouseCenter.x + build.warehouseWidth / 2.0f;
 
-    float wz1 = -5.0f;
-    float wz2 = 0.0f;
+    float wz1 = build.warehouseCenter.z - build.warehouseLength / 2.0f;
+    float wz2 = build.warehouseCenter.z + build.warehouseLength / 2.0f;
 
-    DrawQuad({ wx1, 0.0f, wz1 },{ wx2, 0.0f, wz1 }, { wx2, h,wz1 }, { wx1, h, wz1 }, 
-        wall2Texture);
-    DrawQuad({ wx2, 0.0f, wz1 }, { wx2, 0.0f, wz2 },{ wx2, h,wz2 },{ wx2, h, wz1 },
-        wall2Texture);
-    DrawQuad( { wx2, 0.0f, wz2 },{ wx1, 0.0f, wz2 }, { wx1, h,wz2 },{ wx2, h,wz2 }, 
-        wall2Texture);
+    float wh = build.warehouseHeight;
+
+    DrawQuad({ wx1, 0.0f, wz1 },{ wx2, 0.0f, wz1 }, { wx2, wh,wz1 }, { wx1, wh, wz1 }, wall2Texture);
+    DrawQuad({ wx2, 0.0f, wz1 }, { wx2, 0.0f, wz2 },{ wx2, wh,wz2 },{ wx2, wh, wz1 }, wall2Texture);
+    DrawQuad( { wx2, 0.0f, wz2 },{ wx1, 0.0f, wz2 }, { wx1, wh,wz2 },{ wx2, wh,wz2 },   wall2Texture);
     
     DrawFloor(-6.0f, 10.0f, -5.0f, 5.0f);
 
@@ -445,16 +492,33 @@ void Building::DrawBuilding() {
     for (const Shelf& shelf : shelves) DrawShelf(shelf);
 
     DrawCashRegister(cashRegister);
+
+    svbmath::Vec3 bufCashRegModelPos = cashRegister.position;
+    bufCashRegModelPos.y += cashRegister.height / 2;
+    bufCashRegModelPos.z += (cashRegister.depth / 2) - 0.2f;
+
+    cashRegModel.Draw(bufCashRegModelPos, -90.0f, 0.0f);
+
+    svbmath::Vec3 bufWarehousePos = build.warehouseCenter;
+    float step = 0.55f;
+
+    bufWarehousePos.x += (build.warehouseWidth / 2) - step;
+    bufWarehousePos.y = 0.0f;
+    bufWarehousePos.z += (build.warehouseLength / 2) - step * 2;
+
+    warehouseModel.Draw(bufWarehousePos, 90.0f, 0.0f);
+    bufWarehousePos.z -= ((build.warehouseLength / 2) - step * 2) * 2;
+    warehouseModel.Draw(bufWarehousePos, 90.0f, 0.0f);
 }
 bool Building::checkCollision(Camera& cam) {
     svbmath::Vec3 pos = cam.getCamPos();
 
     // Склад
-    float wx1 = 6.0f;
-    float wx2 = 10.0f;
+    float wx1 = build.warehouseCenter.x - build.warehouseWidth / 2.0f;
+    float wx2 = build.warehouseCenter.x + build.warehouseWidth / 2.0f;
 
-    float wz1 = -5.0f;
-    float wz2 = 0.0f;
+    float wz1 = build.warehouseCenter.z - build.warehouseLength / 2.0f;
+    float wz2 = build.warehouseCenter.z + build.warehouseLength / 2.0f;
 
     // Магазин
     float sx1 = -6.0f;
@@ -479,13 +543,27 @@ bool Building::checkCollision(Camera& cam) {
     if (checkAABBCollision({{ wx1 - 0.2f, 0.0f, wz1 - 0.2f },{ wx2 + 0.2f, h, wz1 + 0.2f }}, pos)) return true;
     if (checkAABBCollision({{ wx2 - 0.2f, 0.0f, wz1 - 0.2f },{ wx2 + 0.2f, h, wz2 + 0.2f }}, pos)) return true;
     if (checkAABBCollision({{ wx1 - 0.2f, 0.0f, wz2 - 0.2f },
- { wx2 + 0.2f, h,    wz2 + 0.2f }}, pos)) return true;
+        { wx2 + 0.2f, h,    wz2 + 0.2f }}, pos)) return true;
     
     for (const Shelf& shelf : shelves) {
         if (checkAABBCollision({ shelf.min, shelf.max }, pos)) return true;
     }
 
     if (checkAABBCollision({ cashRegister.min, cashRegister.max }, pos)) return true;
+
+    svbmath::Vec3 bufWarehousePos = build.warehouseCenter;
+    float step = 0.55f;
+
+    bufWarehousePos.x += (build.warehouseWidth / 2) - step;
+    bufWarehousePos.y = 0.0f;
+    bufWarehousePos.z += (build.warehouseLength / 2) - step * 2;
+
+    Bounds worldWarehouseBounds1 = getWorldBounds(warehouseModel, bufWarehousePos,90.0f);
+    bufWarehousePos.z -= ((build.warehouseLength / 2) - step * 2) * 2;
+    Bounds worldWarehouseBounds2 = getWorldBounds(warehouseModel, bufWarehousePos, 90.0f);
+
+    if (checkAABBCollision(worldWarehouseBounds1, pos)) return true;
+    if (checkAABBCollision(worldWarehouseBounds2, pos)) return true;
 
     return false;
 }

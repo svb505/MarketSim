@@ -190,7 +190,7 @@ bool Decorations::checkCollision(Camera& cam, DecType decType) {
     if (!model) return false;
 
     for (const DecorationInstance& decoration : decorations) {
-        if (decoration.type != decType)continue;
+        if (decoration.type != decType) continue;
 
         // Модель без объектов ("o") - как раньше, одна общая коробка.
         if (model->parts.empty()) {

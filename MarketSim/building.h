@@ -7,6 +7,7 @@
 #include <vector>
 #include "bounds.h"
 #include "camera.h"
+#include "model.h"
 
 struct BuildingSettings{
     svbmath::Vec3 storeCenter;
@@ -52,18 +53,24 @@ private:
     std::vector<Shelf> shelves;
 
     CashRegister cashRegister;
+
+    OBJModel warehouseModel;
+    OBJModel cashRegModel;
 public:
+    Bounds getWorldBounds(const OBJModel& model, svbmath::Vec3 pos, float yaw);
+
     void DrawWallOpeningThickness(svbmath::Vec3 wallStart, svbmath::Vec3 wallEnd, float height,
         float openingStart, float openingEnd, float thickness, bool horizontal, GLuint texture);
+
     CashRegister& getCashRegister();
     BuildingSettings& getBuildSettings();
     std::vector<Shelf>& getShelves();
 
     bool isInsideBuilding(svbmath::Vec3 pos);
-    void DrawQuad(svbmath::Vec3 a, svbmath::Vec3 b, svbmath::Vec3 c, svbmath::Vec3 d,
-        GLuint texture = 0);
+    void DrawQuad(svbmath::Vec3 a, svbmath::Vec3 b, svbmath::Vec3 c, svbmath::Vec3 d, GLuint texture = 0);
     void DrawWallWithOpening(svbmath::Vec3 wallStart, svbmath::Vec3 wallEnd, float height,
         float openingStart, float openingEnd, bool horizontal, GLuint texture);
+
     void DrawFloor(float minX, float maxX, float minZ, float maxZ);
     void DrawCeiling(float minX, float maxX, float minZ, float maxZ, float height);
     void DrawBox(svbmath::Vec3 center, float width, float height, float depth, GLuint texture);
@@ -72,5 +79,4 @@ public:
     void CreateBuilding();
     void DrawBuilding();
     bool checkCollision(Camera& cam);
-    
 };
