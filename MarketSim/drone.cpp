@@ -14,6 +14,7 @@
 #include <utility>
 #include "logger.h"
 #include "LoadingWin.h"
+#include <future>
 
 GLuint FPVDrone::returnCompPreview(const std::string& key) {
     static const std::unordered_map<std::string, std::string> compTextures = {
@@ -260,6 +261,7 @@ void FPVDrone::consumeComponents() {
 }
 void FPVDrone::init(GLFWwindow* win) {
     LoadingScreen::Show(win, "Loading assets...");
+
     markerModel.LoadOBJ("res/models/marker/free_slot_marker.obj", 0.08f);
     markerModel.CreateVBO();
 
@@ -268,11 +270,26 @@ void FPVDrone::init(GLFWwindow* win) {
     fpv.CreateVBO();
 
     LoadingScreen::Show(win, "Loading components...");
-    for (const auto& [objName, paths] : allCompPaths) {
-        auto model = std::make_unique<OBJModel>();
 
-        model->LoadOBJ(paths.model, paths.scale);
-        model->LoadTexture(paths.texture);
+    using ModelFuture = std::future<std::pair<std::string, std::unique_ptr<OBJModel>>>;
+
+    std::vector<ModelFuture> futures;
+
+    for (const auto& [objName, paths] : allCompPaths) {
+        futures.push_back(std::async(std::launch::async, [objName, paths]() {
+                auto model = std::make_unique<OBJModel>();
+
+                model->LoadOBJ(paths.model, paths.scale);
+
+                return std::make_pair(objName, std::move(model));
+            }
+        ));
+    }
+
+    for (auto& future : futures) {
+        auto [objName, model] = future.get();
+
+        model->LoadTexture(allCompPaths[objName].texture);
         model->CreateVBO();
 
         allCompModels.emplace(objName, std::move(model));
