@@ -7,6 +7,7 @@
 #include "bounds.h"
 #include "building.h"
 #include "model.h"
+#include "LoadingWin.h"
 
 static Bounds transformBounds(const Bounds& local, float scale,
     const svbmath::Vec3& pos, float yaw) {
@@ -359,10 +360,12 @@ void Building::DrawCashRegister(const CashRegister& cash) {
 
     DrawBox(cash.position, cash.width, cash.height, cash.depth, allTextures["METAL"]);
 }
-void Building::CreateBuilding() {
+void Building::CreateBuilding(GLFWwindow* win) {
+    LoadingScreen::Show(win, "Loading warehouse...");
     warehouseModel.LoadOBJ("res/models/warehouse/warehouse_rack.obj",1.0f);
     warehouseModel.CreateVBO();
 
+    LoadingScreen::Show(win, "Loading cash register...");
     cashRegModel.LoadOBJ("res/models/cash_register/cash_register.obj", 1.0f);
     cashRegModel.CreateVBO();
 

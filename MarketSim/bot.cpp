@@ -10,8 +10,10 @@
 #include "logger.h"
 #include "sound.h"
 #include "avgRating.h"
+#include "LoadingWin.h"
 
-void Bot::init() {
+void Bot::init(GLFWwindow* win) {
+    LoadingScreen::Show(win, "Loading human...");
     model.LoadOBJ("res/models/human/man.obj", 1.0f);
     model.CreateVBO();
 }

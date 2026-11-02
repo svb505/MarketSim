@@ -13,6 +13,7 @@
 #include <memory>
 #include <utility>
 #include "logger.h"
+#include "LoadingWin.h"
 
 GLuint FPVDrone::returnCompPreview(const std::string& key) {
     static const std::unordered_map<std::string, std::string> compTextures = {
@@ -257,7 +258,8 @@ void FPVDrone::consumeComponents() {
         }
     }
 }
-void FPVDrone::init() {
+void FPVDrone::init(GLFWwindow* win) {
+    LoadingScreen::Show(win, "Loading assets...");
     markerModel.LoadOBJ("res/models/marker/free_slot_marker.obj", 0.08f);
     markerModel.CreateVBO();
 
@@ -265,6 +267,7 @@ void FPVDrone::init() {
     fpv.LoadTexture("res/models/fpv_assemblee/fpv_drone_texture.png");
     fpv.CreateVBO();
 
+    LoadingScreen::Show(win, "Loading components...");
     for (const auto& [objName, paths] : allCompPaths) {
         auto model = std::make_unique<OBJModel>();
 

@@ -93,6 +93,9 @@
     <ClCompile Include="avgRating.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="LoadingWin.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h">
@@ -162,6 +165,9 @@
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="avgRating.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadingWin.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
   </ItemGroup>

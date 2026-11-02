@@ -205,7 +205,7 @@ private:
     bool showText = false;
     bool inDelivery = false;
 public:
-    void init();
+    void init(GLFWwindow* win);
     void consumeComponents();
     void reloadCompModels();
 

@@ -3,6 +3,8 @@
 #include "windows.h"
 #include "svbmath.h"
 #include "glad/glad.h"
+#define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>
 #include "texture.h"
 #include <vector>
 #include "bounds.h"
@@ -76,7 +78,7 @@ public:
     void DrawBox(svbmath::Vec3 center, float width, float height, float depth, GLuint texture);
     void DrawShelf(const Shelf& shelf);
     void DrawCashRegister(const CashRegister& cash);
-    void CreateBuilding();
+    void CreateBuilding(GLFWwindow* win);
     void DrawBuilding();
     bool checkCollision(Camera& cam);
 };

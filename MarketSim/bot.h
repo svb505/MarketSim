@@ -45,7 +45,7 @@ private:
         Building& building);
 
 public:
-    void init();
+    void init(GLFWwindow* win);
 
     bool checkCollision(const svbmath::Vec3& newPos, Building& building);
     void update(float dt, FPVDrone& drone, Building& building, Sound& sound);

@@ -37,6 +37,7 @@
 #include "stb_image.h"
 #include "localization.h"
 #include "days.h"
+#include "LoadingWin.h"
 
 Camera cam;
 Building build;
@@ -175,15 +176,21 @@ int main() {
     sound.setupBuffers();
     sound.createSources();
 
+    LoadingScreen::Show(window, "Loading fpv drone...");
     base.LoadOBJ("res/models/fpv/base.obj", 1.0f);
     base.LoadTexture("res/models/fpv/texture_diffuse.png");
     base.CreateVBO();
 
-    build.CreateBuilding();
+    build.CreateBuilding(window);
 
+    LoadingScreen::Show(window, "Loading buildings...");
     decor.initDecoration("res/models/builds/rue_2_cotes_complete.obj", DecType::STREET, "");
+    
+    LoadingScreen::Show(window, "Loading trees...");
     decor.initDecoration("res/models/trees/tree.obj", DecType::TREE,
         "res/models/trees/tex.jpg");
+
+    LoadingScreen::Show(window, "Loading street lamps...");
     decor.initDecoration("res/models/streetlamp/streetlamp.obj", DecType::LAMP,
         "res/models/streetlamp/texture.png");
 
@@ -195,10 +202,10 @@ int main() {
 
     svbmath::Vec3 point;
 
-    drone.init();
+    drone.init(window);
     drone.initCoordinatesForShelves(build);
 
-    bot.init();
+    bot.init(window);
 
     for (auto& p : getDataForPlayer().players) ratings.push_back(p.rating);
 
