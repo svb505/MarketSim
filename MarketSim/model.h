@@ -23,10 +23,16 @@ struct Material{
     std::string texturePath;
     GLuint textureID = 0;
 };
-
+struct LimbRig {
+    size_t start = 0, count = 0;
+    float px = 0, py = 0, pz = 0;   // точка вращения (бедро)
+    float side = 1.0f;              // +1 левая, -1 правая
+};
 struct ObjPart {
     std::string name;
     Bounds bounds;
+    size_t startVertex = 0;  
+    size_t vertexCount = 0;   
 };
 
 struct MaterialGroup{
@@ -40,6 +46,7 @@ private:
     std::vector<Vertex> vertices;
     std::vector<MaterialGroup> materialGroups;
     std::vector<Material> materials;
+    std::vector<LimbRig> legRig;
 
     GLuint vbo = 0;
     GLuint texture = 0;
@@ -47,6 +54,11 @@ private:
     bool SaveCache(const std::string& objPath, const std::string& cachePath,
         const std::string& mtlPath) const;
 
+    void BuildLegRig();
+    void SetupArrays();
+    void TeardownArrays();
+    void ApplyMaterial(const MaterialGroup& g);
+    void DrawRange(size_t begin, size_t end);
 public:
     std::vector<ObjPart> parts;
     Bounds bounds;
@@ -59,6 +71,9 @@ public:
 
     void CreateVBO();
     void Draw(svbmath::Vec3 pos, float yaw, float pitch);
+
+    void DrawWalking(svbmath::Vec3 pos, float yaw, float pitch,
+        float walkPhase, float intensity = 1.0f, float swingDeg = 35.0f);
 
     ~OBJModel();
 };

@@ -131,7 +131,7 @@ int main() {
     }
 
     glfwWindowHint(GLFW_SAMPLES, 16);
-    GLFWwindow* window = glfwCreateWindow(ECRAN_W, ECRAN_H, "FPV Market - V1.4.9", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(ECRAN_W, ECRAN_H, "FPV Market - V1.7.0", NULL, NULL);
 
     if (!window) {
         LOG_ERROR("Failed to create window");
@@ -218,6 +218,7 @@ int main() {
 
         if (!bot.isActive()) bot.spawn(drone, build);
 
+        bot.UpdateBot(fpsVars.deltaTime, true);
         bot.update(fpsVars.deltaTime, drone, build, sound);
 
         processInput(window, cam, drone, fpsVars.deltaTime, point, sound);

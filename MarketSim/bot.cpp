@@ -12,6 +12,12 @@
 #include "avgRating.h"
 #include "LoadingWin.h"
 
+void Bot::UpdateBot(float dt, bool moving) {
+    float target = moving ? 1.0f : 0.0f;
+    walkBlend += (target - walkBlend) * std::min(1.0f, dt * 10.0f);
+
+    if (moving)  walkPhase += dt * 8.0f;
+}
 void Bot::init(GLFWwindow* win) {
     LoadingScreen::Show(win, "Loading human...");
     model.LoadOBJ("res/models/human/man.obj", 1.0f);
@@ -437,5 +443,5 @@ void Bot::update(float dt,FPVDrone& drone,Building& building,Sound& sound){
 void Bot::draw(){
     if (!active || !isOpen) return;
 
-    model.Draw(position,yaw,0.0f);
+    model.DrawWalking(position, yaw, 0.0f, walkPhase, walkBlend);
 }

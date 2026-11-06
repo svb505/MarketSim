@@ -33,6 +33,9 @@ private:
     float yaw = 0.0f;
     float speed = 3.5f;
 
+    float walkPhase = 0.0f;   
+    float walkBlend = 0.0f; 
+
     bool carryingDrone = false;
 
     bool active = false;
@@ -53,6 +56,8 @@ public:
     void draw();
 
     bool isActive() const;
+
+    void UpdateBot(float dt, bool moving);
 
     float calculateRating(const std::vector<PurchasedItem>& items);
     void spawn(FPVDrone& drone, Building& building);
