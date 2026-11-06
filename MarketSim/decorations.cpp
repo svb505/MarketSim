@@ -14,7 +14,7 @@
 std::map<DecType, float> scales = {
     { DecType::BUILD1, 1.0f },
     { DecType::BUILD2, 1.0f },
-    { DecType::TREE,  0.25f },
+    { DecType::TREE,  1.25f },
     { DecType::LAMP,  1.25f },
     { DecType::STREET,  0.7f }
 };
