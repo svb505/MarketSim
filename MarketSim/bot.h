@@ -9,7 +9,8 @@
 enum class BotState {
     GoingToShelf,
     GoingToCash,
-    Leaving
+    Leaving,
+    Staing
 };
 
 struct PurchasedItem {
@@ -51,13 +52,11 @@ public:
     void init(GLFWwindow* win);
 
     bool checkCollision(const svbmath::Vec3& newPos, Building& building);
-    void update(float dt, FPVDrone& drone, Building& building, Sound& sound);
+    void update(float dt, FPVDrone& drone, Building& building, Sound& sound, bool moving);
 
     void draw();
 
     bool isActive() const;
-
-    void UpdateBot(float dt, bool moving);
 
     float calculateRating(const std::vector<PurchasedItem>& items);
     void spawn(FPVDrone& drone, Building& building);

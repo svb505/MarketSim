@@ -30,6 +30,8 @@ int callbackPlayer(void* data, int argc, char** argv, char** colName) {
         p.balance = argv[1] ? std::stof(argv[1]) : 0.0f;
         p.rating = argv[2] ? std::stof(argv[2]) : 0.0f;
         p.day = argv[3] ? std::stoi(argv[3]) : 0;
+        p.level = argv[4] ? std::stoi(argv[4]) : 1;
+        p.purchases = argv[5] ? std::stoi(argv[5]) : 0;
     }
     catch (const std::exception& e) {
         LOG_ERROR(std::format( "callbackPlayer: failed to parse player data: {}", e.what()));
@@ -76,11 +78,13 @@ void createDb(const std::string name) {
         "id INTEGER PRIMARY KEY,"
         "balance REAL,"
         "rating REAL,"
-        "day INTEGER)";
+        "day INTEGER,"
+        "level INTEGER,"
+        "purchases INTEGER)";
 
     const char* insertQuery =
         "INSERT OR IGNORE INTO player "
-        "VALUES(0, 4000.0, 0.0, 0)";
+        "VALUES(0, 4000.0, 0.0, 0, 1, 0)";
 
     char* err = nullptr;
 
@@ -116,6 +120,59 @@ void createDb(const std::string name) {
     sqlite3_close(localDb);
 
     std::cout << "[DB] createDb finished\n";
+}
+
+void saveLevelAndPurchasesToDb(int level, int purchases) {
+    std::cout << "Lvl: " << level << " | Purchases: " << purchases << std::endl;
+
+    sqlite3* localDb = nullptr;
+
+    int rc = sqlite3_open("playerInfo.db", &localDb);
+
+    if (rc != SQLITE_OK) {
+        LOG_ERROR(std::format("saveLevelAndPurchasesToDb: open failed: {}", localDb ? sqlite3_errmsg(localDb) : "unknown error"));
+
+        if (localDb) sqlite3_close(localDb);
+
+        return;
+    }
+
+    char* sql = nullptr;
+
+    sql = sqlite3_mprintf("UPDATE player SET ""level = %d, purchases = purchases + %d ""WHERE id = 0;", level, purchases);
+
+    if (sql == nullptr) {
+        LOG_ERROR("saveLevelAndPurchasesToDb: sqlite3_mprintf failed");
+        sqlite3_close(localDb);
+        return;
+    }
+
+    std::cout << "[DB] SQL: " << sql << '\n';
+
+    char* err = nullptr;
+
+    rc = sqlite3_exec(localDb, sql, nullptr, nullptr, &err);
+
+    if (rc != SQLITE_OK) {
+        LOG_ERROR(std::format("saveLevelAndPurchasesToDb: UPDATE failed: {}", err ? err : sqlite3_errmsg(localDb)));
+    }
+    else {
+        std::cout << "[DB] UPDATE successful. Rows changed: " << sqlite3_changes(localDb) << '\n';
+
+        if (sqlite3_changes(localDb) == 0) {
+            LOG_ERROR("saveLevelAndPurchasesToDb: no player row updated (id=0)"
+            );
+        }
+    }
+
+    sqlite3_free(err);
+    sqlite3_free(sql);
+
+    rc = sqlite3_close(localDb);
+
+    if (rc != SQLITE_OK) {
+        LOG_ERROR(std::format("saveLevelAndPurchasesToDb: close failed: {}", sqlite3_errstr(rc)));
+    }
 }
 
 void saveDataForPlayer( float balance, float rating, std::string scoreOperation) {

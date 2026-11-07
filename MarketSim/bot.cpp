@@ -12,12 +12,6 @@
 #include "avgRating.h"
 #include "LoadingWin.h"
 
-void Bot::UpdateBot(float dt, bool moving) {
-    float target = moving ? 1.0f : 0.0f;
-    walkBlend += (target - walkBlend) * std::min(1.0f, dt * 10.0f);
-
-    if (moving)  walkPhase += dt * 8.0f;
-}
 void Bot::init(GLFWwindow* win) {
     LoadingScreen::Show(win, "Loading human...");
     model.LoadOBJ("res/models/human/man.obj", 1.0f);
@@ -366,9 +360,13 @@ bool Bot::takeDrone( FPVDrone& drone){
 
     return false;
 }
-void Bot::update(float dt,FPVDrone& drone,Building& building,Sound& sound){
-    if (!active || !isOpen) return;
+void Bot::update(float dt,FPVDrone& drone,Building& building,Sound& sound, bool moving){
+    if (!active || !isOpen || state == BotState::Staing) return;
 
+    float target = moving ? 1.0f : 0.0f;
+    walkBlend += (target - walkBlend) * std::min(1.0f, dt * 10.0f);
+
+    if (moving)  walkPhase += dt * 8.0f;
 
     switch (state){
     case BotState::GoingToShelf:{
@@ -416,6 +414,11 @@ void Bot::update(float dt,FPVDrone& drone,Building& building,Sound& sound){
             ratings.push_back(calculateRating(basket));
 
             sallesForDay++;
+            purchasesForAllTime++;
+            purchasesForSession++;
+
+            if (purchasesForAllTime == lvlTwoRequiredPurchases) level = 2;
+            if (purchasesForAllTime >= lvlThreeRequiredPurchases) level = 3;
 
             auto& src = sound.sources["Purchase"];
             sound.playSound(src,building.getCashRegister().position);

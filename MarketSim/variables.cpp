@@ -24,3 +24,8 @@ bool isOpen = false;
 std::string currLang = "FR";
 json lang;
 std::vector<float> ratings;
+int level = 0;
+int purchasesForAllTime = 0;
+int purchasesForSession = 0;
+int lvlTwoRequiredPurchases = 3;
+int lvlThreeRequiredPurchases = 6;

@@ -116,9 +116,12 @@ int main() {
 
     if (!dbIsExists()) createDb();
 
+
     for (auto& p : getDataForPlayer().players) {
         myBalance = p.balance;
         day = p.day;
+        level = p.level;
+        purchasesForAllTime = p.purchases;
     }
 
     int width, height, channels;
@@ -218,8 +221,7 @@ int main() {
 
         if (!bot.isActive()) bot.spawn(drone, build);
 
-        bot.UpdateBot(fpsVars.deltaTime, true);
-        bot.update(fpsVars.deltaTime, drone, build, sound);
+        bot.update(fpsVars.deltaTime, drone, build, sound, true);
 
         processInput(window, cam, drone, fpsVars.deltaTime, point, sound);
 
@@ -307,6 +309,7 @@ int main() {
     }
 
     saveDayToDb(day);
+    saveLevelAndPurchasesToDb(level,purchasesForSession);
 
     Logger::shutDown();
 

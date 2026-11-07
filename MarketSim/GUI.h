@@ -212,6 +212,12 @@ public:
 			ImGui::Text(lang[currLang]["RATING"].get<std::string>().c_str());
 			ImGui::SameLine();
 			ImGui::TextColored(color, "%.1f", rating);
+
+			ImGui::Dummy({ 0.0f, 10.0f });
+			ImGui::Text(std::format("{}: {}", lang[currLang]["LEVEL"].get<std::string>(), level).c_str());
+			ImGui::Dummy({ 0.0f, 10.0f });
+			ImGui::Text(std::format("{}: {}", lang[currLang]["PURCHASES"].get<std::string>(),
+				purchasesForAllTime).c_str());
 		}
 
 		ImGui::End();
@@ -258,14 +264,21 @@ public:
 				buyingWin = true;
 				type = CompType::TYPE1;
 			}
+
+			ImGui::BeginDisabled(level < 2);
 			if (ImGui::Button("TYPE2")) {
 				buyingWin = true;
 				type = CompType::TYPE2;
 			}
+			ImGui::EndDisabled();
+
+			ImGui::BeginDisabled(level < 3);
 			if (ImGui::Button("TYPE3")) {
 				buyingWin = true;
 				type = CompType::TYPE3;
 			}
+			ImGui::EndDisabled();
+
 		}
 
 		sectionTitle(lang[currLang]["ASSEMBLE"].get<std::string>().c_str());

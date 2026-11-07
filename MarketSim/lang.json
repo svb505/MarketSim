@@ -56,13 +56,16 @@
         "PROP3":"Hélice Type 3",
          "FC1":"FC1",
         "FC2":"FC2",
-        "RATING":"Notation",
+        "RATING":"Note",
          "DAY":"Jour",
          "SALES_FOR_DAY":"Ventes par jour",
          "COST_PRICE":"Prix de revient",
          "SELL_PRICE":"Prix de vente",
           "MARKUP":"Marge",
-           "BEST_PRICE":"Meilleur prix"
+           "BEST_PRICE":"Meilleur prix",
+           "LEVEL":"Niveau",
+           "PURCHASES":"Ventes",
+           "TONEXTLVL":"Pour prochaine niveau: "
 
     },
     "EN":{
@@ -128,7 +131,10 @@
         "COST_PRICE":"Cost price",
          "SELL_PRICE":"Sell price",
           "MARKUP":"Markup",
-           "BEST_PRICE":"Best price"
+           "BEST_PRICE":"Best price",
+           "LEVEL":"Level",
+           "PURCHASES":"Purchases",
+           "TONEXTLVL":"To next level: "
     },
     "RU":{
         "MAIN_WIN":"Главное окно",
@@ -193,6 +199,9 @@
         "COST_PRICE":"Цена покупки",
          "SELL_PRICE":"Цена продажи",
           "MARKUP":"Наценка",
-           "BEST_PRICE":"Лучшая цена"
+           "BEST_PRICE":"Лучшая цена",
+           "LEVEL":"Уровень",
+           "PURCHASES":"Продажи",
+           "TONEXTLVL":"До следующего уровня: "
     }
 }
