@@ -175,7 +175,7 @@ void saveLevelAndPurchasesToDb(int level, int purchases) {
     }
 }
 
-void saveDataForPlayer( float balance, float rating, std::string scoreOperation) {
+void saveDataForPlayer(float balance, float rating, std::string scoreOperation) {
     std::cout << "[DB] saveDataForPlayer: balance=" << balance << ", rating=" << rating << ", operation=" << scoreOperation << '\n';
 
     sqlite3* localDb = nullptr;

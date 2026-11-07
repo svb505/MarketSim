@@ -12,6 +12,7 @@
 #include <iostream>
 #include "days.h"
 #include "avgRating.h"
+#include "localization.h"
 
 class GUI {
 private:
@@ -59,9 +60,9 @@ private:
 
 		// Себестоимость / цена / наценка
 		ImGui::Text("%s: %.0f  |  %s: %.0f  |  %s: %+.1f%%",
-			lang[currLang]["COST_PRICE"].get<std::string>().c_str(), cost,
-			lang[currLang]["SELL_PRICE"].get<std::string>().c_str(), price,
-			lang[currLang]["MARKUP"].get<std::string>().c_str(), markup);
+			returnStringFromLang("COST_PRICE").c_str(), cost,
+			returnStringFromLang("SELL_PRICE").c_str(), price,
+			returnStringFromLang("MARKUP").c_str(), markup);
 
 		// Слайдер; в тексте на самом слайдере — лучшая цена
 		const std::string fmt = std::format("%.0f   ({}: {:.0f})", lang[currLang]["BEST_PRICE"].get<std::string>().c_str(), best);
@@ -92,24 +93,17 @@ private:
 	void componentText(const char* text, int current, int required) {
 		bool done = current >= required;
 
-		if (done)
-			ImGui::PushStyleColor(ImGuiCol_Text, colGreen);
+		if (done) ImGui::PushStyleColor(ImGuiCol_Text, colGreen);
 
 		ImGui::Text("%s %d / %d", text, current, required);
 
-		if (done)
-			ImGui::PopStyleColor();
+		if (done) ImGui::PopStyleColor();
 
-		float frac = required > 0
-			? static_cast<float>(current) / required
-			: 1.0f;
+		float frac = required > 0 ? static_cast<float>(current) / required : 1.0f;
 
 		frac = std::clamp(frac, 0.0f, 1.0f);
 
-		ImGui::PushStyleColor(
-			ImGuiCol_PlotHistogram,
-			done ? colGreen : colAccent
-		);
+		ImGui::PushStyleColor(ImGuiCol_PlotHistogram,done ? colGreen : colAccent);
 
 		ImGui::ProgressBar(frac, ImVec2(-FLT_MIN, 6.0f), "");
 		ImGui::PopStyleColor();
@@ -181,8 +175,8 @@ public:
 		if (ImGui::Begin("INFO",nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse)) {
 			ImVec4 color;
 			float rating = 0.0f;
-			std::string dayString = lang[currLang]["DAY"].get<std::string>();
-			std::string sallesForDayString = lang[currLang]["SALES_FOR_DAY"].get<std::string>();
+			std::string dayString = returnStringFromLang("DAY");
+			std::string sallesForDayString = returnStringFromLang("SALES_FOR_DAY");
 
 			if (!ratings.empty()) {
 				for (float r : ratings) rating += r;
@@ -203,21 +197,20 @@ public:
 			ImGui::Text(std::format("{}: {}", sallesForDayString, sallesForDay).c_str());
 			ImGui::Dummy({ 0.0f, 10.0f });
 
-			ImGui::Text(lang[currLang]["CHECK"].get<std::string>().c_str());
+			ImGui::Text(returnStringFromLang("CHECK").c_str());
 			ImGui::SameLine();
 
 			ImGui::TextColored(colYellow, "%.1f $", myBalance);
 			ImGui::Spacing();
 
-			ImGui::Text(lang[currLang]["RATING"].get<std::string>().c_str());
+			ImGui::Text(returnStringFromLang("RATING").c_str());
 			ImGui::SameLine();
 			ImGui::TextColored(color, "%.1f", rating);
 
 			ImGui::Dummy({ 0.0f, 10.0f });
-			ImGui::Text(std::format("{}: {}", lang[currLang]["LEVEL"].get<std::string>(), level).c_str());
+			ImGui::Text(std::format("{}: {}", returnStringFromLang("LEVEL"), level).c_str());
 			ImGui::Dummy({ 0.0f, 10.0f });
-			ImGui::Text(std::format("{}: {}", lang[currLang]["PURCHASES"].get<std::string>(),
-				purchasesForAllTime).c_str());
+			ImGui::Text(std::format("{}: {}", returnStringFromLang("PURCHASES"),purchasesForAllTime).c_str());
 		}
 
 		ImGui::End();
@@ -230,11 +223,11 @@ public:
 
 		ImGui::SetNextWindowPos(ImVec2(10.0f, 10.0f), ImGuiCond_FirstUseEver);
 		ImGui::SetNextWindowSize(ImVec2(350.0f, 720.0f), ImGuiCond_FirstUseEver);
-		ImGui::Begin(lang[currLang]["MAIN_WIN"].get<std::string>().c_str());
+		ImGui::Begin(returnStringFromLang("MAIN_WIN").c_str());
 
-		ImGui::Checkbox(lang[currLang]["OPEN_STORE"].get<std::string>().c_str(), &isOpen);
+		ImGui::Checkbox(returnStringFromLang("OPEN_STORE").c_str(), &isOpen);
 
-		sectionTitle(lang[currLang]["WINDOWS"].get<std::string>().c_str());
+		sectionTitle(returnStringFromLang("WINDOWS").c_str());
 		const float spacing = ImGui::GetStyle().ItemSpacing.x;
 		const float third = (ImGui::GetContentRegionAvail().x - spacing * 2.0f) / 3.0f;
 
@@ -244,14 +237,14 @@ public:
 				const ImVec4 base = state ? ImVec4(0.20f, 0.55f, 0.35f, 1.0f) : ImVec4(0.25f, 0.28f, 0.35f, 1.0f);
 				if (colorButton(label, base, ImVec2(third, 0.0f))) state = !state;
 				};
-			toggleSmall(lang[currLang]["PERF"].get<std::string>().c_str(), showPerformance, false);
-			toggleSmall(lang[currLang]["PRICE"].get<std::string>().c_str(), showPrices, true);
-			toggleSmall(lang[currLang]["NAMES"].get<std::string>().c_str(), showNames, true);
+			toggleSmall(returnStringFromLang("PERF").c_str(), showPerformance, false);
+			toggleSmall(returnStringFromLang("PRICE").c_str(), showPrices, true);
+			toggleSmall(returnStringFromLang("NAMES").c_str(), showNames, true);
 		}
 
 		ImGui::BeginDisabled(!drone.getPlacedEquip().empty() || canTakeObj);
 
-		if (ImGui::Combo(lang[currLang]["SLCT_LANG"].get<std::string>().c_str(), &idxLang, langs.data(), langs.size())) {
+		if (ImGui::Combo(returnStringFromLang("SLCT_LANG").c_str(), &idxLang, langs.data(), langs.size())) {
 			currLang = langs[idxLang];
 			changePlayerConfig("CURR_LANG", currLang, "config.json");
 			drone.reInitListes();
@@ -259,7 +252,7 @@ public:
 
 		ImGui::EndDisabled();
 
-		if (ImGui::CollapsingHeader(lang[currLang]["WIN_COMM"].get<std::string>().c_str())) {
+		if (ImGui::CollapsingHeader(returnStringFromLang("WIN_COMM").c_str())) {
 			if (ImGui::Button("TYPE1")) {
 				buyingWin = true;
 				type = CompType::TYPE1;
@@ -281,15 +274,15 @@ public:
 
 		}
 
-		sectionTitle(lang[currLang]["ASSEMBLE"].get<std::string>().c_str());
+		sectionTitle(returnStringFromLang("ASSEMBLE").c_str());
 
-		componentText((lang[currLang]["FRAME"].get<std::string>()).c_str(),
+		componentText(returnStringFromLang("FRAME").c_str(),
 			comp.frame,1);
-		componentText((lang[currLang]["CAM"].get<std::string>()).c_str(), comp.camera, 1);
-		componentText((lang[currLang]["BAT"].get<std::string>()).c_str(), comp.battery, 1);
-		componentText((lang[currLang]["MOTOR"].get<std::string>()).c_str(), comp.motor, 4);
-		componentText((lang[currLang]["PROPELLER"].get<std::string>()).c_str(), comp.propeller, 4);
-		componentText((lang[currLang]["FC"].get<std::string>()).c_str(),comp.fc, 1);
+		componentText(returnStringFromLang("CAM").c_str(), comp.camera, 1);
+		componentText(returnStringFromLang("BAT").c_str(), comp.battery, 1);
+		componentText(returnStringFromLang("MOTOR").c_str(), comp.motor, 4);
+		componentText(returnStringFromLang("PROPELLER").c_str(), comp.propeller, 4);
+		componentText(returnStringFromLang("FC").c_str(),comp.fc, 1);
 
 		ImGui::Dummy({ 0.0f, 10.0f });
 		ImGui::Text("©Developped by SVB & Red.Fpv");
@@ -306,10 +299,10 @@ public:
 		ImGui::SetNextWindowPos(ImVec2(100.0f, 10.0f), ImGuiCond_FirstUseEver);
 		ImGui::SetNextWindowSize(ImVec2(350.0f, 650.0f), ImGuiCond_FirstUseEver);
 
-		if (ImGui::Begin(lang[currLang]["WIN_COMM"].get<std::string>().c_str(), &buyingWin)) {
+		if (ImGui::Begin(returnStringFromLang("WIN_COMM").c_str(), &buyingWin)) {
 			auto equip = drone.getEquipPrice();
 
-			ImGui::Text(lang[currLang]["PROD_IN_CARD"].get<std::string>().c_str());
+			ImGui::Text(returnStringFromLang("PROD_IN_CARD").c_str());
 			ImGui::SameLine();
 			ImGui::TextColored(card.empty() ? colDim : colGreen, "%d", (int)card.size());
 
@@ -337,14 +330,14 @@ public:
 				else ImGui::Text("%s - %.1f$", key.c_str(), value);
 
 				if (colorButton(
-					std::format("{}##{}", lang[currLang]["ADD_TO_CARD"].get<std::string>(), key).c_str(),
+					std::format("{}##{}", returnStringFromLang("ADD_TO_CARD"), key).c_str(),
 					ImVec4(0.10f, 0.60f, 0.25f, 1.0f), ImVec2(btnWidth, 0.0f))) {
 					card.push_back(key);
 				}
 
 				ImGui::SameLine();
 
-				if (colorButton(std::format("{}##{}", lang[currLang]["DELETE_FROM_CARD"].get<std::string>(),
+				if (colorButton(std::format("{}##{}", returnStringFromLang("DELETE_FROM_CARD"),
 					key).c_str(), ImVec4(0.75f, 0.15f, 0.15f, 1.0f), ImVec2(btnWidth, 0.0f))) {
 					card.erase(std::remove(card.begin(), card.end(), key), card.end());
 				}
@@ -353,7 +346,7 @@ public:
 				ImGui::Spacing();
 			}
 
-			if (colorButton(lang[currLang]["BUY_ALL"].get<std::string>().c_str(), ImVec4(0.15f, 0.45f, 0.85f, 1.0f), ImVec2(-FLT_MIN, 32.0f))) {
+			if (colorButton(returnStringFromLang("BUY_ALL").c_str(), ImVec4(0.15f, 0.45f, 0.85f, 1.0f), ImVec2(-FLT_MIN, 32.0f))) {
 				float totalPrice = 0.0f;
 
 				for (auto& element : card) totalPrice += equip[element];
@@ -367,7 +360,7 @@ public:
 					drone.sendPackage(card, build);
 					card.clear();
 				}
-				else ImGui::TextColored(colRed, lang[currLang]["NOT_ENOUGH_MONEY"].get<std::string>().c_str());
+				else ImGui::TextColored(colRed, returnStringFromLang("NOT_ENOUGH_MONEY").c_str());
 			}
 			ImGui::Spacing();
 		}
@@ -381,13 +374,13 @@ public:
 		ImGui::SetNextWindowPos(ImVec2(380.0f, 10.0f), ImGuiCond_FirstUseEver);
 		ImGui::SetNextWindowSize(ImVec2(260.0f, 140.0f), ImGuiCond_FirstUseEver);
 
-		if (ImGui::Begin(lang[currLang]["PERF"].get<std::string>().c_str(), &showPerformance)) {
+		if (ImGui::Begin(returnStringFromLang("PERF").c_str(), &showPerformance)) {
 			ImVec4 fpsColor = fps.fps >= 60.0f ? colGreen : (fps.fps >= 30.0f ? colYellow : colRed);
 
-			ImGui::Text(std::format("{}: % .0f", lang[currLang]["MIN_FPS"].get<std::string>()).c_str(), fps.minFps);
-			ImGui::Text(std::format("{}: % .0f", lang[currLang]["MAX_FPS"].get<std::string>()).c_str(), fps.maxFps);
+			ImGui::Text(std::format("{}: % .0f", returnStringFromLang("MIN_FPS")).c_str(), fps.minFps);
+			ImGui::Text(std::format("{}: % .0f", returnStringFromLang("MAX_FPS")).c_str(), fps.maxFps);
 			ImGui::PushStyleColor(ImGuiCol_Text, fpsColor);
-			ImGui::Text(std::format("{}: % .0f", lang[currLang]["CURR_FPS"].get<std::string>()).c_str(), fps.fps);
+			ImGui::Text(std::format("{}: % .0f", returnStringFromLang("CURR_FPS")).c_str(), fps.fps);
 			ImGui::PopStyleColor();
 		}
 		ImGui::End();
@@ -400,35 +393,35 @@ public:
 		ImGui::SetNextWindowPos(ImVec2(380.0f, 170.0f), ImGuiCond_FirstUseEver);
 		ImGui::SetNextWindowSize(ImVec2(340.0f, 460.0f), ImGuiCond_FirstUseEver);
 
-		if (ImGui::Begin(lang[currLang]["PRICE"].get<std::string>().c_str())) {
-			sectionTitle(lang[currLang]["PRICE_OF_DRONE"].get<std::string>().c_str());
+		if (ImGui::Begin(returnStringFromLang("PRICE").c_str())) {
+			sectionTitle(returnStringFromLang("PRICE_OF_DRONE").c_str());
 
 			ImGui::Text("%s", std::format("{} {} {:.0f}", getStringFromJson("DRONE_Achetee"),
-				lang[currLang]["PRICE"].get<std::string>(), priceForT1).c_str());
+				returnStringFromLang("PRICE"), priceForT1).c_str());
 
 			ImGui::Text("%s", std::format("{} {} {:.0f}", getStringFromJson("DRONE_Assemblee"),
-				lang[currLang]["PRICE"].get<std::string>(), priceForT2).c_str());
+				returnStringFromLang("PRICE"), priceForT2).c_str());
 
-			sectionTitle(lang[currLang]["SETTING_OF_PRICE"].get<std::string>().c_str());
+			sectionTitle(returnStringFromLang("SETTING_OF_PRICE").c_str());
 
 			ImGui::PushItemWidth(-FLT_MIN);
 
-			priceSlider(lang[currLang]["ENTER_PRICE_FOR_DRN_BUY"].get<std::string>().c_str(),
+			priceSlider(returnStringFromLang("ENTER_PRICE_FOR_DRN_BUY").c_str(),
 				"##p1", priceForT1, getCost(drone.getBaseEquip()[7], drone), minValue, maxValue);
 
-			ImGui::TextColored(colDim, "%s", lang[currLang]["ENTER_PRICE_FOR_DRN_ASSEMBLE"].get<std::string>().c_str());
+			ImGui::TextColored(colDim, "%s", returnStringFromLang("ENTER_PRICE_FOR_DRN_ASSEMBLE").c_str());
 			ImGui::InputFloat("2##", &priceForT2);
 
-			priceSlider(lang[currLang]["ENTER_PRICE_FOR_GOGGLES"].get<std::string>().c_str(),
+			priceSlider(returnStringFromLang("ENTER_PRICE_FOR_GOGGLES").c_str(),
 				"##p3", priceForGoggles1, getCost(drone.getBaseEquip()[6], drone), minValue, maxValue);
 
-			priceSlider(lang[currLang]["ENTER_PRICE_FOR_GOGGLES2"].get<std::string>().c_str(),
+			priceSlider(returnStringFromLang("ENTER_PRICE_FOR_GOGGLES2").c_str(),
 				"##p4", priceForGoggles2, getCost(drone.getBaseEquip()[15], drone), minValue, maxValue);
 
-			priceSlider(lang[currLang]["ENTER_PRICE_FOR_CONTROLLER"].get<std::string>().c_str(),
+			priceSlider(returnStringFromLang("ENTER_PRICE_FOR_CONTROLLER").c_str(),
 				"##p5", priceForController1, getCost(drone.getBaseEquip()[5], drone), minValue, maxValue);
 
-			priceSlider(lang[currLang]["ENTER_PRICE_FOR_CONTROLLER2"].get<std::string>().c_str(),
+			priceSlider(returnStringFromLang("ENTER_PRICE_FOR_CONTROLLER2").c_str(),
 				"##p6", priceForController2, getCost(drone.getBaseEquip()[14], drone), minValue, maxValue);
 
 			priceForT2 = std::clamp(priceForT2, minValue, maxValue);
@@ -445,17 +438,17 @@ public:
 		ImGui::SetNextWindowPos(ImVec2(740.0f, 10.0f), ImGuiCond_FirstUseEver);
 		ImGui::SetNextWindowSize(ImVec2(320.0f, 250.0f), ImGuiCond_FirstUseEver);
 
-		if (ImGui::Begin(lang[currLang]["DRONE_NAMES"].get<std::string>().c_str(), &showNames)) {
+		if (ImGui::Begin(returnStringFromLang("DRONE_NAMES").c_str(), &showNames)) {
 			ImGui::PushItemWidth(-FLT_MIN);
 
-			ImGui::TextColored(colDim, lang[currLang]["ENTER_NAME_FOR_DRN_ASSEMBLE"].get<std::string>().c_str());
+			ImGui::TextColored(colDim, returnStringFromLang("ENTER_NAME_FOR_DRN_ASSEMBLE").c_str());
 			ImGui::InputText("7##", bufNameAs, sizeof(bufNameAs));
 			if (colorButton("Appliquer##", ImVec4(0.20f, 0.50f, 0.80f, 1.0f), ImVec2(-FLT_MIN, 0.0f)))
 				changePlayerConfig("DRONE_Assemblee", bufNameAs);
 
 			ImGui::Spacing();
 
-			ImGui::TextColored(colDim, lang[currLang]["ENTER_NAME_FOR_DRN_BUY"].get<std::string>().c_str());
+			ImGui::TextColored(colDim, returnStringFromLang("ENTER_NAME_FOR_DRN_BUY").c_str());
 			ImGui::InputText("8##", bufNameAch, sizeof(bufNameAch));
 			if (colorButton("Appliquer", ImVec4(0.20f, 0.50f, 0.80f, 1.0f), ImVec2(-FLT_MIN, 0.0f)))
 				changePlayerConfig("DRONE_Achetee", bufNameAch);
