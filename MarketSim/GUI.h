@@ -13,6 +13,7 @@
 #include "days.h"
 #include "avgRating.h"
 #include "localization.h"
+#include "profiler.h"
 
 class GUI {
 private:
@@ -26,6 +27,7 @@ private:
 	bool showPerformance = false;
 	bool showPrices = false;
 	bool showNames = false;
+	bool showDev = false;
 
 	float minValue = 0.0f;
 	float maxValue = 2000.0f;
@@ -167,6 +169,7 @@ public:
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init("#version 330");
 	}
+
 	void renderBalanceRatingWindow() {
 		pushStyle();
 
@@ -236,10 +239,13 @@ public:
 				if (sameLine) ImGui::SameLine();
 				const ImVec4 base = state ? ImVec4(0.20f, 0.55f, 0.35f, 1.0f) : ImVec4(0.25f, 0.28f, 0.35f, 1.0f);
 				if (colorButton(label, base, ImVec2(third, 0.0f))) state = !state;
-				};
+			};
 			toggleSmall(returnStringFromLang("PERF").c_str(), showPerformance, false);
 			toggleSmall(returnStringFromLang("PRICE").c_str(), showPrices, true);
 			toggleSmall(returnStringFromLang("NAMES").c_str(), showNames, true);
+			
+			if (getBoolFromJson("DEVMODE"))
+				toggleSmall("DEV WINDOW", showDev, false);
 		}
 
 		ImGui::BeginDisabled(!drone.getPlacedEquip().empty() || canTakeObj);
@@ -386,6 +392,20 @@ public:
 		ImGui::End();
 		popStyle();
 	}
+	void renderDevWindow() {
+		if (!showDev) return;
+
+		pushStyle();
+		ImGui::SetNextWindowPos(ImVec2(380.0f, 10.0f), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(ImVec2(260.0f, 140.0f), ImGuiCond_FirstUseEver);
+
+		if (ImGui::Begin("DEV Window", nullptr)) {
+			for (const auto& line : Profiler::getMemoryUsage()) ImGui::Text("%s", line.c_str());
+		}
+
+		ImGui::End();
+		popStyle();
+	}
 	void renderPricesWindow(FPVDrone& drone) {
 		if (!showPrices) return;
 
@@ -464,6 +484,8 @@ public:
 		renderPricesWindow(drone);
 		renderNamesWindow();
 		renderBalanceRatingWindow();
+
+		renderDevWindow();
 
 		const float spacing = ImGui::GetStyle().ItemSpacing.x;
 

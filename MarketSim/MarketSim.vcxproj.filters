@@ -105,6 +105,9 @@
     <ClCompile Include="text.cpp">
       <Filter>Исходные файлы\Engine</Filter>
     </ClCompile>
+    <ClCompile Include="profiler.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bounds.h">
@@ -178,6 +181,9 @@
     </ClInclude>
     <ClInclude Include="texture.h">
       <Filter>Исходные файлы\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="profiler.h">
+      <Filter>Исходные файлы</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

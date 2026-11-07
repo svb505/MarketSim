@@ -25,3 +25,13 @@ std::string getStringFromJson(std::string key, std::string path) {
 	if (j.contains(key)) return j[key];
 	else return "";
 }
+bool getBoolFromJson(std::string key, std::string path) {
+	std::ifstream file(path);
+
+	json j;
+
+	file >> j;
+
+	if (j.contains(key)) return j[key];
+	else return false;
+}
