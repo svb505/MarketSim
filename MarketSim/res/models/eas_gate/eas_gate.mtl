@@ -1,0 +1,35 @@
+newmtl body_white
+Kd 1.0 1.0 1.0
+Ks 0.30 0.30 0.30
+Ns 60
+map_Kd eas_texture.png
+
+newmtl base_metal
+Kd 1.0 1.0 1.0
+Ks 0.60 0.60 0.60
+Ns 120
+map_Kd eas_texture.png
+
+newmtl dark_panel
+Kd 1.0 1.0 1.0
+Ks 0.50 0.50 0.50
+Ns 150
+map_Kd eas_texture.png
+
+newmtl led_green
+Kd 1.0 1.0 1.0
+Ks 0.00 0.00 0.00
+Ke 0.10 0.90 0.25
+map_Kd eas_texture.png
+
+newmtl accent_blue
+Kd 1.0 1.0 1.0
+Ks 0.20 0.20 0.20
+Ns 40
+map_Kd eas_texture.png
+
+newmtl floor_gray
+Kd 1.0 1.0 1.0
+Ks 0.05 0.05 0.05
+Ns 10
+map_Kd eas_texture.png

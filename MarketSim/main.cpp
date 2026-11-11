@@ -38,6 +38,12 @@
 #include "localization.h"
 #include "days.h"
 #include "LoadingWin.h"
+#include <nlohmann//json.hpp>
+#include <fstream>
+
+using json = nlohmann::json;
+
+json mapJson;
 
 Camera cam;
 Building build;
@@ -46,6 +52,14 @@ Decorations decor;
 Sound sound;
 Bot bot;
 
+void loadMap(const std::string& path){
+    std::ifstream file(path);
+
+    if (!file.is_open()) return;
+
+    file >> mapJson;
+    file.close();
+}
 void updateCursorMode(GLFWwindow* window){
     if (hideCursor)  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     else glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
@@ -175,6 +189,7 @@ int main() {
 
     initLighting();
     LoadAllTextures();
+    loadMap("maps/map.json");
 
     sound.setupBuffers();
     sound.createSources();
@@ -197,7 +212,7 @@ int main() {
     decor.initDecoration("res/models/streetlamp/streetlamp.obj", DecType::LAMP,
         "res/models/streetlamp/texture.png");
 
-    decor.initPositions();
+    decor.initPositions("maps/map.json");
 
     glfwSetCursorPosCallback(window, mouse_callback);
 
@@ -239,7 +254,7 @@ int main() {
 
         drawSky();
         drawGround();
-        drawRoad(0.01, -130.0f, 12.0f, 22);
+        drawRoadsFromJson(mapJson);
 
         glEnable(GL_POLYGON_OFFSET_FILL);
         glPolygonOffset(-2.0f, -2.0f);
