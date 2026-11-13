@@ -204,6 +204,9 @@ int main() {
     LoadingScreen::Show(window, "Loading buildings...");
     decor.initDecoration("res/models/builds/rue_2_cotes_complete.obj", DecType::STREET, "");
     
+    LoadingScreen::Show(window, "Loading fences...");
+    decor.initDecoration("res/models/fence/city_fence.obj", DecType::FENCE, "");
+
     LoadingScreen::Show(window, "Loading trees...");
     decor.initDecoration("res/models/trees/tree.obj", DecType::TREE,
         "res/models/trees/tex.jpg");
@@ -305,9 +308,12 @@ int main() {
         decor.drawAllDecorations(DecType::STREET);
         decor.drawAllDecorations(DecType::TREE);
         decor.drawAllDecorations(DecType::LAMP);
+        decor.drawAllDecorations(DecType::FENCE);
+
         if (decor.checkCollision(cam, DecType::STREET)) cam.getCamPos() = cam.getOldCamPos();
         if (decor.checkCollision(cam, DecType::TREE)) cam.getCamPos() = cam.getOldCamPos();
         if (decor.checkCollision(cam, DecType::LAMP)) cam.getCamPos() = cam.getOldCamPos();
+        if (decor.checkCollision(cam, DecType::FENCE)) cam.getCamPos() = cam.getOldCamPos();
 
         if (drone.getShowText()) {
             RenderTextHUD(ECRAN_W / 2, ECRAN_H / 2, 1.0f, 0.0f, 0.0f,

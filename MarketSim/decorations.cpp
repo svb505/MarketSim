@@ -10,6 +10,7 @@
 #include <map>
 #include "logger.h"
 #include <format>
+#include <iostream>
 
 #include <fstream>
 #include <nlohmann/json.hpp>
@@ -21,15 +22,17 @@ std::map<DecType, float> scales = {
     { DecType::BUILD2, 1.0f },
     { DecType::TREE,  1.25f },
     { DecType::LAMP,  1.25f },
-    { DecType::STREET,  0.7f }
+    { DecType::STREET,  0.7f },
+    { DecType::FENCE,  1.0f }
 };
 
 DecType Decorations::stringToDecType(const std::string& type) {
     static const std::map<std::string, DecType> types = {
-        { "house", DecType::BUILD2 },
+        { "street", DecType::STREET },
         { "tree", DecType::TREE },
         { "lamp", DecType::LAMP },
-        { "street", DecType::STREET }
+        { "street", DecType::STREET },
+        { "fence", DecType::FENCE }
     };
 
     auto it = types.find(type);
@@ -96,7 +99,7 @@ void Decorations::initPositions(const std::string& jsonPath) {
             try {
                 DecType type;
 
-                if (typeName == "house") type = DecType::STREET;
+                if (typeName == "street") type = DecType::STREET;
                 else type = stringToDecType(typeName);
 
                 DecorationInstance decoration;
@@ -135,7 +138,7 @@ void Decorations::initDecoration(const std::string& modelPath, DecType decType,
         return;
     }
 
-    if (!texturePath.empty())  model->LoadTexture(texturePath);
+    if (!texturePath.empty()) model->LoadTexture(texturePath);
 
     model->CreateVBO();
 
@@ -165,32 +168,54 @@ void Decorations::drawAllDecorations(DecType decType) {
     glDisable(GL_CULL_FACE);
 }
 
-static Bounds transformBounds(const Bounds& local, float scale,
-    const DecorationInstance& decoration) {
-    Bounds worldBounds = local;
+static Bounds transformBounds(
+    const Bounds& local,
+    float scale,
+    const DecorationInstance& decoration)
+{
+    Bounds worldBounds{};
 
     const svbmath::Vec3& position = decoration.position;
-    float rotation = decoration.rotationY;
 
-    while (rotation < 0.0f) rotation += 360.0f;
-    while (rotation >= 360.0f) rotation -= 360.0f;
+    constexpr float PI = 3.14159265358979323846f;
 
+    // Convert degrees to radians
+    const float rotation = decoration.rotationY * (PI / 180.0f);
 
-    if (rotation == 90.0f) {
-        worldBounds.min.x = -local.max.z * scale + position.x;
-        worldBounds.max.x = -local.min.z * scale + position.x;
+    const float cosY = std::cos(rotation);
+    const float sinY = std::sin(rotation);
 
-        worldBounds.min.z = local.min.x * scale + position.z;
-        worldBounds.max.z = local.max.x * scale + position.z;
+    // Local XZ corners
+    const float corners[4][2] = {
+        { local.min.x, local.min.z },
+        { local.min.x, local.max.z },
+        { local.max.x, local.min.z },
+        { local.max.x, local.max.z }
+    };
+
+    // Initialize bounds
+    worldBounds.min.x = worldBounds.min.z =
+        std::numeric_limits<float>::max();
+
+    worldBounds.max.x = worldBounds.max.z =
+        std::numeric_limits<float>::lowest();
+
+    // Transform all four corners
+    for (const auto& corner : corners){
+        const float x = corner[0] * scale;
+        const float z = corner[1] * scale;
+
+        const float worldX = x * cosY + z * sinY + position.x;
+        const float worldZ = -x * sinY + z * cosY + position.z;
+
+        worldBounds.min.x = std::min(worldBounds.min.x, worldX);
+        worldBounds.max.x = std::max(worldBounds.max.x, worldX);
+
+        worldBounds.min.z = std::min(worldBounds.min.z, worldZ);
+        worldBounds.max.z = std::max(worldBounds.max.z, worldZ);
     }
-    else {
-        worldBounds.min.x = local.min.x * scale + position.x;
-        worldBounds.max.x = local.max.x * scale + position.x;
 
-        worldBounds.min.z = local.min.z * scale + position.z;
-        worldBounds.max.z = local.max.z * scale + position.z;
-    }
-
+    // Transform Y bounds
     worldBounds.min.y = local.min.y * scale + position.y;
     worldBounds.max.y = local.max.y * scale + position.y;
 

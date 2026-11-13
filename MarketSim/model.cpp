@@ -631,8 +631,8 @@ bool OBJModel::LoadOBJ(const std::string& filename, float scale) {
         part.name = partStarts[i].first;
         part.bounds.min = { vertices[begin].x, vertices[begin].y, vertices[begin].z };
         part.bounds.max = part.bounds.min;
-        part.startVertex = begin;         
-        part.vertexCount = end - begin;   
+        part.startVertex = begin;
+        part.vertexCount = end - begin;
 
         for (size_t k = begin; k < end; k++) {
             const Vertex& v = vertices[k];

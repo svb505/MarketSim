@@ -5,12 +5,12 @@
 #include "svbmath.h"
 #include "bounds.h"
 
-struct Vertex{
+struct Vertex {
     float x, y, z;       // position
     float nx, ny, nz;    // normal
     float u, v;          // UV
 };
-struct Material{
+struct Material {
     std::string name;
 
     float Ka[3] = { 1.0f, 1.0f, 1.0f };
@@ -31,17 +31,17 @@ struct LimbRig {
 struct ObjPart {
     std::string name;
     Bounds bounds;
-    size_t startVertex = 0;  
-    size_t vertexCount = 0;   
+    size_t startVertex = 0;
+    size_t vertexCount = 0;
 };
 
-struct MaterialGroup{
+struct MaterialGroup {
     Material material;
     size_t startVertex = 0;
     size_t vertexCount = 0;
 };
 
-class OBJModel{
+class OBJModel {
 private:
     std::vector<Vertex> vertices;
     std::vector<MaterialGroup> materialGroups;
@@ -66,7 +66,7 @@ public:
 
     GLuint LoadTextureFromFile(const std::string& filename);
     bool LoadMTL(const std::string& filename);
-    bool LoadOBJ(const std::string& filename,float scale);
+    bool LoadOBJ(const std::string& filename, float scale);
     bool LoadTexture(const std::string& filename);
 
     void CreateVBO();
