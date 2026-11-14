@@ -31,7 +31,7 @@ void DecorationRenderer::UpdateStreetLights(const Decorations& decorations){
     if (!nightMode) return;
 
     constexpr float lampHeightOffset = 5.0f;
-    constexpr int MAX_POINT_LIGHTS = 64;
+    constexpr int MAX_POINT_LIGHTS = 100;
 
     for (const DecorationInstance& instance :
         decorations.GetInstances())

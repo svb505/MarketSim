@@ -31,7 +31,7 @@ uniform float materialAlpha;
 uniform sampler2D shadowMap;
 
 // Point lights
-#define MAX_POINT_LIGHTS 64
+#define MAX_POINT_LIGHTS 100
 
 uniform int pointLightCount;
 uniform vec4 pointLightPositionRadius[MAX_POINT_LIGHTS];

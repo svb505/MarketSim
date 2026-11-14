@@ -6,7 +6,7 @@ int heure = 0;
 float seconds = 0;
 
 void countDays(float dt) {
-	seconds += (dt * 40);
+	seconds += (dt * 4);
 
 	if (seconds >= 60.0f) {
 		heure++;
