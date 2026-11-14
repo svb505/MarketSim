@@ -406,7 +406,7 @@ void Bot::update(float dt,Camera& cam, FPVDrone& drone,Building& building,Sound&
             }
             else {
                 globalPrice = price;
-                state = BotState::CaughtStealing;
+                if (building.isSecuritySystem()) state = BotState::CaughtStealing;
             }
 
             float basePrice = (droneModel != getStringFromJson("DRONE_Assemblee")) ? 
