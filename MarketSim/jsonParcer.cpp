@@ -5,6 +5,16 @@
 
 using json = nlohmann::json;
 
+void changePlayerConfig(const std::string key, const bool value, std::string path) {
+	std::ifstream file(path);
+	json j;
+
+	file >> j;
+
+	j[key] = value;
+
+	std::ofstream(path) << j.dump(4);
+}
 void changePlayerConfig(const std::string key, const std::string value, std::string path) {
 	std::ifstream file(path);
 	json j;

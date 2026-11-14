@@ -10,7 +10,7 @@ enum class BotState {
     GoingToShelf,
     GoingToCash,
     Leaving,
-    Staing
+    CaughtStealing
 };
 
 struct PurchasedItem {
@@ -39,7 +39,10 @@ private:
 
     bool carryingDrone = false;
 
+    bool sirenPlaying = false;
     bool active = false;
+
+    float globalPrice = 0.0f;
 
     bool findDrone(FPVDrone& drone);
     bool takeDrone(FPVDrone& drone);
@@ -52,7 +55,7 @@ public:
     void init(GLFWwindow* win);
 
     bool checkCollision(const svbmath::Vec3& newPos, Building& building);
-    void update(float dt, FPVDrone& drone, Building& building, Sound& sound, bool moving);
+    void update(float dt, Camera& cam,FPVDrone& drone, Building& building, Sound& sound, bool moving);
 
     void draw();
 

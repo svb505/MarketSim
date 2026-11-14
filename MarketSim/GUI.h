@@ -28,6 +28,7 @@ private:
 	bool showPrices = false;
 	bool showNames = false;
 	bool showDev = false;
+	bool showOther = false;
 
 	float minValue = 0.0f;
 	float maxValue = 2000.0f;
@@ -170,6 +171,43 @@ public:
 		ImGui_ImplOpenGL3_Init("#version 330");
 	}
 
+	void renderOtherWindow(Building& build) {
+		if (!showOther) return;
+
+		pushStyle();
+		ImGui::SetNextWindowPos(ImVec2(250.0f, 10.0f), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(ImVec2(540.0f, 140.0f), ImGuiCond_FirstUseEver);
+
+		if (ImGui::Begin(returnStringFromLang("OTHER").c_str(), &showOther)) {
+			ImGui::PushItemWidth(-FLT_MIN);
+
+			if (!build.isSecuritySystem()) {
+				ImGui::TextColored(colDim, std::format("{} {}$", returnStringFromLang("BUY_SEC_SYS").c_str(),
+					build.getSecuritySystemPrice()).c_str());
+
+				if (colorButton(returnStringFromLang("BUY_ALL").c_str(),
+					ImVec4(0.20f, 0.50f, 0.80f, 1.0f), ImVec2(-FLT_MIN, 0.0f))) {
+
+					if (myBalance >= build.getSecuritySystemPrice()) {
+						myBalance -= build.getSecuritySystemPrice();
+
+						saveDataForPlayer(build.getSecuritySystemPrice(), averageRating(),
+							"-");
+
+						build.setSecuritySystem(true);
+					}
+				}
+			}
+			else {
+				ImGui::TextColored(colDim, returnStringFromLang("SEC_SYS_BUYED").c_str());
+			}
+
+			ImGui::PopItemWidth();
+		}
+
+		ImGui::End();
+		popStyle();
+	}
 	void renderBalanceRatingWindow() {
 		pushStyle();
 
@@ -243,7 +281,8 @@ public:
 			toggleSmall(returnStringFromLang("PERF").c_str(), showPerformance, false);
 			toggleSmall(returnStringFromLang("PRICE").c_str(), showPrices, true);
 			toggleSmall(returnStringFromLang("NAMES").c_str(), showNames, true);
-			
+			toggleSmall(returnStringFromLang("OTHER").c_str(), showOther, false);
+
 			if (getBoolFromJson("DEVMODE"))
 				toggleSmall("DEV WINDOW", showDev, false);
 		}
@@ -478,17 +517,18 @@ public:
 		ImGui::End();
 		popStyle();
 	}
-	void renderAll(FPS& fps, FPVDrone& drone, BuildingSettings& build) {
-		renderMainWindow(fps, drone, build);
+	void renderAll(FPS& fps, FPVDrone& drone, BuildingSettings& buildSettings,
+		Building& build) {
+		renderMainWindow(fps, drone, buildSettings);
 		renderPerformanceWindow(fps);
 		renderPricesWindow(drone);
 		renderNamesWindow();
 		renderBalanceRatingWindow();
-
+		renderOtherWindow(build);
 		renderDevWindow();
 
 		const float spacing = ImGui::GetStyle().ItemSpacing.x;
 
-		renderBuyingWindow(drone, build, spacing);
+		renderBuyingWindow(drone, buildSettings, spacing);
 	}
 };

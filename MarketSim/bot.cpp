@@ -360,8 +360,8 @@ bool Bot::takeDrone( FPVDrone& drone){
 
     return false;
 }
-void Bot::update(float dt,FPVDrone& drone,Building& building,Sound& sound, bool moving){
-    if (!active || !isOpen || state == BotState::Staing) return;
+void Bot::update(float dt,Camera& cam, FPVDrone& drone,Building& building,Sound& sound, bool moving){
+    if (!active || !isOpen) return;
 
     float target = moving ? 1.0f : 0.0f;
     walkBlend += (target - walkBlend) * std::min(1.0f, dt * 10.0f);
@@ -383,7 +383,6 @@ void Bot::update(float dt,FPVDrone& drone,Building& building,Sound& sound, bool 
 
         break;
     }
-
     case BotState::GoingToCash:{
         moveTo(cashTarget,dt, building);
 
@@ -404,6 +403,10 @@ void Bot::update(float dt,FPVDrone& drone,Building& building,Sound& sound, bool 
             if (probability >= 0.05) { 
                 myBalance += price; 
                 saveDataForPlayer(price, averageRating(), "+");
+            }
+            else {
+                globalPrice = price;
+                state = BotState::CaughtStealing;
             }
 
             float basePrice = (droneModel != getStringFromJson("DRONE_Assemblee")) ? 
@@ -427,12 +430,49 @@ void Bot::update(float dt,FPVDrone& drone,Building& building,Sound& sound, bool 
             LOG_INFO(std::format("Balance: {}", myBalance));
             LOG_INFO(std::format("Rating: {}", averageRating()));
 
-            state = BotState::Leaving;
+            if (state != BotState::CaughtStealing) state = BotState::Leaving;
         }
 
         break;
     }
+    case BotState::CaughtStealing: {
+        if (!sirenPlaying) {
+            sound.playSound(sound.sources["Siren"], { 0.0,0.0f,4.0f });
 
+            sirenPlaying = true;
+        }
+
+        float totalSum = globalPrice + (globalPrice / 100) * 20;
+
+        if (svbmath::InRadius(cam.getCamPos(), position, 3.0f)) {
+            myBalance += totalSum;
+            saveDataForPlayer(totalSum, averageRating(), "+");
+
+            float basePrice = (droneModel != getStringFromJson("DRONE_Assemblee")) ?
+                drone.getEquipPrice().at(droneModel) : 0.0f;
+
+            std::vector<PurchasedItem> basket = { { basePrice, totalSum } };
+
+            ratings.push_back(calculateRating(basket));
+
+            sallesForDay++;
+            purchasesForAllTime++;
+            purchasesForSession++;
+
+            auto& src = sound.sources["Purchase"];
+            sound.playSound(src, building.getCashRegister().position);
+
+            if (purchasesForAllTime == lvlTwoRequiredPurchases) level = 2;
+            if (purchasesForAllTime >= lvlThreeRequiredPurchases) level = 3;
+
+            sound.stopSound(sound.sources["Siren"]);
+
+            sirenPlaying = false;
+
+            state = BotState::Leaving;
+        }
+        break;
+    }
     case BotState::Leaving:{
         active = false;
 

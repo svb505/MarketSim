@@ -1,4 +1,5 @@
 {
     "CURR_LANG": "RU",
-    "DEVMODE": true
+    "DEVMODE": true,
+    "SECSYS": true
 }

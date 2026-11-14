@@ -8,6 +8,19 @@
 #include "building.h"
 #include "model.h"
 #include "LoadingWin.h"
+#include "jsonParcer.h"
+
+float Building::getSecuritySystemPrice() {
+    return SecuritySystemPrice;
+}
+void Building::setSecuritySystem(bool sys) {
+    changePlayerConfig("SECSYS", sys, "config.json");
+
+    SecuritySystem = sys;
+}
+bool Building::isSecuritySystem() {
+    return SecuritySystem;
+}
 
 static Bounds transformBounds(const Bounds& local, float scale,
     const svbmath::Vec3& pos, float yaw) {
@@ -361,6 +374,8 @@ void Building::DrawCashRegister(const CashRegister& cash) {
     DrawBox(cash.position, cash.width, cash.height, cash.depth, allTextures["METAL"]);
 }
 void Building::CreateBuilding(GLFWwindow* win) {
+    SecuritySystem = getBoolFromJson("SECSYS");
+
     LoadingScreen::Show(win, "Loading warehouse...");
     warehouseModel.LoadOBJ("res/models/warehouse/warehouse_rack.obj",1.0f);
     warehouseModel.CreateVBO();
@@ -368,6 +383,10 @@ void Building::CreateBuilding(GLFWwindow* win) {
     LoadingScreen::Show(win, "Loading cash register...");
     cashRegModel.LoadOBJ("res/models/cash_register/cash_register.obj", 1.0f);
     cashRegModel.CreateVBO();
+
+    LoadingScreen::Show(win, "Loading gate...");
+    gateModel.LoadOBJ("res/models/eas_gate/eas_gate.obj", 1.0f);
+    gateModel.CreateVBO();
 
     build.storeWidth = 12.0f;
     build.storeLength = 10.0f;
@@ -501,6 +520,7 @@ void Building::DrawBuilding() {
     bufCashRegModelPos.z += (cashRegister.depth / 2) - 0.2f;
 
     cashRegModel.Draw(bufCashRegModelPos, -90.0f, 0.0f);
+    if (SecuritySystem) gateModel.Draw({ 0.0f, 0.0f, 4.0f }, 0.0f, 0.0f);
 
     svbmath::Vec3 bufWarehousePos = build.warehouseCenter;
     float step = 0.55f;

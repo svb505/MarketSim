@@ -58,6 +58,11 @@ private:
 
     OBJModel warehouseModel;
     OBJModel cashRegModel;
+    OBJModel gateModel;
+
+    bool SecuritySystem = false;
+
+    float SecuritySystemPrice = 3000.0f;
 public:
     Bounds getWorldBounds(const OBJModel& model, svbmath::Vec3 pos, float yaw);
 
@@ -67,6 +72,10 @@ public:
     CashRegister& getCashRegister();
     BuildingSettings& getBuildSettings();
     std::vector<Shelf>& getShelves();
+
+    float getSecuritySystemPrice();
+    void setSecuritySystem(bool sys);
+    bool isSecuritySystem();
 
     bool isInsideBuilding(svbmath::Vec3 pos);
     void DrawQuad(svbmath::Vec3 a, svbmath::Vec3 b, svbmath::Vec3 c, svbmath::Vec3 d, GLuint texture = 0);
