@@ -11,6 +11,14 @@
 
 #include "decorations.h"
 
+struct PointLight {
+    svbmath::Vec3 position;
+    svbmath::Vec3 color{ 1.0f, 0.85f, 0.6f };
+
+    float intensity = 2.0f;
+    float radius = 12.0f;
+};
+
 class DecorationRenderer {
 private:
     struct GPUModel {
@@ -26,16 +34,9 @@ private:
         static Mat4 Translation(float x, float y, float z);
         static Mat4 RotationY(float degrees);
         static Mat4 Scale(float x, float y, float z);
-        static Mat4 LookAt(
-            const svbmath::Vec3& eye,
-            const svbmath::Vec3& center,
-            const svbmath::Vec3& up
-        );
-        static Mat4 Ortho(
-            float left, float right,
-            float bottom, float top,
-            float nearPlane, float farPlane
-        );
+        static Mat4 LookAt(const svbmath::Vec3& eye,const svbmath::Vec3& center,const svbmath::Vec3& up);
+        static Mat4 Ortho( float left, float right,
+            float bottom, float top,float nearPlane, float farPlane);
 
         Mat4 operator*(const Mat4& other) const;
     };
@@ -57,15 +58,9 @@ private:
 
     std::map<DecType, GPUModel> gpuModels;
 
-    GLuint LoadShader(
-        const std::string& vertexPath,
-        const std::string& fragmentPath
-    );
+    GLuint LoadShader(const std::string& vertexPath,const std::string& fragmentPath);
 
-    GLuint CompileShader(
-        GLenum type,
-        const std::string& source
-    );
+    GLuint CompileShader(GLenum type, const std::string& source);
 
     std::string ReadFile(const std::string& path);
 
@@ -74,33 +69,28 @@ private:
 
     void UploadModel(DecType type, const OBJModel& model);
 
-    Mat4 GetModelMatrix(
-        const OBJModel& model,
-        const DecorationInstance& decoration
-    ) const;
+    Mat4 GetModelMatrix(const OBJModel& model,const DecorationInstance& decoration) const;
 
-    void DrawShadow(
-        const OBJModel& model,
-        const DecorationInstance& decoration
-    );
+    void DrawShadow(const OBJModel& model,const DecorationInstance& decoration);
 
-    void DrawLit(
-        const OBJModel& model,
-        const DecorationInstance& decoration,
-        const svbmath::Vec3& cameraPosition
-    );
+    void DrawLit( const OBJModel& model,const DecorationInstance& decoration, const svbmath::Vec3& cameraPosition);
 
     void UpdateLightMatrix();
 
     void SetMat4(GLuint program, const char* name, const Mat4& matrix);
 
-    void SetVec3(
-        GLuint program,
-        const char* name,
-        const svbmath::Vec3& value
-    );
+    void SetVec3(GLuint program,const char* name,const svbmath::Vec3& value);
+
+    std::vector<PointLight> pointLights;
+
+    bool nightMode = false;
 
 public:
+    
+
+    void SetNightMode(bool enabled);
+    void UpdateStreetLights(const Decorations& decorations);
+
     DecorationRenderer() = default;
     ~DecorationRenderer();
 
@@ -112,12 +102,7 @@ public:
         int resolution = 1024
     );
 
-    void Render(
-        Decorations& decorations,
-        const svbmath::Vec3& cameraPosition,
-        int viewportWidth,
-        int viewportHeight
-    );
+    void Render(Decorations& decorations, const svbmath::Vec3& cameraPosition,int viewportWidth,int viewportHeight);
 
     void SetLightDirection(const svbmath::Vec3& direction);
     void SetLightColor(const svbmath::Vec3& color);

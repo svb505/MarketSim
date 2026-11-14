@@ -60,6 +60,8 @@ private:
     void ApplyMaterial(const MaterialGroup& g);
     void DrawRange(size_t begin, size_t end);
 public:
+    GLuint GetTexture() const;
+
     const std::vector<Vertex>& GetVertices() const;
 
     const std::vector<MaterialGroup>& GetMaterialGroups() const;

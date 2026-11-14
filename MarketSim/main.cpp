@@ -291,6 +291,11 @@ int main() {
         drone.drawAllPlacedObjects(base);
         drone.drawAvaibleShelfPos();
 
+        bool isNight = (heure >= 20 || heure < 6);
+
+        decorationRenderer.SetNightMode(isNight);
+
+        decorationRenderer.UpdateStreetLights(decor);
         UpdateDecorationLighting(decorationRenderer, heure);
         decorationRenderer.Render(decor, cam.getCamPos(), ECRAN_W, ECRAN_H);
 

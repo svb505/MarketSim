@@ -61,6 +61,10 @@ namespace {
     }
 }
 
+GLuint OBJModel::GetTexture() const {
+    return texture;
+}
+
 const std::vector<Vertex>& OBJModel::GetVertices() const {
     return vertices;
 }

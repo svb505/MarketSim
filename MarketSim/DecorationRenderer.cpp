@@ -21,12 +21,44 @@ namespace {
     }
 }
 
-// ------------------------------------------------------------
-// Matrix
-// ------------------------------------------------------------
+void DecorationRenderer::SetNightMode(bool enabled){
+    nightMode = enabled;
+}
 
-DecorationRenderer::Mat4 DecorationRenderer::Mat4::Identity()
-{
+void DecorationRenderer::UpdateStreetLights(const Decorations& decorations){
+    pointLights.clear();
+
+    if (!nightMode) return;
+
+    constexpr float lampHeightOffset = 5.0f;
+    constexpr int MAX_POINT_LIGHTS = 64;
+
+    for (const DecorationInstance& instance :
+        decorations.GetInstances())
+    {
+        if (instance.type != DecType::LAMP)
+            continue;
+
+        if (pointLights.size() >= MAX_POINT_LIGHTS)
+            break;
+
+        PointLight light;
+
+        light.position = {
+            instance.position.x,
+            instance.position.y + lampHeightOffset,
+            instance.position.z
+        };
+
+        light.color = { 1.0f, 0.82f, 0.55f };
+        light.intensity = 3.0f;
+        light.radius = 12.0f;
+
+        pointLights.push_back(light);
+    }
+}
+
+DecorationRenderer::Mat4 DecorationRenderer::Mat4::Identity(){
     Mat4 result{};
 
     result.m[0] = 1.0f;
@@ -551,6 +583,30 @@ void DecorationRenderer::DrawLit(const OBJModel& model,const DecorationInstance&
 
     SetVec3(sceneProgram, "viewPosition", cameraPosition);
 
+
+    GLint lampLocation =
+        glGetUniformLocation(sceneProgram, "isLamp");
+
+    GLint emissiveColorLocation =
+        glGetUniformLocation(sceneProgram, "emissiveColor");
+
+    GLint emissiveStrengthLocation =
+        glGetUniformLocation(sceneProgram, "emissiveStrength");
+
+    bool isEmissive = decoration.type == DecType::LAMP && nightMode;
+
+    glUniform1i(lampLocation, isEmissive ? 1 : 0);
+
+    glUniform3f(
+        emissiveColorLocation,
+        1.0f, 0.75f, 0.4f
+    );
+
+    glUniform1f(
+        emissiveStrengthLocation,
+        2.5f
+    );
+
     glBindVertexArray(gpu.vao);
 
     const auto& groups = model.GetMaterialGroups();
@@ -614,9 +670,11 @@ void DecorationRenderer::DrawLit(const OBJModel& model,const DecorationInstance&
             if (alphaLocation != -1)
                 glUniform1f(alphaLocation, material.d);
 
-            GLuint texture = material.textureID
-                ? material.textureID
-                : whiteTexture;
+            GLuint texture = material.textureID;
+
+            if (!texture) texture = model.GetTexture();
+
+            if (!texture) texture = whiteTexture;
 
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, texture);
@@ -636,12 +694,7 @@ void DecorationRenderer::DrawLit(const OBJModel& model,const DecorationInstance&
 // Main rendering
 // ------------------------------------------------------------
 
-void DecorationRenderer::Render(
-    Decorations& decorations,
-    const svbmath::Vec3& cameraPosition,
-    int viewportWidth,
-    int viewportHeight)
-{
+void DecorationRenderer::Render(Decorations& decorations, const svbmath::Vec3& cameraPosition,int viewportWidth,int viewportHeight){
     if (!sceneProgram || !shadowProgram ||
         viewportWidth <= 0 || viewportHeight <= 0)
         return;
@@ -687,12 +740,7 @@ void DecorationRenderer::Render(
 
     glBindFramebuffer(GL_FRAMEBUFFER, shadowFBO);
 
-    glViewport(
-        0,
-        0,
-        shadowResolution,
-        shadowResolution
-    );
+    glViewport( 0, 0,shadowResolution,shadowResolution);
 
     glClear(GL_DEPTH_BUFFER_BIT);
 
@@ -763,6 +811,46 @@ void DecorationRenderer::Render(
         glGetUniformLocation(sceneProgram, "shadowMap"),
         1
     );
+
+    glUniform1i(
+        glGetUniformLocation(sceneProgram, "pointLightCount"),
+        static_cast<GLint>(pointLights.size())
+    );
+
+    for (size_t i = 0; i < pointLights.size(); ++i)
+    {
+        const PointLight& light = pointLights[i];
+
+        std::string positionName =
+            "pointLightPositionRadius[" + std::to_string(i) + "]";
+
+        std::string colorName =
+            "pointLightColorIntensity[" + std::to_string(i) + "]";
+
+        GLint positionLocation = glGetUniformLocation(
+            sceneProgram, positionName.c_str()
+        );
+
+        GLint colorLocation = glGetUniformLocation(
+            sceneProgram, colorName.c_str()
+        );
+
+        glUniform4f(
+            positionLocation,
+            light.position.x,
+            light.position.y,
+            light.position.z,
+            light.radius
+        );
+
+        glUniform4f(
+            colorLocation,
+            light.color.x,
+            light.color.y,
+            light.color.z,
+            light.intensity
+        );
+    }
 
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, shadowTexture);
@@ -859,7 +947,7 @@ void DecorationRenderer::Shutdown()
 
     if (shadowTexture)
         glDeleteTextures(1, &shadowTexture);
-
+    
     if (shadowFBO)
         glDeleteFramebuffers(1, &shadowFBO);
 
