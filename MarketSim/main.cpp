@@ -40,6 +40,7 @@
 #include "LoadingWin.h"
 #include <nlohmann//json.hpp>
 #include <fstream>
+#include "DecorationRenderer.h"
 
 using json = nlohmann::json;
 
@@ -51,7 +52,24 @@ OBJModel base;
 Decorations decor;
 Sound sound;
 Bot bot;
+DecorationRenderer decorationRenderer;
 
+void UpdateDecorationLighting( DecorationRenderer& renderer,float hour){
+    if (hour >= 7.0f && hour < 18.0f) {
+        renderer.SetLightDirection({-0.4f, -1.0f, -0.3f});
+
+        renderer.SetLightColor({1.0f, 0.96f, 0.88f});
+
+        renderer.SetAmbientColor({ 0.3f, 0.3f, 0.3f });
+    }
+    else {
+        renderer.SetLightDirection({0.2f, -1.0f, 0.1f});
+
+        renderer.SetLightColor({0.12f, 0.16f, 0.28f});
+
+        renderer.SetAmbientColor({0.035f, 0.045f, 0.08f});
+    }
+}
 void loadMap(const std::string& path){
     std::ifstream file(path);
 
@@ -175,6 +193,10 @@ int main() {
         return -1;
     }
 
+    if (!decorationRenderer.Initialize("shaders", 1024)) {
+        std::cerr << "Failed to initialize DecorationRenderer\n";
+    }
+
     glClearColor(0.6f, 0.8f, 1.0f, 1.0f);;
     BuildFont();
 
@@ -231,6 +253,10 @@ int main() {
     for (auto& p : getDataForPlayer().players) ratings.push_back(p.rating);
 
     while (!glfwWindowShouldClose(window)) {
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
         updateCursorMode(window);
 
         double currentTime = glfwGetTime();
@@ -245,16 +271,8 @@ int main() {
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-
-        gui.renderAll(fpsVars, drone, build.getBuildSettings(),build);
-
-        ImGui::Render();
-
         cam.setupCamera();
-
+        
         drawSky();
         drawGround();
         drawRoadsFromJson(mapJson);
@@ -272,6 +290,13 @@ int main() {
 
         drone.drawAllPlacedObjects(base);
         drone.drawAvaibleShelfPos();
+
+        UpdateDecorationLighting(decorationRenderer, heure);
+        decorationRenderer.Render(decor, cam.getCamPos(), ECRAN_W, ECRAN_H);
+
+        gui.renderAll(fpsVars, drone, build.getBuildSettings(), build);
+
+        ImGui::Render();
 
         build.DrawBuilding();
         if (build.checkCollision(cam)) cam.getCamPos() = cam.getOldCamPos();
@@ -305,10 +330,10 @@ int main() {
         drone.checkBoxesIntersection(cam);
         drone.checkIfCanCreateDrone(cam, build.getCashRegister());
 
-        decor.drawAllDecorations(DecType::STREET);
+        /*decor.drawAllDecorations(DecType::STREET);
         decor.drawAllDecorations(DecType::TREE);
         decor.drawAllDecorations(DecType::LAMP);
-        decor.drawAllDecorations(DecType::FENCE);
+        decor.drawAllDecorations(DecType::FENCE);*/
 
         if (decor.checkCollision(cam, DecType::STREET)) cam.getCamPos() = cam.getOldCamPos();
         if (decor.checkCollision(cam, DecType::TREE)) cam.getCamPos() = cam.getOldCamPos();
@@ -332,6 +357,7 @@ int main() {
     saveDayToDb(day);
     saveLevelAndPurchasesToDb(level,purchasesForSession);
 
+    decorationRenderer.Shutdown();
     Logger::shutDown();
 
     gui.destroyGui();

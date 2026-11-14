@@ -26,6 +26,14 @@ std::map<DecType, float> scales = {
     { DecType::FENCE,  1.0f }
 };
 
+const std::vector<DecorationInstance>& Decorations::GetInstances() const {
+    return decorations;
+}
+
+const std::map<DecType, std::unique_ptr<OBJModel>>& Decorations::GetModels() const {
+    return models;
+}
+
 DecType Decorations::stringToDecType(const std::string& type) {
     static const std::map<std::string, DecType> types = {
         { "street", DecType::STREET },

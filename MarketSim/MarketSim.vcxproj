@@ -147,6 +147,7 @@
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="database.cpp" />
     <ClCompile Include="days.cpp" />
+    <ClCompile Include="DecorationRenderer.cpp" />
     <ClCompile Include="decorations.cpp" />
     <ClCompile Include="drone.cpp" />
     <ClCompile Include="environnement.cpp" />
@@ -177,6 +178,7 @@
     <ClInclude Include="camera.h" />
     <ClInclude Include="database.h" />
     <ClInclude Include="days.h" />
+    <ClInclude Include="DecorationRenderer.h" />
     <ClInclude Include="decorations.h" />
     <ClInclude Include="drone.h" />
     <ClInclude Include="environnement.h" />

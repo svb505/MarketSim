@@ -36,6 +36,10 @@ private:
     DecType stringToDecType(const std::string& type);
 
 public:
+    const std::vector<DecorationInstance>& GetInstances() const;
+
+    const std::map<DecType, std::unique_ptr<OBJModel>>& GetModels() const;
+
     void addDecoration(DecType type, svbmath::Vec3 pos, float rotationY);
 
     void initPositions(const std::string& jsonPath);

@@ -61,6 +61,14 @@ namespace {
     }
 }
 
+const std::vector<Vertex>& OBJModel::GetVertices() const {
+    return vertices;
+}
+
+const std::vector<MaterialGroup>& OBJModel::GetMaterialGroups() const {
+    return materialGroups;
+}
+
 bool OBJModel::SaveCache(const std::string& objPath, const std::string& cachePath, const std::string& mtlPath) const {
     const std::string tmpPath = cachePath + ".tmp";
     std::ofstream f(tmpPath, std::ios::binary | std::ios::trunc);

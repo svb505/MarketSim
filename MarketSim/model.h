@@ -60,6 +60,10 @@ private:
     void ApplyMaterial(const MaterialGroup& g);
     void DrawRange(size_t begin, size_t end);
 public:
+    const std::vector<Vertex>& GetVertices() const;
+
+    const std::vector<MaterialGroup>& GetMaterialGroups() const;
+
     std::vector<ObjPart> parts;
     Bounds bounds;
     float scale = 0.0f;
