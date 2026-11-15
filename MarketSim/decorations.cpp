@@ -68,6 +68,7 @@ void Decorations::addDecoration(DecType type,svbmath::Vec3 pos, float rotationY)
 
     decoration.type = type;
     decoration.position = pos;
+
     decoration.rotationY = rotationY;
 
     decorations.push_back(decoration);
@@ -106,7 +107,7 @@ void Decorations::initPositions(const std::string& jsonPath) {
                 continue;
             }
 
-            svbmath::Vec3 position = {pos[0].get<float>(), pos[1].get<float>(), pos[2].get<float>() };
+            svbmath::Vec3 position = {pos[0].get<float>(), pos[1].get<float>() - 0.1f, pos[2].get<float>() };
 
             float yaw = object.value("yaw", 0.0f);
 
