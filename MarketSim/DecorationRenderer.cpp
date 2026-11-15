@@ -6,6 +6,7 @@
 #include <iostream>
 #include <cmath>
 #include <cstddef>
+#include "LoadingWin.h"
 
 namespace {
     constexpr float PI = 3.14159265358979323846f;
@@ -21,6 +22,9 @@ namespace {
     }
 }
 
+void DecorationRenderer::initWindow(GLFWwindow* win) {
+    window = win;
+}
 void DecorationRenderer::SetNightMode(bool enabled){
     nightMode = enabled;
 }
@@ -197,10 +201,9 @@ std::string DecorationRenderer::ReadFile(const std::string& path)
     return buffer.str();
 }
 
-GLuint DecorationRenderer::CompileShader(
-    GLenum type,
-    const std::string& source)
-{
+GLuint DecorationRenderer::CompileShader(GLenum type,const std::string& source){
+    LoadingScreen::Show(window, "Compile shaders");
+
     GLuint shader = glCreateShader(type);
 
     const char* src = source.c_str();

@@ -193,6 +193,8 @@ int main() {
         return -1;
     }
 
+    decorationRenderer.initWindow(window);
+
     if (!decorationRenderer.Initialize("shaders", 1024)) {
         std::cerr << "Failed to initialize DecorationRenderer\n";
     }

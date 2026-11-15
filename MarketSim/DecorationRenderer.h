@@ -21,6 +21,8 @@ struct PointLight {
 
 class DecorationRenderer {
 private:
+    GLFWwindow* window = nullptr;
+
     struct GPUModel {
         GLuint vao = 0;
         GLuint vbo = 0;
@@ -86,7 +88,7 @@ private:
     bool nightMode = false;
 
 public:
-    
+    void initWindow(GLFWwindow* win);
 
     void SetNightMode(bool enabled);
     void UpdateStreetLights(const Decorations& decorations);
