@@ -237,6 +237,18 @@ int main() {
     decor.initDecoration("res/models/streetlamp/streetlamp.obj", DecType::LAMP,
         "res/models/streetlamp/texture.png");
 
+    LoadingScreen::Show(window, "Loading benchs...");
+    decor.initDecoration("res/models/bench/bench.obj", DecType::BENCH,
+        "res/models/bench/bench_texture.png");
+
+    LoadingScreen::Show(window, "Loading flowers bed...");
+    decor.initDecoration("res/models/flower_bed/flower_bed.obj", DecType::FLOWER_BED,
+        "res/models/flower_bed/flower_bed_texture.png");
+
+    LoadingScreen::Show(window, "Loading trash bins...");
+    decor.initDecoration("res/models/trash_bin/trash_bin.obj", DecType::TRASH_BIN,
+        "res/models/trash_bin/trash_bin_texture.png");
+
     decor.initPositions("maps/map.json");
 
     glfwSetCursorPosCallback(window, mouse_callback);
@@ -344,6 +356,9 @@ int main() {
         if (decor.checkCollision(cam, DecType::TREE)) cam.getCamPos() = cam.getOldCamPos();
         if (decor.checkCollision(cam, DecType::LAMP)) cam.getCamPos() = cam.getOldCamPos();
         if (decor.checkCollision(cam, DecType::FENCE)) cam.getCamPos() = cam.getOldCamPos();
+        if (decor.checkCollision(cam, DecType::TRASH_BIN)) cam.getCamPos() = cam.getOldCamPos();
+        if (decor.checkCollision(cam, DecType::BENCH)) cam.getCamPos() = cam.getOldCamPos();
+        if (decor.checkCollision(cam, DecType::FLOWER_BED)) cam.getCamPos() = cam.getOldCamPos();
 
         if (drone.getShowText()) {
             RenderTextHUD(ECRAN_W / 2, ECRAN_H / 2, 1.0f, 0.0f, 0.0f,

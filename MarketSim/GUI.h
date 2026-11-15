@@ -330,7 +330,7 @@ public:
 		componentText(returnStringFromLang("FC").c_str(),comp.fc, 1);
 
 		ImGui::Dummy({ 0.0f, 10.0f });
-		ImGui::Text("©Developped by SVB & Red.Fpv");
+		ImGui::Text("©Developped by SVB");
 
 		ImGui::End();
 

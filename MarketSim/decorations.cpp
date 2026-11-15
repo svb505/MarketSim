@@ -23,7 +23,10 @@ std::map<DecType, float> scales = {
     { DecType::TREE,  1.25f },
     { DecType::LAMP,  1.25f },
     { DecType::STREET,  0.7f },
-    { DecType::FENCE,  1.0f }
+    { DecType::FENCE,  1.0f },
+    { DecType::TRASH_BIN,  1.0f },
+    { DecType::FLOWER_BED,  1.0f },
+    { DecType::BENCH,  1.0f }
 };
 
 const std::vector<DecorationInstance>& Decorations::GetInstances() const {
@@ -40,7 +43,10 @@ DecType Decorations::stringToDecType(const std::string& type) {
         { "tree", DecType::TREE },
         { "lamp", DecType::LAMP },
         { "street", DecType::STREET },
-        { "fence", DecType::FENCE }
+        { "fence", DecType::FENCE },
+        { "flowerbed", DecType::FLOWER_BED },
+        { "trashbin", DecType::TRASH_BIN },
+        { "bench", DecType::BENCH }
     };
 
     auto it = types.find(type);

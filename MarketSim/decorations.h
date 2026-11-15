@@ -15,7 +15,10 @@ enum class DecType {
     TREE,
     LAMP,
     STREET,
-    FENCE
+    FENCE,
+    FLOWER_BED,
+    BENCH,
+    TRASH_BIN
 };
 
 struct DecorationInstance {
