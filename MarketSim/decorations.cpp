@@ -252,17 +252,17 @@ static bool isSolidPart(const std::string& name) {
 Bounds Decorations::getWorldBounds(const OBJModel& model, const DecorationInstance& decoration) {
     return transformBounds(model.bounds, model.scale, decoration);
 }
-bool Decorations::checkCollision(Camera& cam, DecType decType) {
-    auto modelIt = models.find(decType);
-
-    if (modelIt == models.end()) return false;
-
-    OBJModel* model = modelIt->second.get();
-
-    if (!model) return false;
+bool Decorations::checkCollision(Camera& cam) {
 
     for (const DecorationInstance& decoration : decorations) {
-        if (decoration.type != decType) continue;
+        auto modelIt = models.find(decoration.type);
+
+        if (modelIt == models.end()) return false;
+
+        OBJModel* model = modelIt->second.get();
+
+        if (!model) return false;
+
 
         // Модель без объектов ("o") - как раньше, одна общая коробка.
         if (model->parts.empty()) {

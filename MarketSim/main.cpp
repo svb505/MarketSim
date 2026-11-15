@@ -349,18 +349,7 @@ int main() {
         drone.checkBoxesIntersection(cam);
         drone.checkIfCanCreateDrone(cam, build.getCashRegister());
 
-        /*decor.drawAllDecorations(DecType::STREET);
-        decor.drawAllDecorations(DecType::TREE);
-        decor.drawAllDecorations(DecType::LAMP);
-        decor.drawAllDecorations(DecType::FENCE);*/
-
-        if (decor.checkCollision(cam, DecType::STREET)) cam.getCamPos() = cam.getOldCamPos();
-        if (decor.checkCollision(cam, DecType::TREE)) cam.getCamPos() = cam.getOldCamPos();
-        if (decor.checkCollision(cam, DecType::LAMP)) cam.getCamPos() = cam.getOldCamPos();
-        if (decor.checkCollision(cam, DecType::FENCE)) cam.getCamPos() = cam.getOldCamPos();
-        if (decor.checkCollision(cam, DecType::TRASH_BIN)) cam.getCamPos() = cam.getOldCamPos();
-        if (decor.checkCollision(cam, DecType::BENCH)) cam.getCamPos() = cam.getOldCamPos();
-        if (decor.checkCollision(cam, DecType::FLOWER_BED)) cam.getCamPos() = cam.getOldCamPos();
+        if (decor.checkCollision(cam)) cam.getCamPos() = cam.getOldCamPos();
 
         if (drone.getShowText()) {
             RenderTextHUD(ECRAN_W / 2, ECRAN_H / 2, 1.0f, 0.0f, 0.0f,

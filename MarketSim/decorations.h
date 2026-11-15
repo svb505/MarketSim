@@ -60,5 +60,5 @@ public:
         const DecorationInstance& decoration
     );
 
-    bool checkCollision(Camera& cam, DecType decType);
+    bool checkCollision(Camera& cam);
 };
