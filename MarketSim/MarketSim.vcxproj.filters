@@ -111,6 +111,9 @@
     <ClCompile Include="DecorationRenderer.cpp">
       <Filter>Исходные файлы\Engine</Filter>
     </ClCompile>
+    <ClCompile Include="RoadRenderer.cpp">
+      <Filter>Исходные файлы\Engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bounds.h">
@@ -189,6 +192,9 @@
       <Filter>Исходные файлы\Engine</Filter>
     </ClInclude>
     <ClInclude Include="DecorationRenderer.h">
+      <Filter>Исходные файлы\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="RoadRenderer.h">
       <Filter>Исходные файлы\Engine</Filter>
     </ClInclude>
   </ItemGroup>

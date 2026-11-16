@@ -181,13 +181,10 @@ DecorationRenderer::Mat4 DecorationRenderer::Mat4::Ortho(
 
     return result;
 }
-
-// ------------------------------------------------------------
-// Shader loading
-// ------------------------------------------------------------
-
-std::string DecorationRenderer::ReadFile(const std::string& path)
-{
+const std::vector<PointLight>& DecorationRenderer::GetPointLights(){
+    return pointLights;
+}
+std::string DecorationRenderer::ReadFile(const std::string& path){
     std::ifstream file(path);
 
     if (!file.is_open()) {

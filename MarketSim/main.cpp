@@ -41,6 +41,7 @@
 #include <nlohmann//json.hpp>
 #include <fstream>
 #include "DecorationRenderer.h"
+#include "RoadRenderer.h"
 
 using json = nlohmann::json;
 
@@ -53,6 +54,7 @@ Decorations decor;
 Sound sound;
 Bot bot;
 DecorationRenderer decorationRenderer;
+RoadRenderer roadRenderer;
 
 void UpdateDecorationLighting( DecorationRenderer& renderer,float hour){
     if (hour >= 7.0f && hour < 18.0f) {
@@ -194,6 +196,7 @@ int main() {
     }
 
     decorationRenderer.initWindow(window);
+    roadRenderer.Initialize("shaders");
 
     if (!decorationRenderer.Initialize("shaders", 1024)) {
         std::cerr << "Failed to initialize DecorationRenderer\n";
@@ -289,7 +292,7 @@ int main() {
         
         drawSky();
         drawGround();
-        drawRoadsFromJson(mapJson);
+        //drawRoadsFromJson(mapJson);
 
         glEnable(GL_POLYGON_OFFSET_FILL);
         glPolygonOffset(-2.0f, -2.0f);
@@ -310,8 +313,11 @@ int main() {
         decorationRenderer.SetNightMode(isNight);
 
         decorationRenderer.UpdateStreetLights(decor);
+        roadRenderer.SetLights( decorationRenderer.GetPointLights(),{ 0.15f, 0.15f, 0.15f });
+
         UpdateDecorationLighting(decorationRenderer, heure);
         decorationRenderer.Render(decor, cam.getCamPos(), ECRAN_W, ECRAN_H);
+        roadRenderer.drawRoadsFromJson(mapJson,allTextures["ROAD"]);
 
         gui.renderAll(fpsVars, drone, build.getBuildSettings(), build);
 

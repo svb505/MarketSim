@@ -64,8 +64,6 @@ private:
 
     GLuint CompileShader(GLenum type, const std::string& source);
 
-    std::string ReadFile(const std::string& path);
-
     bool CreateShadowMap();
     bool CreateWhiteTexture();
 
@@ -88,6 +86,10 @@ private:
     bool nightMode = false;
 
 public:
+    const std::vector<PointLight>& GetPointLights();
+
+    static std::string ReadFile(const std::string& path);
+
     void initWindow(GLFWwindow* win);
 
     void SetNightMode(bool enabled);
