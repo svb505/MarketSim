@@ -101,10 +101,7 @@ public:
     DecorationRenderer(const DecorationRenderer&) = delete;
     DecorationRenderer& operator=(const DecorationRenderer&) = delete;
 
-    bool Initialize(
-        const std::string& shaderDirectory = "shaders",
-        int resolution = 1024
-    );
+    bool Initialize( const std::string& shaderDirectory = "shaders",int resolution = 1024 );
 
     void Render(Decorations& decorations, const svbmath::Vec3& cameraPosition,int viewportWidth,int viewportHeight);
 

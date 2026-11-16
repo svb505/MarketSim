@@ -313,7 +313,7 @@ int main() {
         decorationRenderer.SetNightMode(isNight);
 
         decorationRenderer.UpdateStreetLights(decor);
-        roadRenderer.SetLights( decorationRenderer.GetPointLights(),{ 0.15f, 0.15f, 0.15f });
+        roadRenderer.SetLights( decorationRenderer.GetPointLights(),{ 0.25f, 0.25f, 0.28f });
 
         UpdateDecorationLighting(decorationRenderer, heure);
         decorationRenderer.Render(decor, cam.getCamPos(), ECRAN_W, ECRAN_H);

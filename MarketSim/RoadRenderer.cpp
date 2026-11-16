@@ -4,6 +4,8 @@
 #include <iostream>
 #include <cstddef>
 
+#include "logger.h"
+
 struct RoadVertex {
     float x, y, z;
     float u, v;
@@ -29,7 +31,7 @@ bool RoadRenderer::Initialize(const std::string& shaderDirectory){
                 char log[2048]{};
                 glGetShaderInfoLog(shader, sizeof(log), nullptr, log);
 
-                std::cerr << "Road shader error: " << log << '\n';
+                LOG_ERROR(std::format("Road shader error: {}",log));
 
                 glDeleteShader(shader);
                 return 0;
@@ -80,64 +82,36 @@ bool RoadRenderer::Initialize(const std::string& shaderDirectory){
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 
-    glBufferData(
-        GL_ELEMENT_ARRAY_BUFFER,
-        sizeof(indices),
-        indices,
-        GL_STATIC_DRAW
-    );
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,sizeof(indices),indices, GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(
-        0, 3, GL_FLOAT, GL_FALSE,
-        sizeof(RoadVertex),
-        (void*)offsetof(RoadVertex, x)
-    );
+    glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, sizeof(RoadVertex), (void*)offsetof(RoadVertex, x) );
 
     glEnableVertexAttribArray(1);
 
-    glVertexAttribPointer(
-        1, 2, GL_FLOAT, GL_FALSE,
-        sizeof(RoadVertex),
-        (void*)offsetof(RoadVertex, u)
-    );
+    glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, sizeof(RoadVertex),(void*)offsetof(RoadVertex, u));
 
     glBindVertexArray(0);
 
     return true;
 }
-
-void RoadRenderer::SetMat4(
-    const char* name,
-    const float* matrix)
-{
+void RoadRenderer::SetMat4(const char* name, const float* matrix){
     GLint location = glGetUniformLocation(roadProgram, name);
 
-    if (location != -1)
-    {
-        glUniformMatrix4fv(
-            location,
-            1,
-            GL_FALSE,
-            matrix
-        );
-    }
+    if (location != -1) glUniformMatrix4fv(location,1,GL_FALSE,matrix);
 }
-
 void RoadRenderer::SetLights(const std::vector<PointLight>& lights,const svbmath::Vec3& ambient){
     pointLights = lights;
     ambientColor = ambient;
 }
-
 void RoadRenderer::drawRoad(float startX,float startZ,float endX,float endZ,float y,float width, GLuint texture){
     float dx = endX - startX;
     float dz = endZ - startZ;
 
     float length = std::sqrt(dx * dx + dz * dz);
 
-    if (length <= 0.001f)
-        return;
+    if (length <= 0.001f) return;
 
     float offsetX = -dz / length * (width / 2.0f);
     float offsetZ = dx / length * (width / 2.0f);
@@ -161,54 +135,29 @@ void RoadRenderer::drawRoad(float startX,float startZ,float endX,float endZ,floa
     SetMat4("view", view);
     SetMat4("projection", projection);
 
-    glUniform1i(
-        glGetUniformLocation(roadProgram, "roadTexture"),
-        0
-    );
+    glUniform1i( glGetUniformLocation(roadProgram, "roadTexture"), 0);
 
-    glUniform3f(
-        glGetUniformLocation(roadProgram, "ambientColor"),
-        ambientColor.x,
-        ambientColor.y,
-        ambientColor.z
-    );
+    glUniform3f( glGetUniformLocation(roadProgram, "ambientColor"),
+        ambientColor.x,ambientColor.y,ambientColor.z);
 
     constexpr int MAX_POINT_LIGHTS = 100;
 
-    int count = static_cast<int>(
-        std::min(pointLights.size(), size_t(MAX_POINT_LIGHTS))
-        );
+    int count = static_cast<int>(std::min(pointLights.size(), size_t(MAX_POINT_LIGHTS)));
 
-    glUniform1i(
-        glGetUniformLocation(roadProgram, "pointLightCount"),
-        count
-    );
+    glUniform1i(glGetUniformLocation(roadProgram, "pointLightCount"),count);
 
-    for (int i = 0; i < count; ++i)
-    {
+    for (int i = 0; i < count; ++i){
         const PointLight& light = pointLights[i];
 
-        std::string pos =
-            "pointLightPositionRadius[" + std::to_string(i) + "]";
+        std::string pos ="pointLightPositionRadius[" + std::to_string(i) + "]";
 
-        std::string color =
-            "pointLightColorIntensity[" + std::to_string(i) + "]";
+        std::string color ="pointLightColorIntensity[" + std::to_string(i) + "]";
 
-        glUniform4f(
-            glGetUniformLocation(roadProgram, pos.c_str()),
-            light.position.x,
-            light.position.y,
-            light.position.z,
-            light.radius
-        );
+        glUniform4f(glGetUniformLocation(roadProgram, pos.c_str()),light.position.x,
+            light.position.y,light.position.z,light.radius);
 
-        glUniform4f(
-            glGetUniformLocation(roadProgram, color.c_str()),
-            light.color.x,
-            light.color.y,
-            light.color.z,
-            light.intensity
-        );
+        glUniform4f(glGetUniformLocation(roadProgram, color.c_str()), light.color.x, 
+            light.color.y,light.color.z, light.intensity);
     }
 
     glActiveTexture(GL_TEXTURE0);
@@ -218,19 +167,9 @@ void RoadRenderer::drawRoad(float startX,float startZ,float endX,float endZ,floa
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-    glBufferSubData(
-        GL_ARRAY_BUFFER,
-        0,
-        sizeof(vertices),
-        vertices
-    );
+    glBufferSubData(GL_ARRAY_BUFFER,0,sizeof(vertices),vertices);
 
-    glDrawElements(
-        GL_TRIANGLES,
-        6,
-        GL_UNSIGNED_INT,
-        nullptr
-    );
+    glDrawElements(GL_TRIANGLES,6, GL_UNSIGNED_INT,nullptr);
 
     glBindVertexArray(0);
 
@@ -239,23 +178,15 @@ void RoadRenderer::drawRoad(float startX,float startZ,float endX,float endZ,floa
     glUseProgram(0);
 }
 
-void RoadRenderer::drawRoadsFromJson(
-    const nlohmann::json& levelJson,
-    GLuint roadTexture)
-{
-    if (!levelJson.contains("roads") ||
-        !levelJson["roads"].is_array())
-        return;
+void RoadRenderer::drawRoadsFromJson(const nlohmann::json& levelJson, GLuint roadTexture){
+    if (!levelJson.contains("roads") || !levelJson["roads"].is_array()) return;
 
-    for (const auto& road : levelJson["roads"])
-    {
-        try
-        {
+    for (const auto& road : levelJson["roads"]){
+        try{
             const auto& start = road.at("start");
             const auto& end = road.at("end");
 
-            if (!start.is_array() || !end.is_array() ||
-                start.size() < 3 || end.size() < 3)
+            if (!start.is_array() || !end.is_array() || start.size() < 3 || end.size() < 3)
                 continue;
 
             float startX = start[0].get<float>();
@@ -267,26 +198,14 @@ void RoadRenderer::drawRoadsFromJson(
 
             float width = road.value("width", 6.0f);
 
-            drawRoad(
-                startX,
-                startZ,
-                endX,
-                endZ,
-                startY,
-                width,
-                roadTexture
-            );
+            drawRoad( startX,startZ,endX,endZ,startY,width,roadTexture );
         }
-        catch (const std::exception& e)
-        {
-            std::cerr << "Invalid road JSON: "
-                << e.what() << '\n';
+        catch (const std::exception& e){ LOG_ERROR(std::format("Invalid road JSON: {}", e.what()));
         }
     }
 }
 
-void RoadRenderer::Shutdown()
-{
+void RoadRenderer::Shutdown(){
     if (vbo) glDeleteBuffers(1, &vbo);
     if (ebo) glDeleteBuffers(1, &ebo);
     if (vao) glDeleteVertexArrays(1, &vao);
