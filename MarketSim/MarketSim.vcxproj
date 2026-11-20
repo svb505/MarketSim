@@ -168,6 +168,7 @@
     <ClCompile Include="svbRandom.cpp" />
     <ClCompile Include="text.cpp" />
     <ClCompile Include="texture.cpp" />
+    <ClCompile Include="TrafficLight.cpp" />
     <ClCompile Include="variables.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -197,6 +198,7 @@
     <ClInclude Include="svbRandom.h" />
     <ClInclude Include="text.h" />
     <ClInclude Include="texture.h" />
+    <ClInclude Include="TrafficLight.h" />
     <ClInclude Include="variables.h" />
   </ItemGroup>
   <ItemGroup>

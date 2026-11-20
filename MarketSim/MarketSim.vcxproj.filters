@@ -114,6 +114,9 @@
     <ClCompile Include="RoadRenderer.cpp">
       <Filter>Исходные файлы\Engine</Filter>
     </ClCompile>
+    <ClCompile Include="TrafficLight.cpp">
+      <Filter>Исходные файлы\Engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bounds.h">
@@ -195,6 +198,9 @@
       <Filter>Исходные файлы\Engine</Filter>
     </ClInclude>
     <ClInclude Include="RoadRenderer.h">
+      <Filter>Исходные файлы\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="TrafficLight.h">
       <Filter>Исходные файлы\Engine</Filter>
     </ClInclude>
   </ItemGroup>

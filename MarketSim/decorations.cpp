@@ -11,7 +11,7 @@
 #include "logger.h"
 #include <format>
 #include <iostream>
-
+#include "DecorationRenderer.h"
 #include <fstream>
 #include <nlohmann/json.hpp>
 
@@ -26,7 +26,8 @@ std::map<DecType, float> scales = {
     { DecType::FENCE,  1.0f },
     { DecType::TRASH_BIN,  1.0f },
     { DecType::FLOWER_BED,  1.0f },
-    { DecType::BENCH,  1.0f }
+    { DecType::BENCH,  1.0f },
+     { DecType::TRAFFIC_LIGHT,  1.0f }
 };
 
 const std::vector<DecorationInstance>& Decorations::GetInstances() const {
@@ -46,7 +47,8 @@ DecType Decorations::stringToDecType(const std::string& type) {
         { "fence", DecType::FENCE },
         { "flowerbed", DecType::FLOWER_BED },
         { "trashbin", DecType::TRASH_BIN },
-        { "bench", DecType::BENCH }
+        { "bench", DecType::BENCH },
+        { "trafficlight", DecType::TRAFFIC_LIGHT}
     };
 
     auto it = types.find(type);
@@ -73,9 +75,11 @@ void Decorations::addDecoration(DecType type,svbmath::Vec3 pos, float rotationY)
 
     decorations.push_back(decoration);
 }
-void Decorations::initPositions(const std::string& jsonPath) {
+void Decorations::initPositions(const std::string& jsonPath, DecorationRenderer& renderer) {
 
     decorations.clear();
+
+    std::vector<svbmath::Vec3> bufTrafficPos;
 
     std::ifstream file(jsonPath);
 
@@ -102,12 +106,16 @@ void Decorations::initPositions(const std::string& jsonPath) {
 
             const auto& pos = object.at("position");
 
+            
+
             if (!pos.is_array() || pos.size() != 3) {
                 LOG_ERROR(std::format("Invalid position for decoration ID: {}", id));
                 continue;
             }
 
             svbmath::Vec3 position = {pos[0].get<float>(), pos[1].get<float>() - 0.1f, pos[2].get<float>() };
+
+            if (typeName == "trafficlight") bufTrafficPos.push_back(position);
 
             float yaw = object.value("yaw", 0.0f);
 
@@ -131,6 +139,8 @@ void Decorations::initPositions(const std::string& jsonPath) {
                 LOG_ERROR(std::format("Decoration ID {} skipped: {}",id,e.what()));
             }
         }
+
+        for (auto& pos : bufTrafficPos) renderer.RegisterTrafficLight(pos);
 
         LOG_INFO(std::format("Loaded {} decorations from JSON",decorations.size()));
 

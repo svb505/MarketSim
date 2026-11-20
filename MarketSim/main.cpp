@@ -254,7 +254,11 @@ int main() {
     decor.initDecoration("res/models/trash_bin/trash_bin.obj", DecType::TRASH_BIN,
         "res/models/trash_bin/trash_bin_texture.png");
 
-    decor.initPositions("maps/map.json");
+    LoadingScreen::Show(window, "Loading traffic light...");
+    decor.initDecoration("res/models/traffic_light/traffic_light.obj", DecType::TRAFFIC_LIGHT,
+        "res/models/traffic_light/traffic_light_tex.png");
+
+    decor.initPositions("maps/map.json",decorationRenderer);
 
     glfwSetCursorPosCallback(window, mouse_callback);
 
@@ -315,8 +319,10 @@ int main() {
         decorationRenderer.UpdateStreetLights(decor);
         roadRenderer.SetLights( decorationRenderer.GetPointLights(),{ 0.25f, 0.25f, 0.28f });
 
+        decorationRenderer.UpdateTrafficLights(fpsVars.deltaTime);
         UpdateDecorationLighting(decorationRenderer, heure);
         decorationRenderer.Render(decor, cam.getCamPos(), ECRAN_W, ECRAN_H);
+
         roadRenderer.drawRoadsFromJson(mapJson,allTextures["ROAD"]);
 
         gui.renderAll(fpsVars, drone, build.getBuildSettings(), build);

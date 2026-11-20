@@ -8,7 +8,7 @@
 #include <memory>
 #include <string>
 #include <vector>
-
+#include "TrafficLight.h"
 #include "decorations.h"
 
 struct PointLight {
@@ -21,6 +21,18 @@ struct PointLight {
 
 class DecorationRenderer {
 private:
+    struct TrafficLightInstance {
+        TrafficLight controller;
+
+        svbmath::Vec3 position;
+
+        PointLight red;
+        PointLight yellow;
+        PointLight green;
+    };
+
+    std::vector<TrafficLightInstance> trafficLights;
+
     GLFWwindow* window = nullptr;
 
     struct GPUModel {
@@ -86,6 +98,10 @@ private:
     bool nightMode = false;
 
 public:
+    void RegisterTrafficLight(const svbmath::Vec3& position);
+
+    void UpdateTrafficLights(float deltaTime);
+
     const std::vector<PointLight>& GetPointLights();
 
     static std::string ReadFile(const std::string& path);

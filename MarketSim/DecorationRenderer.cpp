@@ -7,6 +7,8 @@
 #include <cmath>
 #include <cstddef>
 #include "LoadingWin.h"
+#include "TrafficLight.h"
+
 
 namespace {
     constexpr float PI = 3.14159265358979323846f;
@@ -25,20 +27,22 @@ void DecorationRenderer::initWindow(GLFWwindow* win) {
 void DecorationRenderer::SetNightMode(bool enabled){
     nightMode = enabled;
 }
-void DecorationRenderer::UpdateStreetLights(const Decorations& decorations){
+void DecorationRenderer::UpdateStreetLights(const Decorations& decorations) {
     pointLights.clear();
 
     if (!nightMode) return;
 
-    constexpr float lampHeightOffset = 5.0f;
     constexpr int MAX_POINT_LIGHTS = 100;
+    constexpr float lampHeightOffset = 5.0f;
 
+    // Street lamps
     for (const DecorationInstance& instance : decorations.GetInstances()) {
+
         if (instance.type != DecType::LAMP) continue;
 
         if (pointLights.size() >= MAX_POINT_LIGHTS) break;
 
-        PointLight light;
+        PointLight light{};
 
         light.position = {
             instance.position.x,
@@ -51,6 +55,28 @@ void DecorationRenderer::UpdateStreetLights(const Decorations& decorations){
         light.radius = 12.0f;
 
         pointLights.push_back(light);
+    }
+
+    // Traffic lights
+    for (const auto& trafficLight : trafficLights) {
+
+        if (pointLights.size() >= MAX_POINT_LIGHTS) break;
+
+        if (trafficLight.red.intensity > 0.0f) {
+            pointLights.push_back(trafficLight.red);
+        }
+
+        if (pointLights.size() >= MAX_POINT_LIGHTS) break;
+
+        if (trafficLight.yellow.intensity > 0.0f) {
+            pointLights.push_back(trafficLight.yellow);
+        }
+
+        if (pointLights.size() >= MAX_POINT_LIGHTS) break;
+
+        if (trafficLight.green.intensity > 0.0f) {
+            pointLights.push_back(trafficLight.green);
+        }
     }
 }
 
@@ -111,6 +137,64 @@ DecorationRenderer::Mat4 DecorationRenderer::Mat4::operator*( const Mat4& other)
     }
 
     return result;
+}
+
+void DecorationRenderer::RegisterTrafficLight(const svbmath::Vec3& position) {
+
+    TrafficLightInstance trafficLight{};
+
+    constexpr float LIGHT_OFFSET = 0.15f;
+
+    trafficLight.position = position;
+
+    trafficLight.red.position = position + svbmath::Vec3{ 0.0f, 3.2f, LIGHT_OFFSET };
+    trafficLight.red.color = { 1.0f, 0.0f, 0.0f };
+    trafficLight.red.intensity = 5.0f;
+    trafficLight.red.radius = 5.0f;
+
+    trafficLight.yellow.position = position + svbmath::Vec3{ 0.0f, 2.8f, LIGHT_OFFSET };
+    trafficLight.yellow.color = { 1.0f, 0.8f, 0.0f };
+    trafficLight.yellow.intensity = 5.0f;
+    trafficLight.yellow.radius = 5.0f;
+
+    trafficLight.green.position = position + svbmath::Vec3{ 0.0f, 2.5f, LIGHT_OFFSET };
+    trafficLight.green.color = { 0.0f, 1.0f, 0.0f };
+    trafficLight.green.intensity = 5.0f;
+    trafficLight.green.radius = 5.0f;
+
+    trafficLights.push_back(trafficLight);
+}
+void DecorationRenderer::UpdateTrafficLights(float deltaTime) {
+
+    for (auto& trafficLight : trafficLights) {
+
+        trafficLight.controller.Update(deltaTime);
+
+        // Disable all lights
+        trafficLight.red.intensity = 0.0f;
+        trafficLight.yellow.intensity = 0.0f;
+        trafficLight.green.intensity = 0.0f;
+
+        switch (trafficLight.controller.GetState()) {
+
+        case TrafficLightState::RED:
+            trafficLight.red.intensity = 4.0f;
+            break;
+
+        case TrafficLightState::RED_YELLOW:
+            trafficLight.red.intensity = 4.0f;
+            trafficLight.yellow.intensity = 4.0f;
+            break;
+
+        case TrafficLightState::GREEN:
+            trafficLight.green.intensity = 4.0f;
+            break;
+
+        case TrafficLightState::YELLOW:
+            trafficLight.yellow.intensity = 4.0f;
+            break;
+        }
+    }
 }
 
 DecorationRenderer::Mat4 DecorationRenderer::Mat4::LookAt( const svbmath::Vec3& eye,

@@ -9,6 +9,8 @@
 #include <memory>
 #include <string>
 
+class DecorationRenderer;
+
 enum class DecType {
     BUILD1,
     BUILD2,
@@ -18,7 +20,8 @@ enum class DecType {
     FENCE,
     FLOWER_BED,
     BENCH,
-    TRASH_BIN
+    TRASH_BIN,
+    TRAFFIC_LIGHT
 };
 
 struct DecorationInstance {
@@ -45,7 +48,7 @@ public:
 
     void addDecoration(DecType type, svbmath::Vec3 pos, float rotationY);
 
-    void initPositions(const std::string& jsonPath);
+    void initPositions(const std::string& jsonPath, DecorationRenderer& renderer);
 
     void initDecoration(
         const std::string& modelPath,
