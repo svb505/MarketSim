@@ -7,7 +7,7 @@
 #include <format>
 #include "text.h"
 #include "texture.h"
-
+#include "variables.h"
 
 const float size = 50.0f;
 
@@ -159,7 +159,10 @@ void drawSky() {
     glEnable(GL_DEPTH_TEST);
 }
 void drawGround() {
-    GLuint grassTex = allTextures["ASPHALT"];
+    GLuint grassTex;
+
+    if (!isWinter) grassTex = allTextures["ASPHALT"];
+    else grassTex = allTextures["SNOW"];
 
     float step = 3.0f;
 

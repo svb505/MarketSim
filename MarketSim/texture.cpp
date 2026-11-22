@@ -50,7 +50,8 @@ std::unordered_map<std::string, std::string> texturesNamesAndPaths = {
      {"GGLS1",prevPath + "g1.jpg"},
     {"GGLS2",prevPath + "g2.jpg"},
      {"FC1",prevPath + "fc1.jpg"},
-    {"FC2",prevPath + "fc2.jpg"},
+    { "FC2",prevPath + "fc2.jpg" },
+    {"SNOW", texturePath + "snow.jpg"},
 
 };
 

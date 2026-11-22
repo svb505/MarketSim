@@ -1,0 +1,10 @@
+# Snowman material
+newmtl snowman_mat
+Ka 1.000 1.000 1.000
+Kd 1.000 1.000 1.000
+Ks 0.100 0.100 0.120
+Ns 12.0
+d 1.0
+illum 2
+map_Kd snowman_texture.jpg
+

@@ -1,0 +1,10 @@
+# Concrete curb material
+newmtl curb_mat
+Ka 1.000 1.000 1.000
+Kd 1.000 1.000 1.000
+Ks 0.050 0.050 0.050
+Ke 0.000 0.000 0.000
+Ns 8.0
+d 1.0
+illum 2
+map_Kd curb_tex.png

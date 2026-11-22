@@ -1,0 +1,9 @@
+# Snowdrift material
+newmtl snowdrift_mat
+Ka 1.000 1.000 1.000
+Kd 1.000 1.000 1.000
+Ks 0.150 0.150 0.170
+Ns 20.0
+d 1.0
+illum 2
+map_Kd snowdrift_texture.jpg

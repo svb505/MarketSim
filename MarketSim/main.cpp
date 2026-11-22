@@ -42,6 +42,7 @@
 #include <fstream>
 #include "DecorationRenderer.h"
 #include "RoadRenderer.h"
+#include "jsonParcer.h"
 
 using json = nlohmann::json;
 
@@ -214,6 +215,8 @@ int main() {
     double lastTime = glfwGetTime();
     FPS fpsVars;
 
+    isWinter = getBoolFromJson("WINTER");
+
     initLighting();
     LoadAllTextures();
     loadMap("maps/map.json");
@@ -258,7 +261,26 @@ int main() {
     decor.initDecoration("res/models/traffic_light/traffic_light.obj", DecType::TRAFFIC_LIGHT,
         "res/models/traffic_light/traffic_light_tex.png");
 
-    decor.initPositions("maps/map.json",decorationRenderer);
+    LoadingScreen::Show(window, "Loading road litter...");
+    decor.initDecoration("res/models/road_litter/road_litter.obj", DecType::ROAD_LITTER,
+        "");
+
+    LoadingScreen::Show(window, "Loading snowman...");
+    decor.initDecoration("res/models/snowman/snowman.obj", DecType::SNOWMAN,
+        "res/models/snowman/snowman_texture.jpg");
+
+    LoadingScreen::Show(window, "Loading snowdrift...");
+    decor.initDecoration("res/models/snowdrift/snowdrift.obj", DecType::SNOW_DRIFT,
+        "res/models/snowdrift/snowdrift_texture.jpg");
+
+    LoadingScreen::Show(window, "Loading curb...");
+    decor.initDecoration("res/models/curb/curb.obj", DecType::CURB,
+        "res/models/curb/curb_tex.png");
+
+    
+
+    if (getBoolFromJson("WINTER")) decor.initPositions("maps/winter_map.json",decorationRenderer);
+    else decor.initPositions("maps/map.json", decorationRenderer);
 
     glfwSetCursorPosCallback(window, mouse_callback);
 
@@ -376,6 +398,7 @@ int main() {
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+    changePlayerConfig("WINTER", isWinter, "config.json");
 
     saveDayToDb(day);
     saveLevelAndPurchasesToDb(level,purchasesForSession);

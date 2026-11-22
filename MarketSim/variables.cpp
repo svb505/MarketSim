@@ -29,3 +29,4 @@ int purchasesForAllTime = 0;
 int purchasesForSession = 0;
 int lvlTwoRequiredPurchases = 3;
 int lvlThreeRequiredPurchases = 6;
+bool isWinter = false;

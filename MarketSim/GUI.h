@@ -132,7 +132,6 @@ private:
 
 	CompType type;
 	bool buyingWin = false;
-
 public:
 	GUI() {
 		for (int i = 0; i < langs.size(); i++) {
@@ -267,6 +266,7 @@ public:
 		ImGui::Begin(returnStringFromLang("MAIN_WIN").c_str());
 
 		ImGui::Checkbox(returnStringFromLang("OPEN_STORE").c_str(), &isOpen);
+		ImGui::Checkbox("Set winter mode", &isWinter);
 
 		sectionTitle(returnStringFromLang("WINDOWS").c_str());
 		const float spacing = ImGui::GetStyle().ItemSpacing.x;

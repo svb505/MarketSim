@@ -27,7 +27,11 @@ std::map<DecType, float> scales = {
     { DecType::TRASH_BIN,  1.0f },
     { DecType::FLOWER_BED,  1.0f },
     { DecType::BENCH,  1.0f },
-     { DecType::TRAFFIC_LIGHT,  1.0f }
+    { DecType::TRAFFIC_LIGHT,  1.0f },
+    { DecType::ROAD_LITTER,  1.0f },
+    { DecType::SNOWMAN,  1.0f },
+    { DecType::SNOW_DRIFT,  1.0f },
+    { DecType::CURB,  1.0f }
 };
 
 const std::vector<DecorationInstance>& Decorations::GetInstances() const {
@@ -48,7 +52,11 @@ DecType Decorations::stringToDecType(const std::string& type) {
         { "flowerbed", DecType::FLOWER_BED },
         { "trashbin", DecType::TRASH_BIN },
         { "bench", DecType::BENCH },
-        { "trafficlight", DecType::TRAFFIC_LIGHT}
+        { "trafficlight", DecType::TRAFFIC_LIGHT},
+        { "roadlitter", DecType::ROAD_LITTER },
+        { "snowman", DecType::SNOWMAN },
+        { "snowdrift", DecType::SNOW_DRIFT },
+        { "curb", DecType::CURB }
     };
 
     auto it = types.find(type);
@@ -272,7 +280,6 @@ bool Decorations::checkCollision(Camera& cam) {
         OBJModel* model = modelIt->second.get();
 
         if (!model) return false;
-
 
         // Модель без объектов ("o") - как раньше, одна общая коробка.
         if (model->parts.empty()) {

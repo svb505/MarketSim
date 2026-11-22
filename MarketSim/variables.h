@@ -36,3 +36,4 @@ extern int purchasesForAllTime;
 extern int purchasesForSession;
 extern int lvlTwoRequiredPurchases;
 extern int lvlThreeRequiredPurchases;
+extern bool isWinter;
