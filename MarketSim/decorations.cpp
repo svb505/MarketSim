@@ -273,6 +273,8 @@ Bounds Decorations::getWorldBounds(const OBJModel& model, const DecorationInstan
 bool Decorations::checkCollision(Camera& cam) {
 
     for (const DecorationInstance& decoration : decorations) {
+        if (decoration.type == DecType::CURB) continue;
+
         auto modelIt = models.find(decoration.type);
 
         if (modelIt == models.end()) return false;
