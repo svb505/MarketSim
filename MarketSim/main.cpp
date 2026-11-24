@@ -347,7 +347,7 @@ int main() {
 
         roadRenderer.drawRoadsFromJson(mapJson,allTextures["ROAD"]);
 
-        gui.renderAll(fpsVars, drone, build.getBuildSettings(), build);
+        gui.renderAll(fpsVars, drone, build.getBuildSettings(), build, sound);
 
         ImGui::Render();
 

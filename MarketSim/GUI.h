@@ -15,7 +15,7 @@
 #include "localization.h"
 #include "profiler.h"
 #include "Sound.h"
-#include "textures.h"
+#include "texture.h"
 
 class GUI {
 private:
@@ -433,7 +433,7 @@ public:
 		ImGui::End();
 		popStyle();
 	}
-	void renderDevWindow(float dt) {
+	void renderDevWindow(float dt,Sound& sound) {
 		if (!showDev) return;
 
 		pushStyle();
@@ -445,9 +445,9 @@ public:
 		}
 
 		ImGui::Text("All loaded textures: %d", getTexturesCount());
-		ImGui::Text("Sound sources: %d", Sound::getSourcesCount());
-		ImGui::Text("Sound buffers: %d", Sound::getBuffersCount());
-		ImGui::Text("Frame processing duration(ms): %.2f", dt);
+		ImGui::Text("Sound sources: %d", sound.getSourcesCount());
+		ImGui::Text("Sound buffers: %d", sound.getBuffersCount());
+		ImGui::Text("Frame processing duration(ms): %.1f", dt * 1000);
 		
 		ImGui::End();
 		popStyle();
@@ -525,14 +525,14 @@ public:
 		popStyle();
 	}
 	void renderAll(FPS& fps, FPVDrone& drone, BuildingSettings& buildSettings,
-		Building& build) {
+		Building& build, Sound& sound) {
 		renderMainWindow(fps, drone, buildSettings);
 		renderPerformanceWindow(fps);
 		renderPricesWindow(drone);
 		renderNamesWindow();
 		renderBalanceRatingWindow();
 		renderOtherWindow(build);
-		renderDevWindow(fps.deltaTime);
+		renderDevWindow(fps.deltaTime, sound);
 
 		const float spacing = ImGui::GetStyle().ItemSpacing.x;
 
