@@ -15,3 +15,4 @@ extern std::unordered_map<std::string, std::string> texturesNamesAndPaths;
 
 void LoadAllTextures();
 GLuint LoadTexture(const char* filename);
+int getTexturesCount();
