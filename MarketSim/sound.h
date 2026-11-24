@@ -37,6 +37,14 @@ public:
         { "Siren", 0 }
     };
 
+    int getBuffersCount(){
+        return buffers.size();
+    }
+
+    int getSourcesCount(){
+        return sources.size();
+    }
+
     void setSourcePosition(ALuint source, svbmath::Vec3 posit) {
         ALfloat pos[] = { posit.x, posit.y, posit.z };
         ALfloat vel[] = { 0.0f, 0.0f, 0.0f };
