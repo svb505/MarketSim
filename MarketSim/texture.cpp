@@ -105,3 +105,7 @@ GLuint LoadTexture(const char* filename) {
 
     return texture;
 }
+
+int getTexturesCount(){
+    return allTextures.size();
+}
