@@ -14,6 +14,8 @@
 #include "avgRating.h"
 #include "localization.h"
 #include "profiler.h"
+#include "Sound.h"
+#include "textures.h"
 
 class GUI {
 private:
@@ -441,6 +443,10 @@ public:
 		if (ImGui::Begin("DEV Window", nullptr)) {
 			for (const auto& line : Profiler::getMemoryUsage()) ImGui::Text("%s", line.c_str());
 		}
+
+		ImGui::Text("All loaded textures: %d", getTexturesCount());
+		ImGui::Text("Sound sources: %d", Sound::getSourcesCount());
+		ImGui::Text("Sound buffers: %d", Sound::get>BuffersCount());
 
 		ImGui::End();
 		popStyle();
