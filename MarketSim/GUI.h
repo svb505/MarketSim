@@ -433,7 +433,7 @@ public:
 		ImGui::End();
 		popStyle();
 	}
-	void renderDevWindow() {
+	void renderDevWindow(float dt) {
 		if (!showDev) return;
 
 		pushStyle();
@@ -446,8 +446,9 @@ public:
 
 		ImGui::Text("All loaded textures: %d", getTexturesCount());
 		ImGui::Text("Sound sources: %d", Sound::getSourcesCount());
-		ImGui::Text("Sound buffers: %d", Sound::get>BuffersCount());
-
+		ImGui::Text("Sound buffers: %d", Sound::getBuffersCount());
+		ImGui::Text("Frame processing duration(ms): %.2f", dt);
+		
 		ImGui::End();
 		popStyle();
 	}
@@ -531,7 +532,7 @@ public:
 		renderNamesWindow();
 		renderBalanceRatingWindow();
 		renderOtherWindow(build);
-		renderDevWindow();
+		renderDevWindow(fps.deltaTime);
 
 		const float spacing = ImGui::GetStyle().ItemSpacing.x;
 
