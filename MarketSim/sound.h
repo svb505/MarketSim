@@ -37,11 +37,11 @@ public:
         { "Siren", 0 }
     };
 
-    int getBuffersCount(){
+    static int getBuffersCount(){
         return buffers.size();
     }
 
-    int getSourcesCount(){
+    static int getSourcesCount(){
         return sources.size();
     }
 
