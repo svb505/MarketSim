@@ -29,8 +29,8 @@ std::map<DecType, float> scales = {
     { DecType::BENCH,  1.0f },
     { DecType::TRAFFIC_LIGHT,  1.0f },
     { DecType::ROAD_LITTER,  1.0f },
-    { DecType::SNOWMAN,  1.0f },
-    { DecType::SNOW_DRIFT,  1.0f },
+    { DecType::SNOWMAN,  0.5f },
+    { DecType::SNOW_DRIFT,  0.6f },
     { DecType::CURB,  1.0f }
 };
 
