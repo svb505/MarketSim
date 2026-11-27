@@ -41,3 +41,4 @@ extern float sessionTime;
 extern int lvlTwoRequiredPurchases;
 extern int lvlThreeRequiredPurchases;
 extern bool isWinter;
+extern int sessionNumber;

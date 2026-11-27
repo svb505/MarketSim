@@ -43,6 +43,7 @@
 #include "DecorationRenderer.h"
 #include "RoadRenderer.h"
 #include "jsonParcer.h"
+#include "statistick.h"
 
 using json = nlohmann::json;
 
@@ -198,6 +199,8 @@ int main() {
 
     decorationRenderer.initWindow(window);
     roadRenderer.Initialize("shaders");
+
+    sessionNumber = getSessionNumber();
 
     if (!decorationRenderer.Initialize("shaders", 1024)) {
         std::cerr << "Failed to initialize DecorationRenderer\n";

@@ -32,3 +32,4 @@ int lvlThreeRequiredPurchases = 6;
 bool isWinter = false;
 int losses = 0;
 float sessionTime = 0.0f;
+int sessionNumber = 0;
