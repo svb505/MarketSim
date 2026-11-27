@@ -191,6 +191,8 @@ public:
 
 					if (myBalance >= build.getSecuritySystemPrice()) {
 						myBalance -= build.getSecuritySystemPrice();
+						
+						losses += build.getSecuritySystemPrice();
 
 						saveDataForPlayer(build.getSecuritySystemPrice(), averageRating(),
 							"-");
@@ -401,6 +403,8 @@ public:
 				if (myBalance >= totalPrice) {
 
 					saveDataForPlayer(totalPrice, averageRating(), "-");
+					
+					losses += totalPrice;
 
 					for (auto& p : getDataForPlayer().players) myBalance = p.balance;
 

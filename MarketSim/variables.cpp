@@ -30,3 +30,5 @@ int purchasesForSession = 0;
 int lvlTwoRequiredPurchases = 3;
 int lvlThreeRequiredPurchases = 6;
 bool isWinter = false;
+int losses = 0;
+float sessionTime = 0.0f;

@@ -306,6 +306,8 @@ int main() {
 
         countFps(fpsVars, lastTime, currentTime);
 
+        sessionTime += fpsVars.deltaTime;
+
         if (!bot.isActive()) bot.spawn(drone, build);
 
         bot.update(fpsVars.deltaTime, cam, drone, build, sound, true);

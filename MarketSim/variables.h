@@ -32,8 +32,12 @@ extern std::string currLang;
 extern json lang;
 extern std::vector<float> ratings;
 extern int level;
+
 extern int purchasesForAllTime;
 extern int purchasesForSession;
+extern int losses;
+extern float sessionTime;
+
 extern int lvlTwoRequiredPurchases;
 extern int lvlThreeRequiredPurchases;
 extern bool isWinter;
