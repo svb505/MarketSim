@@ -48,7 +48,7 @@ Stat getStatistick(){
     std::vector<Stat> bufStat;
     Stat finalStat;
 
-    int sessionNumbers = j["sessionN"];
+    int sessionNumbers = (j["sessionN"] == 0) : 1 ? j["sessionN"];
 
     for (auto& [key, element] : j["statistick"].items()){
         Stat buf;

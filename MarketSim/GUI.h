@@ -16,6 +16,7 @@
 #include "profiler.h"
 #include "Sound.h"
 #include "texture.h"
+#include "statistick.h"
 
 class GUI {
 private:
@@ -31,6 +32,7 @@ private:
 	bool showNames = false;
 	bool showDev = false;
 	bool showOther = false;
+	bool showStat = false;
 
 	float minValue = 0.0f;
 	float maxValue = 2000.0f;
@@ -285,6 +287,7 @@ public:
 			toggleSmall(returnStringFromLang("PERF").c_str(), showPerformance, false);
 			toggleSmall(returnStringFromLang("PRICE").c_str(), showPrices, true);
 			toggleSmall(returnStringFromLang("NAMES").c_str(), showNames, true);
+			toggleSmall(returnStringFromLang("STATISTICK").c_str(), showStat, true);
 			toggleSmall(returnStringFromLang("OTHER").c_str(), showOther, false);
 
 			if (getBoolFromJson("DEVMODE"))
@@ -528,6 +531,29 @@ public:
 		ImGui::End();
 		popStyle();
 	}
+
+	void renderStatistickWin(){
+		if (!showStat) return;
+
+		pushStyle();
+		ImGui::SetNextWindowPos(ImVec2(380.0f, 10.0f), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(ImVec2(150.0f, 150.0f), ImGuiCond_FirstUseEver);
+
+		if (ImGui::Begin(returnStringFromLang("STATISTICK").c_str(), &showPerformance)) {
+			Stat stat = getStatistick();
+
+			ImGui::Text("%s: %d", returnStringFromLang("STAT_P_FOR_DAY").c_str(), stat.purchasesForDay);
+			ImGui::Dummy(0.0f,5.0f);
+			ImGui::Text("%s: %d", returnStringFromLang("STAT_SFD_FOR_DAY").c_str(), stat.sallesForDay);
+			ImGui::Dummy(0.0f,5.0f);
+			ImGui::Text("%s: %d", returnStringFromLang("STAT_L_FOR_DAY").c_str(), stat.losesForDay);
+			ImGui::Dummy(0.0f,5.0f);
+			ImGui::Text("%s: %.1f", returnStringFromLang("STAT_ST_FOR_DAY").c_str(), stat.sessionTime);
+		}
+		ImGui::End();
+		popStyle();
+	} 
+
 	void renderAll(FPS& fps, FPVDrone& drone, BuildingSettings& buildSettings,
 		Building& build, Sound& sound) {
 		renderMainWindow(fps, drone, buildSettings);
@@ -537,6 +563,7 @@ public:
 		renderBalanceRatingWindow();
 		renderOtherWindow(build);
 		renderDevWindow(fps.deltaTime, sound);
+		renderStatistickWin();
 
 		const float spacing = ImGui::GetStyle().ItemSpacing.x;
 

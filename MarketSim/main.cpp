@@ -403,6 +403,8 @@ int main() {
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+    saveStatistichToJSON({purchasesForday, sallesForDay, losesForDay, sessionTime});
+
     changePlayerConfig("WINTER", isWinter, "config.json");
 
     saveDayToDb(day);

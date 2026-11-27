@@ -68,7 +68,8 @@
            "TONEXTLVL":"Pour prochaine niveau: ",
         "OTHER":"Autre",
         "BUY_SEC_SYS":"Acheter la système de sécurité pour ",
-        "SEC_SYS_BUYED":"Système de sécurité déja achetée"
+        "SEC_SYS_BUYED":"Système de sécurité déja achetée",
+        "STATISTICK": "Statistique"
 
     },
     "EN":{
@@ -140,7 +141,8 @@
            "TONEXTLVL":"To next level: ",
         "OTHER":"Other",
         "BUY_SEC_SYS":"Buy security system for ",
-        "SEC_SYS_BUYED":"Security system already bought"
+        "SEC_SYS_BUYED":"Security system already bought",
+        "STATISTICK": "Statistick"
 
     },
     "RU":{
@@ -212,7 +214,8 @@
            "TONEXTLVL":"До следующего уровня: ",
         "OTHER":"Другое",
         "BUY_SEC_SYS":"Купить систему безопастности за ",
-        "SEC_SYS_BUYED":"Система безопастности уже куплена"
+        "SEC_SYS_BUYED":"Система безопастности уже куплена",
+        "STATISTICK": "Статистика"
 
     }
 }
