@@ -69,7 +69,11 @@
         "OTHER":"Autre",
         "BUY_SEC_SYS":"Acheter la système de sécurité pour ",
         "SEC_SYS_BUYED":"Système de sécurité déja achetée",
-        "STATISTICK": "Statistique"
+        "STATISTICK": "Statistique",
+        "STAT_P_FOR_DAY":"Profit moyens du jour : ",
+        "STAT_SFD_FOR_DAY":"Ventes moyennes du jour : ",
+        "STAT_L_FOR_DAY":"Pertes moyennes du jour : ",
+        "STAT_ST_FOR_DAY":"Durée moyenne des sessions : "
 
     },
     "EN":{
@@ -142,7 +146,11 @@
         "OTHER":"Other",
         "BUY_SEC_SYS":"Buy security system for ",
         "SEC_SYS_BUYED":"Security system already bought",
-        "STATISTICK": "Statistick"
+        "STATISTICK": "Statistick",
+        "STAT_P_FOR_DAY":"Average profit for day: ",
+        "STAT_SFD_FOR_DAY":"Average sales for day: ",
+        "STAT_L_FOR_DAY":"Average loses for day: ",
+        "STAT_ST_FOR_DAY":"Average session time: "
 
     },
     "RU":{
@@ -215,7 +223,11 @@
         "OTHER":"Другое",
         "BUY_SEC_SYS":"Купить систему безопастности за ",
         "SEC_SYS_BUYED":"Система безопастности уже куплена",
-        "STATISTICK": "Статистика"
+        "STATISTICK": "Статистика",
+        "STAT_P_FOR_DAY":"Средняя дневная прибыль: ",
+        "STAT_SFD_FOR_DAY":"Средние дневные продажи: ",
+        "STAT_L_FOR_DAY":"Средние дневные убытки: ",
+        "STAT_ST_FOR_DAY":"Средняя продолжительность сессии: "
 
     }
 }

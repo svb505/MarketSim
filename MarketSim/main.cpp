@@ -44,6 +44,7 @@
 #include "RoadRenderer.h"
 #include "jsonParcer.h"
 #include "statistick.h"
+#include "weather.h"
 
 using json = nlohmann::json;
 
@@ -57,6 +58,7 @@ Sound sound;
 Bot bot;
 DecorationRenderer decorationRenderer;
 RoadRenderer roadRenderer;
+Weather weat;
 
 void UpdateDecorationLighting( DecorationRenderer& renderer,float hour){
     if (hour >= 7.0f && hour < 18.0f) {
@@ -227,6 +229,8 @@ int main() {
     sound.setupBuffers();
     sound.createSources();
 
+    weat.generate(cam);
+
     LoadingScreen::Show(window, "Loading fpv drone...");
     base.LoadOBJ("res/models/fpv/base.obj", 1.0f);
     base.LoadTexture("res/models/fpv/texture_diffuse.png");
@@ -323,7 +327,6 @@ int main() {
         
         drawSky();
         drawGround();
-        //drawRoadsFromJson(mapJson);
 
         glEnable(GL_POLYGON_OFFSET_FILL);
         glPolygonOffset(-2.0f, -2.0f);
@@ -333,6 +336,9 @@ int main() {
         drone.checkIfCanPlaceInShelf(cam);
 
         bot.draw();
+
+        weat.update(cam, fpsVars.deltaTime);
+        weat.draw();
 
         if (canDrawEquipModel && !objName.empty()) drone.drawEquipModel(objName, cam, false, base);
 
