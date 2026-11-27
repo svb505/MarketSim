@@ -1,3 +1,7 @@
+#pragma once
+#include "weather.h"
+#include "building.h"
+
 struct Particle {
 	float height = 55.0f;
 	float x, y, z;
@@ -18,5 +22,5 @@ public:
 
 	void draw();
 	void generate(Camera& cam);
-	void update(Camera& cam, double dt);
+	void update(Camera& cam, BuildingSettings& build, double dt);
 };

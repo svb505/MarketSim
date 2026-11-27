@@ -542,13 +542,13 @@ public:
 		if (ImGui::Begin(returnStringFromLang("STATISTICK").c_str(), &showPerformance)) {
 			Stat stat = getStatistick();
 
-			ImGui::Text("%s: %d", returnStringFromLang("STAT_P_FOR_DAY").c_str(), stat.purchasesForDay);
-			ImGui::Dummy(0.0f,5.0f);
-			ImGui::Text("%s: %d", returnStringFromLang("STAT_SFD_FOR_DAY").c_str(), stat.sallesForDay);
-			ImGui::Dummy(0.0f,5.0f);
-			ImGui::Text("%s: %d", returnStringFromLang("STAT_L_FOR_DAY").c_str(), stat.losesForDay);
-			ImGui::Dummy(0.0f,5.0f);
-			ImGui::Text("%s: %.1f", returnStringFromLang("STAT_ST_FOR_DAY").c_str(), stat.sessionTime);
+			ImGui::Text("%s %d$", returnStringFromLang("STAT_P_FOR_DAY").c_str(), stat.purchasesForDay);
+			ImGui::Dummy({ 0.0f,5.0f });
+			ImGui::Text("%s %d$", returnStringFromLang("STAT_SFD_FOR_DAY").c_str(), stat.sallesForDay);
+			ImGui::Dummy({ 0.0f, 5.0f });
+			ImGui::Text("%s %d$", returnStringFromLang("STAT_L_FOR_DAY").c_str(), stat.losesForDay);
+			ImGui::Dummy({ 0.0f, 5.0f});
+			ImGui::Text("%s %.1fsec", returnStringFromLang("STAT_ST_FOR_DAY").c_str(), stat.sessionTime);
 		}
 		ImGui::End();
 		popStyle();

@@ -38,6 +38,8 @@ extern int purchasesForSession;
 extern int losses;
 extern float sessionTime;
 
+extern float profitForSession;
+
 extern int lvlTwoRequiredPurchases;
 extern int lvlThreeRequiredPurchases;
 extern bool isWinter;

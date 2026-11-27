@@ -117,6 +117,12 @@
     <ClCompile Include="TrafficLight.cpp">
       <Filter>Исходные файлы\Engine</Filter>
     </ClCompile>
+    <ClCompile Include="weather.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="statistick.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bounds.h">
@@ -202,6 +208,12 @@
     </ClInclude>
     <ClInclude Include="TrafficLight.h">
       <Filter>Исходные файлы\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="weather.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="statistick.h">
+      <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

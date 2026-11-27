@@ -9,6 +9,8 @@
 #include <algorithm>
 #include <string>
 #include "svbmath.h"
+#include "building.h"
+#include "bounds.h"
 
 void Weather::draw() {
 	for (auto& p : particles) {
@@ -21,14 +23,13 @@ void Weather::draw() {
 		glBegin(GL_POINTS);
 
 		glVertex3f(0.0f, 0.0f, 0.0f);
-		glVertex3f(0.0f, 0.0f, 0.0f);
 
 		glEnd();
 		glPopMatrix();
 	}
 }
 void Weather::generate(Camera& cam) {
-	int toGenerate = std::min<int>(count - static_cast<int>(particles.size()), 10);
+	int toGenerate = std::min<int>(count - static_cast<int>(particles.size()), count);
 
 	for (int i = 0; i < toGenerate; i++) {
 		svbmath::Vec3 camPos = cam.getCamPos();
@@ -47,12 +48,14 @@ void Weather::generate(Camera& cam) {
 		particles.push_back(p);
 	}
 }
-void Weather::update(Camera& cam,double dt) {
+void Weather::update(Camera& cam, BuildingSettings& build, double dt) {
 	for (auto& p : particles) {
 		p.vy -= p.gravity * dt;
 		p.y += p.vy * dt;
 		
-		if (p.y <= 0.0f) {
+		svbmath::Vec3 pos = { p.x, p.y, p.z };
+
+		if (p.y <= 0.0f || checkAABBCollision({build.min,build.max},pos, true)) {
 			p.y = cam.getCamPos().y + p.height;
 			p.vy = -p.fallSpeed;
 		}

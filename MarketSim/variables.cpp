@@ -33,3 +33,4 @@ bool isWinter = false;
 int losses = 0;
 float sessionTime = 0.0f;
 int sessionNumber = 0;
+float profitForSession = 0.0f;

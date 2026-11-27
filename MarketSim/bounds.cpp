@@ -21,8 +21,13 @@ Bounds MakeAABB(svbmath::Vec3 center, float width, float height, float depth) {
 
     return box;
 }
-bool checkAABBCollision(const Bounds& target, svbmath::Vec3& pos) {
-    return pos.x >= target.min.x && pos.x <= target.max.x &&
+bool checkAABBCollision(const Bounds& target, svbmath::Vec3& pos, bool verticalCheck) {
+    if (verticalCheck) {
+        return pos.x >= target.min.x && pos.x <= target.max.x &&
+            pos.y >= target.min.y && pos.y <= target.max.y &&
+            pos.z >= target.min.z && pos.z <= target.max.z;
+    }
+    else return pos.x >= target.min.x && pos.x <= target.max.x &&
         pos.z >= target.min.z && pos.z <= target.max.z;
 }
 bool RayIntersectsAABB(const svbmath::Vec3& rayOrigin, const svbmath::Vec3& rayDir,

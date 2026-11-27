@@ -337,8 +337,10 @@ int main() {
 
         bot.draw();
 
-        weat.update(cam, fpsVars.deltaTime);
-        weat.draw();
+        if (isWinter) {
+            weat.update(cam, build.getBuildSettings(),fpsVars.deltaTime);
+            weat.draw();
+        }
 
         if (canDrawEquipModel && !objName.empty()) drone.drawEquipModel(objName, cam, false, base);
 
@@ -409,7 +411,9 @@ int main() {
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-    saveStatistichToJSON({purchasesForday, sallesForDay, losesForDay, sessionTime});
+    Stat stat = { profitForSession, sallesForDay, losses, sessionTime };
+
+    saveStatistickToJSON(stat);
 
     changePlayerConfig("WINTER", isWinter, "config.json");
 

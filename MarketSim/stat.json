@@ -1,4 +1,23 @@
 {
-    "statistick":{},
-    "sessionN": 0
+    "sessionN": 3,
+    "statistick": {
+        "session0": {
+            "loses": 1300,
+            "purchases": 2603,
+            "salles": 4,
+            "sessionTime": 84.01579284667969
+        },
+        "session1": {
+            "loses": 0,
+            "purchases": 0,
+            "salles": 0,
+            "sessionTime": 7.7531328201293945
+        },
+        "session2": {
+            "loses": 0,
+            "purchases": 0,
+            "salles": 0,
+            "sessionTime": 30.242990493774414
+        }
+    }
 }

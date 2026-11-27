@@ -420,6 +420,8 @@ void Bot::update(float dt,Camera& cam, FPVDrone& drone,Building& building,Sound&
             purchasesForAllTime++;
             purchasesForSession++;
 
+            profitForSession += price;
+
             if (purchasesForAllTime == lvlTwoRequiredPurchases) level = 2;
             if (purchasesForAllTime >= lvlThreeRequiredPurchases) level = 3;
 

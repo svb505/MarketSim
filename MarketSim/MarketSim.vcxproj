@@ -164,12 +164,14 @@
     <ClCompile Include="profiler.cpp" />
     <ClCompile Include="renders.cpp" />
     <ClCompile Include="RoadRenderer.cpp" />
+    <ClCompile Include="statistick.cpp" />
     <ClCompile Include="svbmath.cpp" />
     <ClCompile Include="svbRandom.cpp" />
     <ClCompile Include="text.cpp" />
     <ClCompile Include="texture.cpp" />
     <ClCompile Include="TrafficLight.cpp" />
     <ClCompile Include="variables.cpp" />
+    <ClCompile Include="weather.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="actions.h" />
@@ -194,12 +196,14 @@
     <ClInclude Include="renders.h" />
     <ClInclude Include="RoadRenderer.h" />
     <ClInclude Include="sound.h" />
+    <ClInclude Include="statistick.h" />
     <ClInclude Include="svbmath.h" />
     <ClInclude Include="svbRandom.h" />
     <ClInclude Include="text.h" />
     <ClInclude Include="texture.h" />
     <ClInclude Include="TrafficLight.h" />
     <ClInclude Include="variables.h" />
+    <ClInclude Include="weather.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />

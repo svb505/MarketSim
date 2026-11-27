@@ -15,4 +15,4 @@ struct checkCol {
 Bounds MakeAABB(svbmath::Vec3 center, float width, float height, float depth);
 bool RayIntersectsAABB(const svbmath::Vec3& rayOrigin, const svbmath::Vec3& rayDir,
     const Bounds& b, float& tNear, float& tFar);
-bool checkAABBCollision(const Bounds& target, svbmath::Vec3& pos);
+bool checkAABBCollision(const Bounds& target, svbmath::Vec3& pos, bool verticalCheck = false);
